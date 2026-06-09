@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Renne Library</title>
+
+  <!--
+    TYPOGRAPHY NOTE
+    ───────────────
+    Pirata One          →  blackletter title  (Gothic ink-drawn style, more legible than traditional Fraktur)
+    EB Garamond         →  body / UI text      (scholarly old-style serif)
+    Cinzel              →  small-caps labels
+
+    If you locate the Telegraph .ttf / .woff2 file, add it here and replace
+    'UnifrakturMaguntia' with your font-family name in .lib-title below.
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* ── Wood tones (Bodleian dark mahogany) ── */
+      --wood-darkest:   #0c0502;
+      --wood-dark:      #180903;
+      --wood-mid:       #2a1006;
+      --wood-panel:     #3a1a0a;
+
+      /* ── Shelf planks ── */
+      --plank-top:      #d08c2a;
+      --plank-mid:      #a06018;
+      --plank-bot:      #643a0c;
+
+      /* ── Gold / amber (Bodleian window light) ── */
+      --gold:           #c8903c;
+      --gold-light:     #e6b450;
+      --gold-bright:    #f2d060;
+      --gold-dark:      #78560e;
+
+      /* ── Text ── */
+      --cream:          #f2ead4;
+      --parchment:      #f8f0d6;
+      --parchment-mid:  #eadcac;
+      --ink:            #150e08;
+      --ink-mid:        #38180a;
+    }
+
+    /* ════════════════════════════════════
+       BODY / BACKGROUND
+       Dark mahogany panelling with a warm
+       amber glow from above — like the
+       Bodleian's Gothic clerestory windows
+    ════════════════════════════════════ */
+    body {
+      font-family: 'EB Garamond', Georgia, serif;
+      background-color: var(--wood-darkest);
+      background-image:
+        /* Amber window-glow from above */
+        radial-gradient(ellipse 90% 45% at 50% 0%,
+          rgba(190, 120, 25, 0.14) 0%,
+          transparent 68%),
+        /* Fine vertical wood grain */
+        repeating-linear-gradient(91deg,
+          transparent            0,   transparent            5px,
+          rgba(255,255,255,.010) 5px, rgba(255,255,255,.010) 6px,
+          transparent            6px, transparent            13px,
+          rgba(0,0,0,.040)      13px, rgba(0,0,0,.040)      14px,
+          transparent           14px, transparent            21px,
+          rgba(255,255,255,.007)21px, rgba(255,255,255,.007) 22px),
+        /* Horizontal panel joints */
+        repeating-linear-gradient(180deg,
+          transparent          0,   transparent          68px,
+          rgba(0,0,0,.055)    68px, rgba(0,0,0,.055)    69px,
+          transparent          69px, transparent          70px,
+          rgba(255,255,255,.02)70px, rgba(255,255,255,.02)71px);
+      min-height: 100vh;
+      color: var(--cream);
+    }
+
+
+    /* ════════════════════════════════════
+       HEADER
+    ════════════════════════════════════ */
+    .lib-header {
+      background:
+        radial-gradient(ellipse 65% 220% at 50% -10%,
+          rgba(210, 145, 45, 0.24) 0%, transparent 60%),
+        linear-gradient(180deg, #080301 0%, #180804 40%, #120606 75%, #0a0302 100%);
+      padding: 30px 56px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Thin gold left / right column lines */
+    .lib-header::before,
+    .lib-header::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg,
+        rgba(200,144,60,.55) 0%,
+        rgba(200,144,60,.25) 55%,
+        transparent 100%);
+    }
+    .lib-header::before { left: 0; }
+    .lib-header::after  { right: 0; }
+
+    /* Masthead rule above title */
+    .header-top-rule {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .header-top-rule::before,
+    .header-top-rule::after {
+      content: '';
+      flex: 1; max-width: 200px; height: 1px;
+      background: linear-gradient(90deg,
+        transparent, rgba(200,144,60,.65), rgba(200,144,60,.65));
+    }
+    .header-top-rule::after {
+      background: linear-gradient(90deg,
+        rgba(200,144,60,.65), rgba(200,144,60,.65), transparent);
+    }
+    .header-top-rule span {
+      font-size: 0.6rem; letter-spacing: 0.45em;
+      color: var(--gold); opacity: 0.55;
+    }
+
+    /* ── BLACKLETTER TITLE (Telegraph style) ── */
+    .lib-title {
+      /* Swap 'Pirata One' for your Telegraph font-family name once the file is added */
+      font-family: 'Pirata One', 'EB Garamond', serif;
+      font-size: clamp(2.4rem, 6.5vw, 4.2rem);
+      font-weight: 400;   /* UnifrakturMaguntia is single-weight */
+      color: var(--gold-bright);
+      letter-spacing: 0.03em;
+      line-height: 1.05;
+      text-shadow:
+        0 0 28px rgba(210, 150, 40, 0.45),
+        0 2px  4px rgba(0, 0, 0, 0.85);
+      margin-bottom: 10px;
+    }
+
+    /* Ornamental separator */
+    .ornament-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; margin: 0 auto 9px; max-width: 500px;
+    }
+    .ornament-row::before,
+    .ornament-row::after {
+      content: '';
+      flex: 1; height: 1px;
+    }
+    .ornament-row::before {
+      background: linear-gradient(90deg,
+        transparent 0%, rgba(200,144,60,.3) 20%,
+        rgba(200,144,60,.75) 100%);
+    }
+    .ornament-row::after {
+      background: linear-gradient(90deg,
+        rgba(200,144,60,.75) 0%,
+        rgba(200,144,60,.3) 80%, transparent 100%);
+    }
+    .ornament-row .gem {
+      color: var(--gold); font-size: 0.62rem;
+      letter-spacing: 0.3em; opacity: 0.75;
+    }
+
+    /* Italic subtitle */
+    .lib-subtitle {
+      font-family: 'EB Garamond', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--gold-light);
+      opacity: 0.62;
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+
+    /* Double rule below subtitle — mirrors Telegraph masthead */
+    .header-bottom-rules {
+      margin: 0 auto;
+      max-width: 640px;
+    }
+    .rule-heavy {
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(200,144,60,.70) 15%,
+        rgba(224,170,60,.90) 50%,
+        rgba(200,144,60,.70) 85%,
+        transparent 100%);
+    }
+    .rule-light {
+      height: 1px;
+      margin-top: 3px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(200,144,60,.35) 20%,
+        rgba(200,144,60,.55) 50%,
+        rgba(200,144,60,.35) 80%,
+        transparent 100%);
+    }
+
+
+    /* ════════════════════════════════════
+       CONTROLS BAR
+    ════════════════════════════════════ */
+    .controls-bar {
+      background: linear-gradient(180deg, #1c0a04 0%, #140702 100%);
+      border-bottom: 1px solid rgba(110,80,15,.45);
+      padding: 10px 28px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 360px; }
+    .search-icon {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--gold-dark); font-size: 0.85rem; pointer-events: none;
+    }
+    .search-input {
+      width: 100%; padding: 7px 12px 7px 32px;
+      background: rgba(0,0,0,.5);
+      border: 1px solid rgba(110,80,15,.5);
+      border-radius: 2px; color: var(--cream);
+      font-family: 'EB Garamond', serif; font-size: 1rem; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(200,144,60,.12);
+    }
+    .search-input::placeholder { color: rgba(242,234,212,.28); font-style: italic; }
+
+    select.sort-sel {
+      padding: 7px 12px;
+      background: rgba(0,0,0,.5);
+      border: 1px solid rgba(110,80,15,.5);
+      border-radius: 2px; color: var(--cream);
+      font-family: 'EB Garamond', serif; font-size: 1rem;
+      outline: none; cursor: pointer;
+    }
+    select.sort-sel option { background: #140702; }
+
+    .book-count {
+      margin-left: auto;
+      font-family: 'EB Garamond', serif; font-style: italic;
+      color: var(--gold); opacity: 0.6; font-size: 0.95rem; white-space: nowrap;
+    }
+    .sync-status {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: 0.82rem; white-space: nowrap;
+      color: rgba(200,144,60,.38); transition: color .3s;
+    }
+    .sync-status.syncing { color: rgba(200,144,60,.75); }
+    .sync-status.ok      { color: rgba(120,190,100,.60); }
+    .sync-status.error   { color: rgba(210,100,80,.70); }
+
+
+    /* ════════════════════════════════════
+       SHELF AREA
+    ════════════════════════════════════ */
+    .shelves-area { padding: 32px 28px 52px; }
+
+    .shelf-unit {
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .books-row {
+      display: flex;
+      align-items: flex-end;
+      width: 100%;
+    }
+
+    /* ── Shelf plank — rich Bodleian mahogany ── */
+    .shelf-plank {
+      position: relative;
+      height: 18px;
+      background: linear-gradient(180deg,
+        var(--plank-top) 0%,
+        var(--plank-mid) 52%,
+        var(--plank-bot) 100%);
+      box-shadow:
+        0 6px 14px rgba(0,0,0,.68),
+        inset 0 2px 0 rgba(255,200,80,.09),
+        inset 0 1px 0 rgba(255,255,255,.06);
+      border-radius: 1px 1px 4px 4px;
+    }
+    .shelf-plank::before {           /* wood-grain lines */
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg,
+        transparent          0,   transparent          20px,
+        rgba(0,0,0,.042)    20px, rgba(0,0,0,.042)    21px,
+        transparent          21px, transparent          46px,
+        rgba(255,255,255,.022)46px, rgba(255,255,255,.022)47px,
+        transparent          47px, transparent          72px,
+        rgba(0,0,0,.030)    72px, rgba(0,0,0,.030)    73px);
+      border-radius: 1px 1px 4px 4px;
+    }
+    .shelf-plank::after {             /* drop shadow below lip */
+      content: '';
+      position: absolute;
+      bottom: -10px; left: -4px; right: -4px;
+      height: 10px;
+      background: linear-gradient(180deg,
+        rgba(0,0,0,.55), rgba(0,0,0,.12), transparent);
+      border-radius: 0 0 5px 5px;
+    }
+
+
+    /* ════════════════════════════════════
+       BOOK SPINE
+    ════════════════════════════════════ */
+    .book-spine {
+      position: relative;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      border-left:  2px solid rgba(255,255,255,.10);
+      border-right: 1px solid rgba(0,0,0,.50);
+      transition: transform .15s ease, filter .15s ease;
+      user-select: none;
+    }
+    .book-spine:hover {
+      transform: translateY(-13px);
+      filter: brightness(1.22);
+      z-index: 20;
+    }
+    .book-spine::before {             /* top edge highlight */
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: rgba(255,255,255,.16);
+      border-radius: 1px 1px 0 0;
+    }
+
+    .spine-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: 'EB Garamond', serif;
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 6px 3px;
+      max-height: calc(100% - 12px);
+      color: inherit;
+      opacity: 0.92;
+    }
+
+
+    /* ════════════════════════════════════
+       HOVER POPOUT
+    ════════════════════════════════════ */
+    .spine-popout {
+      position: fixed;
+      z-index: 500;
+      width: 174px;
+      background: linear-gradient(160deg, #faf3e0 0%, #f4e8c4 55%, #ecdaaa 100%);
+      border: 1px solid rgba(120,88,18,.72);
+      border-radius: 4px;
+      padding: 12px;
+      box-shadow:
+        0 14px 40px rgba(0,0,0,.72),
+        0  3px  8px rgba(0,0,0,.40),
+        inset 0 1px 0 rgba(255,220,110,.20);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(8px) scale(.97);
+      transition: opacity .16s ease, transform .16s ease;
+      text-align: center;
+      user-select: none;
+    }
+    .spine-popout.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .popout-cover-wrap {
+      width: 100%; aspect-ratio: 2/3;
+      margin-bottom: 9px;
+      border-radius: 2px 5px 5px 2px;
+      overflow: hidden;
+      box-shadow: -2px 0 6px rgba(0,0,0,.42), 2px 3px 10px rgba(0,0,0,.30);
+    }
+    .popout-cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .popout-cover-ph {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 8px 6px; text-align: center;
+    }
+    .popout-cover-ph .ph-ornament { font-size: 1rem; opacity: .42; margin-bottom: 5px; }
+    .popout-cover-ph .ph-t {
+      font-family: 'Cinzel', serif; font-size: 0.52rem;
+      color: var(--gold-light); line-height: 1.4; word-break: break-word;
+    }
+
+    .popout-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.64rem; font-weight: 600;
+      color: #180c06; line-height: 1.3; margin-bottom: 3px;
+    }
+    .popout-author {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: 0.8rem; color: #5a2e0a;
+    }
+    .popout-hint {
+      margin-top: 7px;
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: 0.7rem; color: rgba(75,36,8,.48);
+      border-top: 1px solid rgba(120,88,18,.22);
+      padding-top: 6px;
+    }
+
+
+    /* ════════════════════════════════════
+       BOOK DETAIL MODAL
+    ════════════════════════════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.90);
+      z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      background: linear-gradient(150deg, #faf3e0 0%, #f4e8c0 55%, #ecdaaa 100%);
+      border: 2px solid rgba(120,88,18,.80);
+      border-radius: 4px;
+      max-width: 780px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow:
+        0 30px 90px rgba(0,0,0,.82),
+        inset 0 1px 0 rgba(255,228,120,.14);
+    }
+
+    .modal-head {
+      background: linear-gradient(180deg, #0e0402 0%, #200c06 55%, #180a04 100%);
+      padding: 16px 24px;
+      border-bottom: 2px solid rgba(130,95,18,.70);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 1;
+      border-radius: 2px 2px 0 0;
+    }
+    .modal-head-label {
+      font-family: 'Cinzel', serif; font-size: 0.62rem;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-light);
+    }
+    .modal-close-btn {
+      background: none;
+      border: 1px solid rgba(130,95,18,.55);
+      color: var(--gold); width: 28px; height: 28px; border-radius: 50%;
+      cursor: pointer; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .18s; flex-shrink: 0;
+    }
+    .modal-close-btn:hover { background: var(--gold-dark); color: var(--cream); }
+
+    .book-modal-body { padding: 28px; display: flex; gap: 28px; }
+
+    .bm-cover { flex-shrink: 0; width: 170px; }
+    .bm-cover img {
+      width: 100%; border-radius: 2px 7px 7px 2px; display: block;
+      box-shadow: -4px 0 12px rgba(0,0,0,.50), 4px 5px 20px rgba(0,0,0,.40);
+    }
+    .bm-cover-ph {
+      width: 100%; aspect-ratio: 2/3;
+      border-radius: 2px 7px 7px 2px;
+      box-shadow: -4px 0 12px rgba(0,0,0,.50), 4px 5px 20px rgba(0,0,0,.40);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 16px 12px; text-align: center;
+    }
+    .bm-details { flex: 1; min-width: 0; color: var(--ink); }
+
+    .bm-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.05rem, 3vw, 1.5rem); font-weight: 700;
+      color: #180c06; line-height: 1.3; margin-bottom: 4px;
+    }
+    .bm-author {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: 1.12rem; color: #5a2e0a; margin-bottom: 12px;
+    }
+    .bm-divider { border: none; border-top: 1px solid rgba(120,88,18,.28); margin: 12px 0; }
+    .bm-meta { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
+    .meta-label {
+      display: block; font-family: 'Cinzel', serif; font-size: 0.57rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold-dark); margin-bottom: 2px;
+    }
+    .meta-val { font-family: 'EB Garamond', serif; font-size: 0.92rem; color: #3a1808; }
+
+    .bm-synopsis-lbl {
+      font-family: 'Cinzel', serif; font-size: 0.60rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold-dark); margin-bottom: 8px;
+    }
+    .bm-synopsis {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.05rem; line-height: 1.82; color: #1c0e06;
+    }
+    .bm-synopsis.loading { color: #8b6014; font-style: italic; }
+
+    /* Cover placeholder colour grades */
+    .c0 { background: linear-gradient(160deg, #7a1c1c 0%, #481010 60%, #2c0a0a 100%); }
+    .c1 { background: linear-gradient(160deg, #1e4820 0%, #102814 60%, #081a08 100%); }
+    .c2 { background: linear-gradient(160deg, #182850 0%, #0e1c34 60%, #080e1e 100%); }
+    .c3 { background: linear-gradient(160deg, #4a280e 0%, #2c1608 60%, #180c04 100%); }
+
+
+    /* ════════════════════════════════════
+       EMPTY STATE
+    ════════════════════════════════════ */
+    .empty-shelf {
+      text-align: center; padding: 80px 20px;
+      color: rgba(242,234,212,.26);
+    }
+    .empty-shelf-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty-shelf-text {
+      font-family: 'EB Garamond', serif; font-style: italic; font-size: 1.1rem;
+    }
+
+
+    /* ════════════════════════════════════
+       TOAST
+    ════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: linear-gradient(135deg, #180a03, #261006);
+      border: 1px solid rgba(130,95,18,.65);
+      color: var(--gold-light);
+      padding: 12px 18px; border-radius: 3px;
+      font-family: 'EB Garamond', serif; font-style: italic; font-size: 0.95rem;
+      box-shadow: 0 8px 28px rgba(0,0,0,.65);
+      transform: translateY(120px); opacity: 0;
+      transition: transform .3s ease, opacity .3s ease;
+      z-index: 9998; max-width: 300px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+
+    /* ════════════════════════════════════
+       LOADING BAR
+    ════════════════════════════════════ */
+    #loading-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999;
+      background: linear-gradient(90deg,
+        var(--wood-darkest) 0%, var(--gold-dark) 25%,
+        var(--gold) 50%, var(--gold-dark) 75%, var(--wood-darkest) 100%);
+      background-size: 200% 100%;
+      animation: bar-anim 1.6s linear infinite;
+    }
+    @keyframes bar-anim {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+
+    /* ════════════════════════════════════
+       SCROLLBAR
+    ════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: var(--wood-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--wood-panel); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+
+
+    /* ════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════ */
+    @media (max-width: 640px) {
+      .lib-header { padding: 24px 20px 20px; }
+      .shelves-area { padding: 20px 12px 36px; }
+      .book-modal-body { flex-direction: column; }
+      .bm-cover { width: 130px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading-bar" style="display:none"></div>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <header class="lib-header">
+    <div class="header-top-rule"><span>· · ·</span></div>
+    <h1 class="lib-title">The Renne Library</h1>
+    <div class="ornament-row">
+      <span class="gem">✦ &nbsp; ✦ &nbsp; ✦</span>
+    </div>
+    <p class="lib-subtitle">A Private Collection of Volumes &amp; Works</p>
+    <div class="header-bottom-rules">
+      <div class="rule-heavy"></div>
+      <div class="rule-light"></div>
+    </div>
+  </header>
+
+  <!-- ════════════ CONTROLS ════════════ -->
+  <div class="controls-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search-input" type="text"
+             placeholder="Search titles or authors…" autocomplete="off">
+    </div>
+    <select class="sort-sel" id="sort-sel">
+      <option value="title">Sort by Title</option>
+      <option value="author">Sort by Author</option>
+    </select>
+    <span class="book-count" id="book-count"></span>
+    <span class="sync-status" id="sync-status"></span>
+  </div>
+
+  <!-- ════════════ SHELVES ════════════ -->
+  <main class="shelves-area">
+    <div id="shelves-container"></div>
+  </main>
+
+  <!-- ════════════ HOVER POPOUT ════════════ -->
+  <div class="spine-popout" id="spine-popout">
+    <div class="popout-cover-wrap" id="popout-cover-wrap"></div>
+    <p class="popout-title"  id="popout-title"></p>
+    <p class="popout-author" id="popout-author"></p>
+    <p class="popout-hint">Click to read more</p>
+  </div>
+
+  <!-- ════════════ BOOK DETAIL MODAL ════════════ -->
+  <div class="modal-overlay" id="book-modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-head-label">Volume Details</span>
+        <button class="modal-close-btn" id="modal-close-btn">✕</button>
+      </div>
+      <div class="book-modal-body">
+        <div class="bm-cover" id="bm-cover"></div>
+        <div class="bm-details">
+          <h2 class="bm-title"  id="bm-title"></h2>
+          <p  class="bm-author" id="bm-author"></p>
+          <hr class="bm-divider">
+          <div class="bm-meta" id="bm-meta"></div>
+          <p class="bm-synopsis-lbl">Synopsis</p>
+          <p class="bm-synopsis loading" id="bm-synopsis">Consulting the archives…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    // ═════════════════════════════════════════
+    // CONFIGURATION  ← only section you need to edit
+    // ═════════════════════════════════════════
+    //
+    //  HOW TO CONNECT YOUR GOOGLE SHEET:
+    //  1. Open your sheet in Google Sheets
+    //  2. File → Share → Publish to web
+    //  3. Under "Link", choose the tab with your books
+    //  4. Change the format dropdown from "Web page" to
+    //     "Comma-separated values (.csv)"
+    //  5. Click Publish → copy the URL → paste below
+    //
+    const CONFIG = {
+      sheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_PYVb-qMGrPLPsUz6Phg6tpbIquYMHrY-c4jNWD7BQ0hawPWx8NjwGGv0byFClwlFrDgihLPQzGX/pub?gid=1305967391&single=true&output=csv',
+
+      // Re-check the sheet this often while the page is open.
+      // 300 000 ms = 5 min  |  0 = never re-check automatically
+      refreshMs: 300000,
+    };
+    // ═════════════════════════════════════════
+
+    // ─────────────────────────────────────────
+    // BOOK DATA (from practice.csv)
+    // ─────────────────────────────────────────
+    const ALL_BOOKS = [
+      {title:"Revolutionary Summer",            first_name:"Joseph",    last_name:"Ellis"},
+      {title:"Introducing Relativity",           first_name:"Bruce",     last_name:"Bassett"},
+      {title:"John Adams",                       first_name:"David",     last_name:"McCullough"},
+      {title:"The Unwinding",                    first_name:"George",    last_name:"Packer"},
+      {title:"The Color of Magic",               first_name:"Terry",     last_name:"Pratchett"},
+      {title:"Mark Twain's America",             first_name:"Bernard",   last_name:"DeVoto"},
+      {title:"Pillars of the Republic",          first_name:"Carl",      last_name:"Kaestle"},
+      {title:"Persian Letters",                  first_name:"Montesquieu", last_name:"Montesquieu"},
+      {title:"The Construction of Social Reality", first_name:"John",   last_name:"Searle"},
+      {title:"Vader's Little Princess",          first_name:"Jeffrey",   last_name:"Brown"},
+      {title:"Adventures of Huckleberry Finn",   first_name:"Mark",      last_name:"Twain"},
+      {title:"Red Seas Under Red Skies",         first_name:"Scott",     last_name:"Lynch"},
+      {title:"Taliban",                          first_name:"Ahmed",     last_name:"Rashid"},
+      {title:"Plays",                            first_name:"Anton",     last_name:"Chekhov"},
+      {title:"The Journals of Lewis and Clark",  first_name:"Meriwether",last_name:"Lewis"},
+      {title:"The Treason of Isengard",          first_name:"J.R.R.",    last_name:"Tolkien"},
+      {title:"Understanding Power",              first_name:"Noam",      last_name:"Chomsky"},
+      {title:"The Death and Life of the Great American School System", first_name:"Diane", last_name:"Ravitch"},
+      {title:"The Catcher in the Rye",           first_name:"J.D.",      last_name:"Salinger"},
+      {title:"Jefferson: First Term 1801–1805",  first_name:"Dumas",     last_name:"Malone"},
+      {title:"To Appomattox",                    first_name:"Burke",     last_name:"Davis"},
+      {title:"Our Mutual Friend",                first_name:"Charles",   last_name:"Dickens"},
+      {title:"The Portable Thoreau",             first_name:"Henry",     last_name:"Thoreau"},
+      {title:"Wilderness and the American Mind", first_name:"Roderick",  last_name:"Nash"},
+      {title:"Touching Spirit Bear",             first_name:"Ben",       last_name:"Mikaelsen"},
+      {title:"Rainbows End",                     first_name:"Vernor",    last_name:"Vinge"},
+      {title:"The Jefferson Bible",              first_name:"Thomas",    last_name:"Jefferson"},
+      {title:"Masters of Doom",                  first_name:"David",     last_name:"Kushner"},
+      {title:"Rebel Code",                       first_name:"Glyn",      last_name:"Moody"},
+      {title:"Myst: The Book of Ti'Ana",         first_name:"Rand",      last_name:"Miller"},
+      {title:"Manhunt",                          first_name:"Peter",     last_name:"Bergen"},
+      {title:"LotR: Weapons and Warfare",        first_name:"Chris",     last_name:"Smith"},
+      {title:"LotR: Making of the Trilogy",      first_name:"Brian",     last_name:"Sibley"},
+      {title:"Lincoln's Men",                    first_name:"Daniel",    last_name:"Epstein"},
+      {title:"Resurrecting Empire",              first_name:"Rashid",    last_name:"Khalidi"},
+      {title:"Jefferson and the Ordeal of Liberty", first_name:"Dumas",  last_name:"Malone"},
+      {title:"Two Great Rebel Armies",           first_name:"Richard",   last_name:"McMurry"},
+      {title:"Light-Horse Harry Lee",            first_name:"Charles",   last_name:"Royster"},
+      {title:"Star Wars Origami",                first_name:"Chris",     last_name:"Alexander"},
+      {title:"The Stranger and the Statesman",   first_name:"Nina",      last_name:"Burleigh"},
+      {title:"The Lions of al-Rassan",           first_name:"Guy",       last_name:"Kay"},
+      {title:"A People's History of the World",  first_name:"Chris",     last_name:"Harman"},
+      {title:"The Devil in the White City",      first_name:"Erik",      last_name:"Larson"},
+      {title:"Predator Nation",                  first_name:"Charles",   last_name:"Ferguson"},
+      {title:"Old Man's War",                    first_name:"John",      last_name:"Scalzi"},
+      {title:"In Our Time",                      first_name:"Ernest",    last_name:"Hemingway"},
+      {title:"Catch-22",                         first_name:"Joseph",    last_name:"Heller"},
+      {title:"The Portable Chekhov",             first_name:"Anton",     last_name:"Chekhov"},
+    ];
+
+    // ─────────────────────────────────────────
+    // SPINE APPEARANCE
+    // Aged binding palette — oxblood, bottle green,
+    // Oxford navy, cognac, port, teal, moss, etc.
+    // ─────────────────────────────────────────
+    const SPINE_COLORS = [
+      { bg:'#7c1a1a', text:'#f0d0a8' },  // oxblood
+      { bg:'#1c3e20', text:'#bedfaa' },  // bottle green
+      { bg:'#18285c', text:'#b8ccee' },  // Oxford navy
+      { bg:'#5c3410', text:'#f0d898' },  // cognac
+      { bg:'#3c1060', text:'#d8c0f0' },  // port purple
+      { bg:'#0c3232', text:'#9ed0cc' },  // Bodleian teal
+      { bg:'#484208', text:'#e8e07a' },  // moss olive
+      { bg:'#521a08', text:'#f0c8a8' },  // terracotta
+      { bg:'#183860', text:'#b0d0ee' },  // Prussian blue
+      { bg:'#5a2608', text:'#f0c878' },  // burnt cognac
+      { bg:'#300808', text:'#d8a8a8' },  // deep wine
+      { bg:'#0a2032', text:'#a0c0d8' },  // midnight
+    ];
+
+    const HEIGHTS = [158, 165, 172, 178, 184, 190, 196, 202, 208, 215];
+
+    function spineColor(i)  { return SPINE_COLORS[i % SPINE_COLORS.length]; }
+    function spineHeight(i) { return HEIGHTS[(i * 7 + 3) % HEIGHTS.length]; }
+    function spineWidth(book, i) {
+      const len = book.title.length;
+      const base = len > 28 ? 46 : len > 20 ? 40 : len > 14 ? 34 : len > 9 ? 30 : 26;
+      const jitter = ((i * 5 + 2) % 9) - 4;   // −4 … +4
+      return Math.max(22, base + jitter);
+    }
+
+    // ─────────────────────────────────────────
+    // STATE
+    // ─────────────────────────────────────────
+    const BOOKS_KEY = 'rl_books_v2';
+    const META_KEY  = 'rl_meta_v2';
+    let books    = [];
+    let bookMeta = {};
+    let filtered = [];
+
+    const esc = s => String(s ?? '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    const bookKey   = b => `${b.title}||${b.last_name}`.toLowerCase().replace(/\s+/g,'_');
+    const authorStr = b => [b.first_name, b.last_name].filter(Boolean).join(' ');
+    const phClass   = b => ['c0','c1','c2','c3'][b.title.charCodeAt(0) % 4];
+    const sleep     = ms => new Promise(r => setTimeout(r, ms));
+
+    // ─────────────────────────────────────────
+    // PERSISTENCE
+    // ─────────────────────────────────────────
+    function persist() {
+      try {
+        localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+        localStorage.setItem(META_KEY,  JSON.stringify(bookMeta));
+      } catch(_) {}
+    }
+    function hydrate() {
+      try {
+        const b = localStorage.getItem(BOOKS_KEY);
+        const m = localStorage.getItem(META_KEY);
+        if (b) books    = JSON.parse(b);
+        if (m) bookMeta = JSON.parse(m);
+      } catch(_) { books = []; bookMeta = {}; }
+    }
+    function cleanStaleCache() {
+      let dirty = false;
+      Object.keys(bookMeta).forEach(k => {
+        if (!bookMeta[k]?.ok) { delete bookMeta[k]; dirty = true; }
+      });
+      if (dirty) persist();
+    }
+
+    // ─────────────────────────────────────────
+    // CSV PARSER
+    // ─────────────────────────────────────────
+    function parseCSV(text) {
+      const rows = text.trim().split(/\r?\n/);
+      if (rows.length < 2) return [];
+      const headers = splitLine(rows[0]).map(h =>
+        h.trim().toLowerCase().replace(/^["']|["']$/g, ''));
+      const ti = headers.indexOf('title');
+      const fi = headers.indexOf('first_name');
+      const li = headers.indexOf('last_name');
+      if (ti < 0) return [];
+      return rows.slice(1).flatMap(row => {
+        const cols  = splitLine(row);
+        const title = (cols[ti] ?? '').replace(/^["']|["']$/g, '').trim();
+        if (!title) return [];
+        return [{
+          title,
+          first_name: fi >= 0 ? (cols[fi] ?? '').replace(/^["']|["']$/g, '').trim() : '',
+          last_name:  li >= 0 ? (cols[li] ?? '').replace(/^["']|["']$/g, '').trim() : '',
+        }];
+      });
+    }
+    function splitLine(line) {
+      const out = []; let cur = ''; let inQ = false;
+      for (const ch of line) {
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { out.push(cur); cur = ''; }
+        else cur += ch;
+      }
+      out.push(cur);
+      return out;
+    }
+
+    // ─────────────────────────────────────────
+    // GOOGLE SHEETS LOADER
+    // ─────────────────────────────────────────
+    async function loadFromSheet() {
+      if (!CONFIG.sheetUrl) return null;
+
+      // Try the direct URL first.  If the browser blocks it (CORS / file:// protocol),
+      // fall back to a lightweight CORS proxy so the app works locally and on Netlify.
+      const candidates = [
+        CONFIG.sheetUrl,
+        `https://corsproxy.io/?${encodeURIComponent(CONFIG.sheetUrl)}`,
+      ];
+
+      for (const url of candidates) {
+        try {
+          const r = await fetch(url);
+          if (!r.ok) continue;
+          const text   = await r.text();
+          // Guard against Google returning an HTML login/error page
+          if (text.trimStart().startsWith('<')) continue;
+          const parsed = parseCSV(text);
+          if (parsed.length) return parsed;
+        } catch (_) {
+          // network / CORS block — try next candidate
+        }
+      }
+      throw new Error('Sheet unreachable — verify it is published via File → Share → Publish to web, output: CSV');
+    }
+
+    async function syncSheet() {
+      if (!CONFIG.sheetUrl) { setSyncStatus(''); return; }
+      setSyncStatus('syncing', '↻ Syncing…');
+      let fresh = null;
+      try {
+        fresh = await loadFromSheet();
+      } catch (err) {
+        console.error('[RenneLibrary] Sheet fetch failed:', err);
+        setSyncStatus('error', `⚠ ${err.message}`);
+        return;
+      }
+      if (!fresh) {
+        setSyncStatus('error', '⚠ Sheet returned no data');
+        return;
+      }
+      const sig    = b => `${b.title}||${b.last_name}`;
+      const oldSig = books.map(sig).sort().join('|');
+      const newSig = fresh.map(sig).sort().join('|');
+      if (oldSig !== newSig) {
+        books = fresh;
+        persist();
+        applyFilters();
+        showToast(`Collection updated — ${fresh.length} volumes loaded from your sheet.`);
+      }
+      localStorage.setItem('rl_synced_at', Date.now());
+      setSyncStatus('ok', syncedLabel());
+    }
+
+    function syncedLabel() {
+      const ts = parseInt(localStorage.getItem('rl_synced_at') || '0');
+      if (!ts) return '✓ Synced';
+      const mins = Math.round((Date.now() - ts) / 60000);
+      return mins < 1 ? '✓ Synced just now' : `✓ Synced ${mins}m ago`;
+    }
+
+    function setSyncStatus(cls, text = '') {
+      const el = document.getElementById('sync-status');
+      if (!el) return;
+      el.className   = 'sync-status' + (cls ? ' ' + cls : '');
+      el.textContent = text;
+    }
+
+    // ─────────────────────────────────────────
+    // OPEN LIBRARY API
+    // ─────────────────────────────────────────
+    const queue = {
+      jobs: [], busy: false, delay: 300,
+      push(fn) {
+        return new Promise((res, rej) => {
+          this.jobs.push({ fn, res, rej });
+          if (!this.busy) this.drain();
+        });
+      },
+      async drain() {
+        this.busy = true;
+        while (this.jobs.length) {
+          const { fn, res, rej } = this.jobs.shift();
+          try { res(await fn()); } catch(e) { rej(e); }
+          await sleep(this.delay);
+        }
+        this.busy = false;
+      }
+    };
+
+    async function fetchMeta(book) {
+      const key = bookKey(book);
+      if (bookMeta[key]?.ok) return bookMeta[key];
+
+      return queue.push(async () => {
+        const t   = encodeURIComponent(book.title);
+        const a   = encodeURIComponent(book.last_name || book.first_name);
+        const url = `https://openlibrary.org/search.json?title=${t}&author=${a}&limit=1`
+                  + `&fields=key,cover_i,first_sentence,subject,first_publish_year,number_of_pages_median`;
+
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const r = await fetch(url);
+            if (r.status === 429) { await sleep(3000 * (attempt + 1)); continue; }
+            if (!r.ok) break;
+            const d   = await r.json();
+            const doc = d.docs?.[0] ?? null;
+            const meta = {
+              cover:         doc?.cover_i
+                               ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
+                               : null,
+              description:   Array.isArray(doc?.first_sentence)
+                               ? doc.first_sentence[0]
+                               : (doc?.first_sentence ?? null),
+              publishedDate: doc?.first_publish_year?.toString() ?? null,
+              pageCount:     doc?.number_of_pages_median ?? null,
+              categories:    doc?.subject?.slice(0, 3) ?? [],
+              olKey:         doc?.key ?? null,
+              ok:            true,
+            };
+            bookMeta[key] = meta;
+            persist();
+            return meta;
+          } catch(_) { break; }
+        }
+        return { cover:null, description:null, ok:false };
+      });
+    }
+
+    async function fetchOLDescription(olKey) {
+      try {
+        const r = await fetch(`https://openlibrary.org${olKey}.json`);
+        if (!r.ok) return null;
+        const d = await r.json();
+        if (typeof d.description === 'string') return d.description;
+        if (typeof d.description?.value === 'string') return d.description.value;
+      } catch(_) {}
+      return null;
+    }
+
+    // ─────────────────────────────────────────
+    // LAZY COVER LOADING
+    // ─────────────────────────────────────────
+    const coverObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        coverObserver.unobserve(entry.target);
+        const key  = entry.target.dataset.key;
+        const book = books.find(b => bookKey(b) === key);
+        if (!book || bookMeta[key]?.ok) return;
+        fetchMeta(book);
+      });
+    }, { rootMargin: '200px' });
+
+    // ─────────────────────────────────────────
+    // SEARCH / SORT
+    // ─────────────────────────────────────────
+    function applyFilters() {
+      const q    = document.getElementById('search-input').value.toLowerCase().trim();
+      const sort = document.getElementById('sort-sel').value;
+
+      filtered = books.filter(b => {
+        if (!q) return true;
+        return `${b.title} ${b.first_name} ${b.last_name}`.toLowerCase().includes(q);
+      });
+      filtered.sort((a, b) => sort === 'author'
+        ? (a.last_name || '').localeCompare(b.last_name || '')
+        : a.title.localeCompare(b.title));
+
+      renderShelves();
+    }
+
+    // ─────────────────────────────────────────
+    // SHELF RENDERING
+    // ─────────────────────────────────────────
+    function renderShelves() {
+      const container = document.getElementById('shelves-container');
+      const countEl   = document.getElementById('book-count');
+      container.innerHTML = '';
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div class="empty-shelf">
+            <div class="empty-shelf-icon">📚</div>
+            <p class="empty-shelf-text">No volumes found in the collection.</p>
+          </div>`;
+        countEl.textContent = '';
+        return;
+      }
+
+      const containerW = container.clientWidth || window.innerWidth - 56;
+      const rows = splitIntoRows(filtered, containerW);
+
+      rows.forEach(rowBooks => {
+        const unit = document.createElement('div');
+        unit.className = 'shelf-unit';
+
+        const booksRow = document.createElement('div');
+        booksRow.className = 'books-row';
+
+        const totalBaseW = rowBooks.reduce((s, rb) => s + rb.width, 0);
+        const scale = Math.min(1.35, containerW / totalBaseW);
+
+        rowBooks.forEach(({ book, origIdx }) => {
+          booksRow.appendChild(makeSpine(book, origIdx, scale));
+        });
+
+        const plank = document.createElement('div');
+        plank.className = 'shelf-plank';
+
+        unit.appendChild(booksRow);
+        unit.appendChild(plank);
+        container.appendChild(unit);
+      });
+
+      const total = books.length, showing = filtered.length;
+      countEl.textContent = showing === total
+        ? `${total} volumes`
+        : `${showing} of ${total} volumes`;
+    }
+
+    function splitIntoRows(books, containerW) {
+      const rows = [];
+      let cur = [], curW = 0;
+
+      books.forEach((book, i) => {
+        const origIdx = ALL_BOOKS.findIndex(b => b.title === book.title);
+        const w = spineWidth(book, origIdx >= 0 ? origIdx : i);
+        if (curW + w > containerW && cur.length > 0) {
+          rows.push(cur);
+          cur  = [{ book, width: w, origIdx: origIdx >= 0 ? origIdx : i }];
+          curW = w;
+        } else {
+          cur.push({ book, width: w, origIdx: origIdx >= 0 ? origIdx : i });
+          curW += w;
+        }
+      });
+      if (cur.length) rows.push(cur);
+      return rows;
+    }
+
+    // ─────────────────────────────────────────
+    // SPINE ELEMENT
+    // ─────────────────────────────────────────
+    function makeSpine(book, origIdx, scale = 1) {
+      const key   = bookKey(book);
+      const color = spineColor(origIdx);
+      const h     = spineHeight(origIdx);
+      const w     = Math.round(spineWidth(book, origIdx) * scale);
+
+      const spine = document.createElement('div');
+      spine.className    = 'book-spine';
+      spine.dataset.key  = key;
+      spine.style.width  = w + 'px';
+      spine.style.height = h + 'px';
+      spine.style.background = color.bg;
+      spine.style.color  = color.text;
+
+      const label = document.createElement('span');
+      label.className   = 'spine-label';
+      label.textContent = book.title;
+      label.style.maxHeight = (h - 16) + 'px';
+
+      spine.appendChild(label);
+
+      spine.addEventListener('mouseenter', () => showPopout(book, spine));
+      spine.addEventListener('mouseleave', e => {
+        if (!e.relatedTarget || !popoutEl.contains(e.relatedTarget)) hidePopout();
+      });
+      spine.addEventListener('click', () => openBookModal(book));
+
+      if (!bookMeta[key]?.ok) coverObserver.observe(spine);
+
+      return spine;
+    }
+
+    // ─────────────────────────────────────────
+    // FLOATING POPOUT
+    // ─────────────────────────────────────────
+    const popoutEl     = document.getElementById('spine-popout');
+    const popoutCover  = document.getElementById('popout-cover-wrap');
+    const popoutTitle  = document.getElementById('popout-title');
+    const popoutAuthor = document.getElementById('popout-author');
+
+    let popoutHideTimer = null;
+    let popoutBook = null;
+
+    function showPopout(book, spineEl) {
+      clearTimeout(popoutHideTimer);
+      popoutBook = book;
+
+      const key  = bookKey(book);
+      const meta = bookMeta[key] ?? {};
+
+      if (meta.cover) {
+        popoutCover.innerHTML = `<img src="${esc(meta.cover)}" alt="${esc(book.title)}" loading="lazy">`;
+      } else {
+        const pc  = phClass(book);
+        popoutCover.innerHTML = `
+          <div class="popout-cover-ph ${pc}">
+            <div class="ph-ornament">✦</div>
+            <div class="ph-t">${esc(book.title)}</div>
+          </div>`;
+      }
+
+      popoutTitle.textContent  = book.title;
+      popoutAuthor.textContent = authorStr(book);
+
+      const rect = spineEl.getBoundingClientRect();
+      const pw   = 174;
+      const ph   = 265;
+      let   left = rect.left + rect.width / 2 - pw / 2;
+      let   top  = rect.top  - ph - 10;
+
+      left = Math.max(8, Math.min(window.innerWidth - pw - 8, left));
+      top  = Math.max(8, top);
+
+      popoutEl.style.left = left + 'px';
+      popoutEl.style.top  = top  + 'px';
+      popoutEl.classList.add('visible');
+
+      if (!bookMeta[key]?.ok) {
+        fetchMeta(book).then(meta => {
+          if (popoutBook === book && meta.cover) {
+            popoutCover.innerHTML = `<img src="${esc(meta.cover)}" alt="${esc(book.title)}" loading="lazy">`;
+          }
+        });
+      }
+    }
+
+    function hidePopout() {
+      popoutHideTimer = setTimeout(() => {
+        popoutEl.classList.remove('visible');
+        popoutBook = null;
+      }, 80);
+    }
+
+    popoutEl.addEventListener('mouseenter', () => clearTimeout(popoutHideTimer));
+    popoutEl.addEventListener('mouseleave', hidePopout);
+    popoutEl.addEventListener('click', () => { if (popoutBook) openBookModal(popoutBook); });
+
+    // ─────────────────────────────────────────
+    // BOOK DETAIL MODAL
+    // ─────────────────────────────────────────
+    async function openBookModal(book) {
+      hidePopout();
+      const key = bookKey(book);
+
+      document.getElementById('bm-title').textContent   = book.title;
+      document.getElementById('bm-author').textContent  = `by ${authorStr(book)}`;
+      document.getElementById('bm-synopsis').textContent = 'Consulting the archives…';
+      document.getElementById('bm-synopsis').className   = 'bm-synopsis loading';
+      document.getElementById('bm-meta').innerHTML = '';
+
+      const coverEl = document.getElementById('bm-cover');
+      const cached  = bookMeta[key];
+
+      if (cached?.cover) {
+        coverEl.innerHTML = `<img src="${esc(cached.cover)}" alt="${esc(book.title)}">`;
+      } else {
+        coverEl.innerHTML = `<div class="bm-cover-ph ${phClass(book)}">
+          <div style="font-size:1.5rem;color:var(--gold);opacity:.38;margin-bottom:10px">✦</div>
+          <div style="font-family:'Cinzel',serif;font-size:0.68rem;color:var(--gold-light);text-align:center;padding:0 8px;line-height:1.5">${esc(book.title)}</div>
+        </div>`;
+      }
+
+      document.getElementById('book-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      const meta = await fetchMeta(book);
+
+      if (meta.cover && !cached?.cover) {
+        coverEl.innerHTML = `<img src="${esc(meta.cover)}" alt="${esc(book.title)}">`;
+        coverEl.querySelector('img').addEventListener('error', () => {
+          coverEl.innerHTML = `<div class="bm-cover-ph ${phClass(book)}"></div>`;
+        });
+      }
+
+      const synEl = document.getElementById('bm-synopsis');
+      let description = bookMeta[key]?.fullDescription ?? null;
+      if (!description && meta.olKey) {
+        description = await fetchOLDescription(meta.olKey);
+        if (description && bookMeta[key]) {
+          bookMeta[key].fullDescription = description;
+          persist();
+        }
+      }
+      if (!description) description = meta.description;
+      synEl.textContent = description ?? 'No synopsis is available for this volume.';
+      synEl.className   = 'bm-synopsis';
+
+      const metaEl = document.getElementById('bm-meta');
+      const items  = [];
+      if (meta.publishedDate)   items.push(metaItem('Published', meta.publishedDate.slice(0,4)));
+      if (meta.pageCount)       items.push(metaItem('Pages',     meta.pageCount));
+      if (meta.categories?.[0]) items.push(metaItem('Genre',     meta.categories[0]));
+      metaEl.innerHTML = items.join('');
+    }
+
+    function metaItem(label, val) {
+      return `<div class="meta-item"><span class="meta-label">${label}</span><span class="meta-val">${esc(val)}</span></div>`;
+    }
+
+    function closeModal() {
+      document.getElementById('book-modal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // ─────────────────────────────────────────
+    // TOAST
+    // ─────────────────────────────────────────
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    // ─────────────────────────────────────────
+    // EVENT WIRING
+    // ─────────────────────────────────────────
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('sort-sel').addEventListener('change', applyFilters);
+    document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+    document.getElementById('book-modal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(applyFilters, 160);
+    });
+
+    // ─────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────
+    async function init() {
+      hydrate();
+      cleanStaleCache();
+      if (!books.length) books = ALL_BOOKS;
+      applyFilters();
+      await syncSheet();
+      if (CONFIG.sheetUrl && CONFIG.refreshMs > 0) {
+        setInterval(syncSheet, CONFIG.refreshMs);
+      }
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>
