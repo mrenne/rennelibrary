@@ -987,20 +987,6 @@
     }
 
     // ─────────────────────────────────────────
-    // LAZY COVER LOADING
-    // ─────────────────────────────────────────
-    const coverObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        coverObserver.unobserve(entry.target);
-        const key  = entry.target.dataset.key;
-        const book = books.find(b => bookKey(b) === key);
-        if (!book || bookMeta[key]?.ok) return;
-        fetchMeta(book);
-      });
-    }, { rootMargin: '200px' });
-
-    // ─────────────────────────────────────────
     // SEARCH / SORT
     // ─────────────────────────────────────────
     function applyFilters() {
@@ -1116,8 +1102,6 @@
         if (!e.relatedTarget || !popoutEl.contains(e.relatedTarget)) hidePopout();
       });
       spine.addEventListener('click', () => openBookModal(book));
-
-      if (!bookMeta[key]?.ok) coverObserver.observe(spine);
 
       return spine;
     }
