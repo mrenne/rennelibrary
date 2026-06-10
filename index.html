@@ -797,7 +797,7 @@
     //  5. Click Publish → copy the URL → paste below
     //
     const CONFIG = {
-      sheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_PYVb-qMGrPLPsUz6Phg6tpbIquYMHrY-c4jNWD7BQ0hawPWx8NjwGGv0byFClwlFrDgihLPQzGX/pub?gid=1305967391&single=true&output=csv',
+      sheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_PYVb-qMGrPLPsUz6Phg6tpbIquYMHrY-c4jNWD7BQ0hawPWx8NjwGGv0byFClwlFrDgihLPQzGX/pub?gid=673406086&single=true&output=csv',
 
       // Re-check the sheet this often while the page is open.
       // 300 000 ms = 5 min  |  0 = never re-check automatically
@@ -893,8 +893,8 @@
     // ─────────────────────────────────────────
     // STATE
     // ─────────────────────────────────────────
-    const BOOKS_KEY = 'rl_books_v2';
-    const META_KEY  = 'rl_meta_v2';
+    const BOOKS_KEY = 'rl_books_v3';  // bumped: books now carry isbn field
+    const META_KEY  = 'rl_meta_v3';  // bumped: prefer ISBN-based covers
     let books    = [];
     let bookMeta = {};
     let filtered = [];
@@ -944,15 +944,19 @@
       const ti = headers.indexOf('title');
       const fi = headers.indexOf('first_name');
       const li = headers.indexOf('last_name');
+      const ii = headers.indexOf('isbn');
       if (ti < 0) return [];
       return rows.slice(1).flatMap(row => {
         const cols  = splitLine(row);
         const title = (cols[ti] ?? '').replace(/^["']|["']$/g, '').trim();
         if (!title) return [];
+        // Strip hyphens/spaces from ISBN so it works directly in OL cover URLs
+        const rawIsbn = ii >= 0 ? (cols[ii] ?? '').replace(/^["']|["']$/g, '').trim() : '';
         return [{
           title,
           first_name: fi >= 0 ? (cols[fi] ?? '').replace(/^["']|["']$/g, '').trim() : '',
           last_name:  li >= 0 ? (cols[li] ?? '').replace(/^["']|["']$/g, '').trim() : '',
+          isbn:       rawIsbn.replace(/[-\s]/g, ''),
         }];
       });
     }
@@ -1011,7 +1015,7 @@
         setSyncStatus('error', '⚠ Sheet returned no data');
         return;
       }
-      const sig    = b => `${b.title}||${b.last_name}`;
+      const sig    = b => `${b.title}||${b.last_name}||${b.isbn ?? ''}`;
       const oldSig = books.map(sig).sort().join('|');
       const newSig = fresh.map(sig).sort().join('|');
       if (oldSig !== newSig) {
@@ -1060,16 +1064,66 @@
       }
     };
 
+    // Returns the best cover URL without any API call:
+    // ISBN direct URL takes priority (correct edition), then cached, then null.
+    function coverUrl(book) {
+      if (book.isbn) return `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`;
+      return bookMeta[bookKey(book)]?.cover ?? null;
+    }
+
+    // Routes to ISBN or search fetch depending on what the book has.
     async function fetchMeta(book) {
       const key = bookKey(book);
       if (bookMeta[key]?.ok) return bookMeta[key];
+      return book.isbn ? fetchMetaByIsbn(book) : fetchMetaBySearch(book);
+    }
 
+    // ISBN path — fetches the specific edition record from Open Library.
+    async function fetchMetaByIsbn(book) {
+      const key = bookKey(book);
+      return queue.push(async () => {
+        try {
+          const r = await fetch(`https://openlibrary.org/isbn/${book.isbn}.json`);
+          if (r.ok) {
+            const ed   = await r.json();
+            const meta = {
+              cover:         `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`,
+              description:   typeof ed.description === 'string'
+                               ? ed.description
+                               : (ed.description?.value ?? null),
+              publishedDate: ed.publish_date
+                               ? (ed.publish_date.match(/\d{4}/)?.[0] ?? null)
+                               : null,
+              pageCount:     ed.number_of_pages ?? null,
+              categories:    ed.subjects?.slice(0, 3) ?? [],
+              olKey:         ed.works?.[0]?.key ?? null,
+              ok:            true,
+            };
+            bookMeta[key] = meta;
+            persist();
+            return meta;
+          }
+        } catch(_) {}
+        // Edition fetch failed — store the ISBN cover at minimum so it still displays.
+        const meta = {
+          cover: `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`,
+          description: null, publishedDate: null, pageCount: null,
+          categories: [], olKey: null, ok: true,
+        };
+        bookMeta[key] = meta;
+        persist();
+        return meta;
+      });
+    }
+
+    // Search path — used for books without an ISBN.
+    async function fetchMetaBySearch(book) {
+      const key = bookKey(book);
       return queue.push(async () => {
         const t   = encodeURIComponent(book.title);
         const a   = encodeURIComponent(book.last_name || book.first_name);
         const url = `https://openlibrary.org/search.json?title=${t}&author=${a}&limit=1`
                   + `&fields=key,cover_i,first_sentence,subject,first_publish_year,number_of_pages_median`;
-
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             const r = await fetch(url);
@@ -1095,7 +1149,7 @@
             return meta;
           } catch(_) { break; }
         }
-        return { cover:null, description:null, ok:false };
+        return { cover: null, description: null, ok: false };
       });
     }
 
@@ -1245,15 +1299,14 @@
       clearTimeout(popoutHideTimer);
       popoutBook = book;
 
-      const key  = bookKey(book);
-      const meta = bookMeta[key] ?? {};
+      const key = bookKey(book);
+      const url = coverUrl(book);  // immediate — ISBN URL or cached, no API call
 
-      if (meta.cover) {
-        popoutCover.innerHTML = `<img src="${esc(meta.cover)}" alt="${esc(book.title)}" loading="lazy">`;
+      if (url) {
+        popoutCover.innerHTML = `<img src="${esc(url)}" alt="${esc(book.title)}" loading="lazy">`;
       } else {
-        const pc  = phClass(book);
         popoutCover.innerHTML = `
-          <div class="popout-cover-ph ${pc}">
+          <div class="popout-cover-ph ${phClass(book)}">
             <div class="ph-ornament">✦</div>
             <div class="ph-t">${esc(book.title)}</div>
           </div>`;
@@ -1275,10 +1328,12 @@
       popoutEl.style.top  = top  + 'px';
       popoutEl.classList.add('visible');
 
+      // Warm the metadata cache (description, year, pages) for when the user clicks.
+      // For no-ISBN books, also update cover once the search result comes back.
       if (!bookMeta[key]?.ok) {
-        fetchMeta(book).then(meta => {
-          if (popoutBook === book && meta.cover) {
-            popoutCover.innerHTML = `<img src="${esc(meta.cover)}" alt="${esc(book.title)}" loading="lazy">`;
+        fetchMeta(book).then(m => {
+          if (popoutBook === book && m.cover && !url) {
+            popoutCover.innerHTML = `<img src="${esc(m.cover)}" alt="${esc(book.title)}" loading="lazy">`;
           }
         });
       }
@@ -1308,11 +1363,11 @@
       document.getElementById('bm-synopsis').className   = 'bm-synopsis loading';
       document.getElementById('bm-meta').innerHTML = '';
 
-      const coverEl = document.getElementById('bm-cover');
-      const cached  = bookMeta[key];
+      const coverEl  = document.getElementById('bm-cover');
+      const url      = coverUrl(book);  // immediate — ISBN URL or cached
 
-      if (cached?.cover) {
-        coverEl.innerHTML = `<img src="${esc(cached.cover)}" alt="${esc(book.title)}">`;
+      if (url) {
+        coverEl.innerHTML = `<img src="${esc(url)}" alt="${esc(book.title)}">`;
       } else {
         coverEl.innerHTML = `<div class="bm-cover-ph ${phClass(book)}">
           <div style="font-size:1.5rem;color:var(--gold);opacity:.38;margin-bottom:10px">✦</div>
@@ -1325,7 +1380,8 @@
 
       const meta = await fetchMeta(book);
 
-      if (meta.cover && !cached?.cover) {
+      // For no-ISBN books: update cover once the search result arrives
+      if (meta.cover && !url) {
         coverEl.innerHTML = `<img src="${esc(meta.cover)}" alt="${esc(book.title)}">`;
         coverEl.querySelector('img').addEventListener('error', () => {
           coverEl.innerHTML = `<div class="bm-cover-ph ${phClass(book)}"></div>`;
