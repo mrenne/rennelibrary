@@ -260,55 +260,167 @@
 
 
     /* ════════════════════════════════════
-       SHELF AREA
+       BOOKCASE CABINET
     ════════════════════════════════════ */
-    .shelves-area { padding: 32px 28px 52px; }
+    .shelves-area { padding: 20px 20px 44px; }
 
-    .shelf-unit {
-      margin-bottom: 10px;
+    /* Outer cabinet wrapper */
+    .bookcase {
+      max-width: 1480px;
+      margin: 0 auto;
+      border-radius: 4px 4px 3px 3px;
+      box-shadow: 0 28px 80px rgba(0,0,0,.92), 0 8px 24px rgba(0,0,0,.6);
+    }
+
+    /* Crown molding */
+    .bookcase-crown {
+      height: 32px;
+      background: linear-gradient(180deg,
+        #5c3014 0%, #422010 35%, #2e1208 70%, #1e0c04 100%);
+      border-top: 3px solid rgba(210,155,50,.78);
+      border-radius: 4px 4px 0 0;
       position: relative;
+      box-shadow:
+        inset 0 3px 0 rgba(255,210,90,.14),
+        inset 0 -3px 8px rgba(0,0,0,.45);
+    }
+    .bookcase-crown::before {    /* decorative profile line */
+      content: '';
+      position: absolute;
+      bottom: 7px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%, rgba(200,140,40,.38) 5%,
+        rgba(200,140,40,.58) 50%, rgba(200,140,40,.38) 95%, transparent 100%);
+    }
+    .bookcase-crown::after {     /* shadow draping down from crown */
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(180deg, rgba(0,0,0,.5), transparent);
+    }
+
+    /* Cabinet body — side posts flanking the shelf interior */
+    .bookcase-body {
+      display: flex;
+      align-items: stretch;
+    }
+
+    /* Wooden side posts */
+    .bookcase-post {
+      flex-shrink: 0;
+      width: 26px;
+      position: relative;
+      background: linear-gradient(90deg,
+        #221008 0%, #381a0c 28%, #4a2412 54%, #3c1c0a 76%, #261006 100%);
+    }
+    .bookcase-post::before {     /* horizontal grain on post */
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(180deg,
+        transparent            0,  transparent            32px,
+        rgba(0,0,0,.06)       32px, rgba(0,0,0,.06)       33px,
+        transparent            33px, transparent            66px,
+        rgba(255,255,255,.018) 66px, rgba(255,255,255,.018) 67px);
+    }
+    .post-left {
+      border-right: 2px solid rgba(0,0,0,.65);
+      box-shadow: inset -8px 0 18px rgba(0,0,0,.55);
+    }
+    .post-right {
+      border-left: 2px solid rgba(0,0,0,.65);
+      box-shadow: inset 8px 0 18px rgba(0,0,0,.55);
+    }
+
+    /* Back panel — dark panelled wood behind the books */
+    .bookcase-interior {
+      flex: 1;
+      min-width: 0;
+      background-color: #140b05;
+      background-image: repeating-linear-gradient(90deg,
+        transparent            0,   transparent            58px,
+        rgba(0,0,0,.038)      58px, rgba(0,0,0,.038)      59px,
+        transparent            59px, transparent           116px,
+        rgba(255,255,255,.011)116px, rgba(255,255,255,.011)117px);
+    }
+
+    /* Base / plinth */
+    .bookcase-plinth {
+      height: 26px;
+      background: linear-gradient(180deg,
+        #1a0c04 0%, #2c1408 42%, #3a1c0c 72%, #281008 100%);
+      border-bottom: 3px solid rgba(210,155,50,.68);
+      border-radius: 0 0 3px 3px;
+      position: relative;
+      box-shadow:
+        inset 0 4px 10px rgba(0,0,0,.52),
+        inset 0 -2px 0 rgba(255,210,90,.10);
+    }
+    .bookcase-plinth::before {   /* decorative profile line */
+      content: '';
+      position: absolute;
+      top: 6px; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%, rgba(200,140,40,.32) 5%,
+        rgba(200,140,40,.52) 50%, rgba(200,140,40,.32) 95%, transparent 100%);
+    }
+
+    /* Individual shelf unit — padding-top reveals the back panel above books */
+    .shelf-unit {
+      position: relative;
+      padding-top: 22px;
+    }
+    /* Ambient shadow cast by books down onto back panel */
+    .shelf-unit::before {
+      content: '';
+      position: absolute;
+      bottom: 20px; left: 0; right: 0; height: 32px;
+      background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.28) 100%);
+      pointer-events: none;
+      z-index: 1;
     }
 
     .books-row {
       display: flex;
       align-items: flex-end;
       width: 100%;
+      position: relative;
+      z-index: 2;
     }
 
-    /* ── Shelf plank — rich Bodleian mahogany ── */
+    /* Shelf plank */
     .shelf-plank {
       position: relative;
-      height: 18px;
+      z-index: 2;
+      height: 20px;
       background: linear-gradient(180deg,
         var(--plank-top) 0%,
         var(--plank-mid) 52%,
         var(--plank-bot) 100%);
       box-shadow:
-        0 6px 14px rgba(0,0,0,.68),
-        inset 0 2px 0 rgba(255,200,80,.09),
-        inset 0 1px 0 rgba(255,255,255,.06);
-      border-radius: 1px 1px 4px 4px;
+        0 6px 16px rgba(0,0,0,.75),
+        inset 0 2px 0 rgba(255,200,80,.10),
+        inset 0 1px 0 rgba(255,255,255,.07);
+      border-radius: 1px 1px 3px 3px;
     }
-    .shelf-plank::before {           /* wood-grain lines */
+    .shelf-plank::before {       /* wood-grain lines */
       content: '';
       position: absolute; inset: 0;
       background: repeating-linear-gradient(90deg,
-        transparent          0,   transparent          20px,
-        rgba(0,0,0,.042)    20px, rgba(0,0,0,.042)    21px,
-        transparent          21px, transparent          46px,
+        transparent           0,   transparent           20px,
+        rgba(0,0,0,.042)     20px, rgba(0,0,0,.042)     21px,
+        transparent           21px, transparent           46px,
         rgba(255,255,255,.022)46px, rgba(255,255,255,.022)47px,
-        transparent          47px, transparent          72px,
-        rgba(0,0,0,.030)    72px, rgba(0,0,0,.030)    73px);
-      border-radius: 1px 1px 4px 4px;
+        transparent           47px, transparent           72px,
+        rgba(0,0,0,.030)     72px, rgba(0,0,0,.030)     73px);
+      border-radius: 1px 1px 3px 3px;
     }
-    .shelf-plank::after {             /* drop shadow below lip */
+    .shelf-plank::after {        /* deep drop shadow below lip */
       content: '';
       position: absolute;
-      bottom: -10px; left: -4px; right: -4px;
-      height: 10px;
+      bottom: -13px; left: -2px; right: -2px; height: 13px;
       background: linear-gradient(180deg,
-        rgba(0,0,0,.55), rgba(0,0,0,.12), transparent);
-      border-radius: 0 0 5px 5px;
+        rgba(0,0,0,.68), rgba(0,0,0,.15), transparent);
+      border-radius: 0 0 4px 4px;
     }
 
 
@@ -581,7 +693,11 @@
     ════════════════════════════════════ */
     @media (max-width: 640px) {
       .lib-header { padding: 24px 20px 20px; }
-      .shelves-area { padding: 20px 12px 36px; }
+      .shelves-area { padding: 12px 8px 32px; }
+      .bookcase-post { width: 14px; }
+      .bookcase-crown { height: 20px; }
+      .bookcase-plinth { height: 16px; }
+      .shelf-unit { padding-top: 14px; }
       .book-modal-body { flex-direction: column; }
       .bm-cover { width: 130px; margin: 0 auto; }
     }
@@ -598,7 +714,7 @@
     <div class="ornament-row">
       <span class="gem">✦ &nbsp; ✦ &nbsp; ✦</span>
     </div>
-    <p class="lib-subtitle">A Private Collection of Volumes &amp; Works</p>
+    <p class="lib-subtitle">A Cabinet of Curiosities</p>
     <div class="header-bottom-rules">
       <div class="rule-heavy"></div>
       <div class="rule-light"></div>
@@ -622,7 +738,15 @@
 
   <!-- ════════════ SHELVES ════════════ -->
   <main class="shelves-area">
-    <div id="shelves-container"></div>
+    <div class="bookcase">
+      <div class="bookcase-crown"></div>
+      <div class="bookcase-body">
+        <div class="bookcase-post post-left"></div>
+        <div class="bookcase-interior" id="shelves-container"></div>
+        <div class="bookcase-post post-right"></div>
+      </div>
+      <div class="bookcase-plinth"></div>
+    </div>
   </main>
 
   <!-- ════════════ HOVER POPOUT ════════════ -->
