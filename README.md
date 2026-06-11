@@ -1,3 +1,2 @@
 # The Renne Library
-A Cabinet of Curiosities
-Lots of books!
+A Cabinet of Curiosities a.k.a Lots of Books!
