@@ -177,8 +177,23 @@
       color: var(--gold-light);
       opacity: 0.62;
       letter-spacing: 0.1em;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
+
+    .header-nav {
+      display: flex; justify-content: center; gap: 24px;
+      margin-bottom: 10px;
+    }
+    .nav-link {
+      font-family: 'Cinzel', serif; font-size: .62rem;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold); opacity: .6; text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: opacity .2s, border-color .2s;
+      padding-bottom: 2px;
+    }
+    .nav-link:hover { opacity: 1; }
+    .nav-link.active { opacity: 1; border-bottom-color: var(--gold); }
 
     /* Double rule below subtitle — mirrors Telegraph masthead */
     .header-bottom-rules {
@@ -715,6 +730,10 @@
       <span class="gem">✦ &nbsp; ✦ &nbsp; ✦</span>
     </div>
     <p class="lib-subtitle">A Cabinet of Curiosities</p>
+    <nav class="header-nav">
+      <a class="nav-link active" href="index.html">Collection</a>
+      <a class="nav-link" href="analytics.html">Analytics</a>
+    </nav>
     <div class="header-bottom-rules">
       <div class="rule-heavy"></div>
       <div class="rule-light"></div>

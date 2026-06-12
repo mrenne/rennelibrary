@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collection Analytics — The Renne Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --wood-darkest:   #0c0502;
+      --wood-dark:      #180903;
+      --wood-mid:       #2a1006;
+      --wood-panel:     #3a1a0a;
+      --gold:           #c8903c;
+      --gold-light:     #e6b450;
+      --gold-bright:    #f2d060;
+      --gold-dark:      #78560e;
+      --cream:          #f2ead4;
+      --parchment:      #f8f0d6;
+      --ink:            #150e08;
+    }
+
+    body {
+      font-family: 'EB Garamond', Georgia, serif;
+      background-color: var(--wood-darkest);
+      background-image:
+        radial-gradient(ellipse 90% 45% at 50% 0%, rgba(190,120,25,.14) 0%, transparent 68%),
+        repeating-linear-gradient(91deg,
+          transparent 0, transparent 5px,
+          rgba(255,255,255,.010) 5px, rgba(255,255,255,.010) 6px,
+          transparent 6px, transparent 13px,
+          rgba(0,0,0,.040) 13px, rgba(0,0,0,.040) 14px);
+      min-height: 100vh;
+      color: var(--cream);
+    }
+
+    /* ── HEADER ── */
+    .lib-header {
+      background:
+        radial-gradient(ellipse 65% 220% at 50% -10%, rgba(210,145,45,.24) 0%, transparent 60%),
+        linear-gradient(180deg, #080301 0%, #180804 40%, #120606 75%, #0a0302 100%);
+      padding: 22px 56px 18px;
+      text-align: center;
+      position: relative;
+      border-bottom: 1px solid rgba(139,100,30,.5);
+    }
+    .lib-header::before, .lib-header::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, rgba(200,144,60,.55) 0%, rgba(200,144,60,.25) 55%, transparent 100%);
+    }
+    .lib-header::before { left: 0; } .lib-header::after { right: 0; }
+
+    .header-top-rule {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-bottom: 8px;
+    }
+    .header-top-rule::before, .header-top-rule::after {
+      content: ''; flex: 1; max-width: 200px; height: 1px;
+    }
+    .header-top-rule::before { background: linear-gradient(90deg, transparent, rgba(200,144,60,.65), rgba(200,144,60,.65)); }
+    .header-top-rule::after  { background: linear-gradient(90deg, rgba(200,144,60,.65), rgba(200,144,60,.65), transparent); }
+    .header-top-rule span { font-size: .6rem; letter-spacing: .45em; color: var(--gold); opacity: .55; }
+
+    .lib-title {
+      font-family: 'Pirata One', serif;
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      color: var(--gold-bright);
+      text-shadow: 0 0 28px rgba(210,150,40,.45), 0 2px 4px rgba(0,0,0,.85);
+      margin-bottom: 4px;
+    }
+    .lib-title a { color: inherit; text-decoration: none; }
+    .lib-title a:hover { opacity: .8; }
+
+    .lib-subtitle {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: 1rem; color: var(--gold-light); opacity: .62; letter-spacing: .1em;
+      margin-bottom: 10px;
+    }
+
+    .header-nav {
+      display: flex; justify-content: center; gap: 24px; margin-top: 4px;
+    }
+    .nav-link {
+      font-family: 'Cinzel', serif; font-size: .62rem;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold); opacity: .6; text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: opacity .2s, border-color .2s;
+      padding-bottom: 2px;
+    }
+    .nav-link:hover { opacity: 1; }
+    .nav-link.active { opacity: 1; border-bottom-color: var(--gold); }
+
+    .header-bottom-rules { margin: 10px auto 0; max-width: 640px; }
+    .rule-heavy {
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(200,144,60,.70) 15%, rgba(224,170,60,.90) 50%, rgba(200,144,60,.70) 85%, transparent 100%);
+    }
+    .rule-light {
+      height: 1px; margin-top: 3px;
+      background: linear-gradient(90deg, transparent 0%, rgba(200,144,60,.35) 20%, rgba(200,144,60,.55) 50%, rgba(200,144,60,.35) 80%, transparent 100%);
+    }
+
+    /* ── MAIN CONTENT ── */
+    .analytics-body { max-width: 1300px; margin: 0 auto; padding: 32px 24px 56px; }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .stat-card {
+      background: linear-gradient(145deg, #1e0e06 0%, #160a04 100%);
+      border: 1px solid rgba(200,144,60,.28);
+      border-radius: 4px;
+      padding: 18px 20px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+    }
+    .stat-value {
+      font-family: 'Pirata One', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      color: var(--gold-bright);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-family: 'Cinzel', serif; font-size: .58rem;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--gold); opacity: .65;
+    }
+
+    /* ── SECTION HEADINGS ── */
+    .section-title {
+      font-family: 'Cinzel', serif; font-size: .72rem;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--gold-light); opacity: .8;
+      margin-bottom: 4px;
+    }
+    .section-note {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: .85rem; color: var(--gold); opacity: .45;
+      margin-bottom: 16px;
+    }
+
+    /* ── CHART CARDS ── */
+    .chart-card {
+      background: linear-gradient(145deg, #1a0c05 0%, #110702 100%);
+      border: 1px solid rgba(200,144,60,.22);
+      border-radius: 4px;
+      padding: 24px;
+      box-shadow: 0 6px 28px rgba(0,0,0,.55);
+      margin-bottom: 20px;
+    }
+    .chart-canvas-wrap { position: relative; }
+
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 760px) { .charts-row { grid-template-columns: 1fr; } }
+
+    /* Word cloud (top words as sized spans) */
+    .word-cloud {
+      display: flex; flex-wrap: wrap; gap: 8px 12px;
+      align-items: center; padding: 8px 0 4px;
+      min-height: 160px;
+    }
+    .word-cloud span {
+      font-family: 'EB Garamond', serif;
+      color: var(--gold-light);
+      line-height: 1.2;
+      opacity: .85;
+      transition: opacity .15s;
+      cursor: default;
+    }
+    .word-cloud span:hover { opacity: 1; color: var(--gold-bright); }
+
+    /* ── LOADING / ERROR ── */
+    .loading-msg {
+      text-align: center; padding: 60px 20px;
+      font-family: 'EB Garamond', serif; font-style: italic;
+      color: var(--gold); opacity: .5; font-size: 1.1rem;
+    }
+    .error-msg {
+      text-align: center; padding: 40px 20px;
+      font-family: 'EB Garamond', serif; font-style: italic;
+      color: rgba(220,100,80,.7); font-size: 1rem;
+    }
+
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: var(--wood-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--wood-panel); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+  </style>
+</head>
+<body>
+
+  <header class="lib-header">
+    <div class="header-top-rule"><span>· · ·</span></div>
+    <h1 class="lib-title"><a href="index.html">The Renne Library</a></h1>
+    <p class="lib-subtitle">A Cabinet of Curiosities</p>
+    <nav class="header-nav">
+      <a class="nav-link" href="index.html">Collection</a>
+      <a class="nav-link active" href="analytics.html">Analytics</a>
+    </nav>
+    <div class="header-bottom-rules">
+      <div class="rule-heavy"></div>
+      <div class="rule-light"></div>
+    </div>
+  </header>
+
+  <div class="analytics-body">
+    <div id="content">
+      <div class="loading-msg">Consulting the archives…</div>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    // ── Must match index.html ──────────────────────────────
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_PYVb-qMGrPLPsUz6Phg6tpbIquYMHrY-c4jNWD7BQ0hawPWx8NjwGGv0byFClwlFrDgihLPQzGX/pub?gid=673406086&single=true&output=csv';
+    const META_KEY  = 'rl_meta_v3';
+    const BOOKS_KEY = 'rl_books_v3';
+    // ──────────────────────────────────────────────────────
+
+    // Chart.js global defaults — Bodleian dark theme
+    Chart.defaults.color            = 'rgba(242,234,212,.65)';
+    Chart.defaults.borderColor      = 'rgba(200,144,60,.12)';
+    Chart.defaults.font.family      = "'EB Garamond', Georgia, serif";
+    Chart.defaults.font.size        = 13;
+    Chart.defaults.plugins.legend.display = false;
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(20,8,2,.92)';
+    Chart.defaults.plugins.tooltip.borderColor     = 'rgba(200,144,60,.5)';
+    Chart.defaults.plugins.tooltip.borderWidth     = 1;
+    Chart.defaults.plugins.tooltip.titleColor      = '#f2d060';
+    Chart.defaults.plugins.tooltip.bodyColor       = '#f2ead4';
+    Chart.defaults.plugins.tooltip.padding         = 10;
+
+    const GOLD_PALETTE = [
+      '#c89040','#e6b450','#f2d060','#a06828','#d4a040',
+      '#7c1a1a','#1c3e20','#18285c','#5c3410','#3c1060',
+      '#0c3232','#484208','#521a08','#183860','#5a2608',
+      '#300808','#0a2032','#b06030','#406020','#204060',
+    ];
+
+    // ── CSV helpers ─────────────────────────────────────
+    function splitLine(line) {
+      const out = []; let cur = ''; let inQ = false;
+      for (const ch of line) {
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { out.push(cur); cur = ''; }
+        else cur += ch;
+      }
+      out.push(cur);
+      return out;
+    }
+    function parseCSV(text) {
+      const rows = text.trim().split(/\r?\n/);
+      if (rows.length < 2) return [];
+      const headers = splitLine(rows[0]).map(h =>
+        h.trim().toLowerCase().replace(/^["']|["']$/g, ''));
+      const ti = headers.indexOf('title');
+      const fi = headers.indexOf('first_name');
+      const li = headers.indexOf('last_name');
+      const ii = headers.indexOf('isbn');
+      if (ti < 0) return [];
+      return rows.slice(1).flatMap(row => {
+        const cols  = splitLine(row);
+        const title = (cols[ti] ?? '').replace(/^["']|["']$/g, '').trim();
+        if (!title) return [];
+        const rawIsbn = ii >= 0 ? (cols[ii] ?? '').replace(/^["']|["']$/g, '').trim() : '';
+        return [{
+          title,
+          first_name: fi >= 0 ? (cols[fi] ?? '').replace(/^["']|["']$/g, '').trim() : '',
+          last_name:  li >= 0 ? (cols[li] ?? '').replace(/^["']|["']$/g, '').trim() : '',
+          isbn:       rawIsbn.replace(/[-\s]/g, ''),
+        }];
+      });
+    }
+
+    // ── Fetch books ─────────────────────────────────────
+    async function loadBooks() {
+      // Try localStorage cache first for fast paint
+      try {
+        const cached = localStorage.getItem(BOOKS_KEY);
+        if (cached) {
+          const b = JSON.parse(cached);
+          if (b?.length) return b;
+        }
+      } catch(_) {}
+
+      // Fetch from Google Sheet
+      const candidates = [
+        SHEET_URL,
+        `https://corsproxy.io/?${encodeURIComponent(SHEET_URL)}`,
+      ];
+      for (const url of candidates) {
+        try {
+          const r = await fetch(url);
+          if (!r.ok) continue;
+          const text = await r.text();
+          if (text.trimStart().startsWith('<')) continue;
+          const parsed = parseCSV(text);
+          if (parsed.length) return parsed;
+        } catch(_) {}
+      }
+      return [];
+    }
+
+    // ── Stop words for title word analysis ───────────────
+    const STOP = new Set([
+      'the','a','an','of','and','in','to','for','on','at','by',
+      'with','from','as','is','it','its','that','this','or','are',
+      'was','be','has','have','had','his','her','their','our','my',
+      'your','not','but','all','no','so','up','do','if','we','you',
+      'he','she','they','i','new','great','first','one','two','three',
+      'into','about','after','before','over','under','about','through',
+      'between','than','who','what','when','where','how','why','which',
+      'then','than','too','very','just','also','more','most','other',
+    ]);
+
+    // ── Build charts ─────────────────────────────────────
+    function buildCharts(books) {
+      const meta = (() => {
+        try { return JSON.parse(localStorage.getItem(META_KEY) || '{}'); } catch(_) { return {}; }
+      })();
+
+      // ── Stats ──────────────────────────────────────────
+      const uniqueAuthors = new Set(books.map(b =>
+        `${b.first_name} ${b.last_name}`.trim().toLowerCase())).size;
+      const withIsbn = books.filter(b => b.isbn).length;
+      const metaCount = Object.values(meta).filter(m => m?.ok).length;
+
+      // ── Top authors ────────────────────────────────────
+      const authorCounts = {};
+      books.forEach(b => {
+        const name = [b.first_name, b.last_name].filter(Boolean).join(' ');
+        if (name.trim()) authorCounts[name] = (authorCounts[name] || 0) + 1;
+      });
+      const topAuthors = Object.entries(authorCounts)
+        .sort((a, b) => b[1] - a[1]).slice(0, 25);
+
+      // ── First letter distribution ──────────────────────
+      const letterCounts = {};
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('').forEach(c => letterCounts[c] = 0);
+      books.forEach(b => {
+        const ch = b.title.trimStart().toUpperCase()[0];
+        if (ch) letterCounts[ch] = (letterCounts[ch] || 0) + 1;
+      });
+
+      // ── Title word frequency ───────────────────────────
+      const wordCounts = {};
+      books.forEach(b => {
+        b.title.toLowerCase().split(/\W+/).forEach(w => {
+          if (w.length > 2 && !STOP.has(w)) wordCounts[w] = (wordCounts[w] || 0) + 1;
+        });
+      });
+      const topWords = Object.entries(wordCounts)
+        .sort((a, b) => b[1] - a[1]).slice(0, 60);
+
+      // ── Publication decades (from OL cache) ────────────
+      const decadeCounts = {};
+      Object.values(meta).forEach(m => {
+        if (!m?.publishedDate) return;
+        const yr = parseInt(m.publishedDate);
+        if (yr >= 1800 && yr <= 2030) {
+          const d = Math.floor(yr / 10) * 10;
+          decadeCounts[d] = (decadeCounts[d] || 0) + 1;
+        }
+      });
+      const decadeEntries = Object.entries(decadeCounts)
+        .sort((a, b) => a[0] - b[0]);
+
+      // ── Page count buckets (from OL cache) ─────────────
+      const pageBuckets = {
+        '< 150':0, '150–250':0, '250–350':0,
+        '350–500':0, '500–700':0, '700+':0,
+      };
+      let pageTotal = 0;
+      Object.values(meta).forEach(m => {
+        if (!m?.pageCount) return;
+        const p = m.pageCount;
+        if      (p < 150) pageBuckets['< 150']++;
+        else if (p < 250) pageBuckets['150–250']++;
+        else if (p < 350) pageBuckets['250–350']++;
+        else if (p < 500) pageBuckets['350–500']++;
+        else if (p < 700) pageBuckets['500–700']++;
+        else              pageBuckets['700+']++;
+        pageTotal += p;
+      });
+      const pageMetaCount = Object.values(pageBuckets).reduce((a,b) => a+b, 0);
+      const avgPages = pageMetaCount > 0 ? Math.round(pageTotal / pageMetaCount) : null;
+
+      // ── ISBN coverage breakdown ─────────────────────────
+      const isbnYes = withIsbn, isbnNo = books.length - withIsbn;
+
+      // ── Render ─────────────────────────────────────────
+      document.getElementById('content').innerHTML = `
+
+        <!-- Stats row -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">${books.length.toLocaleString()}</div>
+            <div class="stat-label">Total Volumes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${uniqueAuthors.toLocaleString()}</div>
+            <div class="stat-label">Unique Authors</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${Math.round(withIsbn / books.length * 100)}%</div>
+            <div class="stat-label">ISBN Coverage</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${metaCount.toLocaleString()}</div>
+            <div class="stat-label">Metadata Loaded</div>
+          </div>
+          ${avgPages ? `<div class="stat-card">
+            <div class="stat-value">${avgPages}</div>
+            <div class="stat-label">Avg. Page Count</div>
+          </div>` : ''}
+        </div>
+
+        <!-- Top Authors -->
+        <div class="chart-card">
+          <p class="section-title">Most Collected Authors</p>
+          <p class="section-note">Top 25 authors by number of volumes in the collection</p>
+          <div class="chart-canvas-wrap" style="height:480px">
+            <canvas id="chart-authors"></canvas>
+          </div>
+        </div>
+
+        <!-- Two-column row -->
+        <div class="charts-row">
+
+          <!-- First letter -->
+          <div class="chart-card">
+            <p class="section-title">Title First Letter</p>
+            <p class="section-note">Alphabetical distribution of ${books.length.toLocaleString()} titles</p>
+            <div class="chart-canvas-wrap" style="height:260px">
+              <canvas id="chart-letters"></canvas>
+            </div>
+          </div>
+
+          <!-- ISBN coverage -->
+          <div class="chart-card">
+            <p class="section-title">ISBN Coverage</p>
+            <p class="section-note">${withIsbn.toLocaleString()} of ${books.length.toLocaleString()} volumes have an ISBN recorded</p>
+            <div class="chart-canvas-wrap" style="height:260px">
+              <canvas id="chart-isbn"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Word cloud -->
+        <div class="chart-card">
+          <p class="section-title">Most Common Title Words</p>
+          <p class="section-note">Top 60 words across all ${books.length.toLocaleString()} titles — common words excluded</p>
+          <div class="word-cloud" id="word-cloud"></div>
+        </div>
+
+        <!-- Publication decades -->
+        ${decadeEntries.length > 0 ? `
+        <div class="chart-card">
+          <p class="section-title">Publication Timeline</p>
+          <p class="section-note">Volumes by decade — based on ${Object.values(decadeCounts).reduce((a,b)=>a+b,0).toLocaleString()} books with loaded metadata. Hover more books on the main page to expand this chart.</p>
+          <div class="chart-canvas-wrap" style="height:280px">
+            <canvas id="chart-decades"></canvas>
+          </div>
+        </div>` : `
+        <div class="chart-card">
+          <p class="section-title">Publication Timeline</p>
+          <p class="section-note">No publication data loaded yet. Visit the main collection page, hover over some books, then return here to see this chart populate.</p>
+        </div>`}
+
+        <!-- Page count distribution -->
+        ${pageMetaCount > 0 ? `
+        <div class="chart-card">
+          <p class="section-title">Page Count Distribution</p>
+          <p class="section-note">Based on ${pageMetaCount.toLocaleString()} books with loaded metadata</p>
+          <div class="chart-canvas-wrap" style="height:280px">
+            <canvas id="chart-pages"></canvas>
+          </div>
+        </div>` : ''}
+      `;
+
+      // ── Render: Top Authors ────────────────────────────
+      new Chart(document.getElementById('chart-authors'), {
+        type: 'bar',
+        data: {
+          labels: topAuthors.map(([name]) => name),
+          datasets: [{
+            data:            topAuthors.map(([,count]) => count),
+            backgroundColor: topAuthors.map((_, i) => GOLD_PALETTE[i % GOLD_PALETTE.length] + 'cc'),
+            borderColor:     topAuthors.map((_, i) => GOLD_PALETTE[i % GOLD_PALETTE.length]),
+            borderWidth: 1,
+            borderRadius: 2,
+          }],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: 'rgba(200,144,60,.08)' }, ticks: { stepSize: 1 } },
+            y: { grid: { display: false }, ticks: { font: { size: 12 } } },
+          },
+        },
+      });
+
+      // ── Render: First Letter ──────────────────────────
+      const letterKeys   = Object.keys(letterCounts);
+      const letterVals   = Object.values(letterCounts);
+      const maxLetter    = Math.max(...letterVals);
+      new Chart(document.getElementById('chart-letters'), {
+        type: 'bar',
+        data: {
+          labels: letterKeys,
+          datasets: [{
+            data:            letterVals,
+            backgroundColor: letterVals.map(v => {
+              const t = v / maxLetter;
+              return `rgba(${Math.round(200 - t*80)}, ${Math.round(144 - t*80)}, ${Math.round(60 - t*30)}, ${0.45 + t*0.5})`;
+            }),
+            borderWidth: 0,
+            borderRadius: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+            y: { grid: { color: 'rgba(200,144,60,.08)' } },
+          },
+        },
+      });
+
+      // ── Render: ISBN donut ─────────────────────────────
+      new Chart(document.getElementById('chart-isbn'), {
+        type: 'doughnut',
+        data: {
+          labels: ['With ISBN', 'Without ISBN'],
+          datasets: [{
+            data:            [isbnYes, isbnNo],
+            backgroundColor: ['rgba(200,144,60,.80)', 'rgba(200,144,60,.18)'],
+            borderColor:     ['rgba(200,144,60,1)',   'rgba(200,144,60,.35)'],
+            borderWidth: 1,
+            hoverOffset: 6,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { color: 'rgba(242,234,212,.65)', padding: 16, font: { size: 12 } },
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} books`,
+              },
+            },
+          },
+        },
+      });
+
+      // ── Render: Word cloud ────────────────────────────
+      const maxFreq = topWords[0]?.[1] ?? 1;
+      const minFreq = topWords[topWords.length - 1]?.[1] ?? 1;
+      const cloudEl = document.getElementById('word-cloud');
+      topWords.forEach(([word, count]) => {
+        const span = document.createElement('span');
+        const t    = (count - minFreq) / (maxFreq - minFreq || 1);
+        span.textContent   = word;
+        span.style.fontSize = `${0.7 + t * 2.2}rem`;
+        span.style.opacity  = `${0.5 + t * 0.5}`;
+        span.title          = `"${word}" appears in ${count} title${count > 1 ? 's' : ''}`;
+        cloudEl.appendChild(span);
+      });
+
+      // ── Render: Publication decades ───────────────────
+      if (decadeEntries.length > 0) {
+        new Chart(document.getElementById('chart-decades'), {
+          type: 'bar',
+          data: {
+            labels: decadeEntries.map(([d]) => `${d}s`),
+            datasets: [{
+              data:            decadeEntries.map(([,v]) => v),
+              backgroundColor: 'rgba(200,144,60,.55)',
+              borderColor:     'rgba(200,144,60,.9)',
+              borderWidth: 1,
+              borderRadius: 3,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false } },
+              y: { grid: { color: 'rgba(200,144,60,.08)' } },
+            },
+          },
+        });
+      }
+
+      // ── Render: Page count distribution ───────────────
+      if (pageMetaCount > 0) {
+        new Chart(document.getElementById('chart-pages'), {
+          type: 'bar',
+          data: {
+            labels: Object.keys(pageBuckets),
+            datasets: [{
+              label: 'Books',
+              data:            Object.values(pageBuckets),
+              backgroundColor: Object.keys(pageBuckets).map((_, i) =>
+                GOLD_PALETTE[i] + 'bb'),
+              borderColor:     Object.keys(pageBuckets).map((_, i) =>
+                GOLD_PALETTE[i]),
+              borderWidth: 1,
+              borderRadius: 3,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false }, title: { display: true, text: 'Pages', color: 'rgba(242,234,212,.45)' } },
+              y: { grid: { color: 'rgba(200,144,60,.08)' } },
+            },
+          },
+        });
+      }
+    }
+
+    // ── Boot ─────────────────────────────────────────────
+    async function init() {
+      const books = await loadBooks();
+      if (!books.length) {
+        document.getElementById('content').innerHTML =
+          '<div class="error-msg">Could not load the collection. Check that the Google Sheet is published and try again.</div>';
+        return;
+      }
+      buildCharts(books);
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>
