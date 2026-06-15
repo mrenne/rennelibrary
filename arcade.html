@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade — The Renne Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --wood-darkest: #0c0502;
+      --wood-dark:    #180903;
+      --wood-mid:     #2a1006;
+      --wood-panel:   #3a1a0a;
+      --gold:         #c8903c;
+      --gold-light:   #e6b450;
+      --gold-bright:  #f2d060;
+      --gold-dark:    #78560e;
+      --cream:        #f2ead4;
+      --parchment:    #f8f0d6;
+      --parchment-mid:#eadcac;
+      --ink:          #150e08;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--wood-darkest);
+      color: var(--cream);
+      font-family: 'EB Garamond', serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .lib-header {
+      text-align: center;
+      padding: 28px 20px 0;
+      background: linear-gradient(to bottom, var(--wood-dark) 0%, var(--wood-darkest) 100%);
+      border-bottom: 2px solid var(--gold-dark);
+    }
+    .header-top-rule { font-size:.6rem; letter-spacing:.5em; color:var(--gold-dark); margin-bottom:10px; }
+    .lib-title {
+      font-family: 'Pirata One', cursive;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      color: var(--gold-light);
+      letter-spacing: .04em;
+      text-shadow: 0 0 28px rgba(210,150,40,.45), 0 2px 4px rgba(0,0,0,.85);
+      margin-bottom: 4px;
+    }
+    .lib-title a { color: inherit; text-decoration: none; }
+    .lib-title a:hover { opacity: .8; }
+    .lib-subtitle {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: .92rem; color: var(--gold-light); opacity: .62;
+      letter-spacing: .04em; line-height: 1.55;
+      max-width: 680px; margin: 0 auto 8px;
+    }
+    .header-nav { display:flex; justify-content:center; gap:24px; margin-bottom:10px; }
+    .nav-link {
+      font-family: 'Cinzel', serif; font-size:.62rem;
+      letter-spacing:.18em; text-transform:uppercase;
+      color:var(--gold); opacity:.6; text-decoration:none;
+      border-bottom:1px solid transparent;
+      transition:opacity .2s, border-color .2s; padding-bottom:2px;
+    }
+    .nav-link:hover { opacity:1; }
+    .nav-link.active { opacity:1; border-bottom-color:var(--gold); }
+    .header-bottom-rules { padding:10px 0 0; }
+    .rule-heavy {
+      height:2px;
+      background:linear-gradient(to right,transparent,var(--gold-dark) 20%,var(--gold) 50%,var(--gold-dark) 80%,transparent);
+      margin-bottom:3px;
+    }
+    .rule-light {
+      height:1px;
+      background:linear-gradient(to right,transparent,var(--gold-dark) 20%,var(--gold-dark) 80%,transparent);
+    }
+
+    /* ── Main ── */
+    .arcade-area { max-width:720px; margin:0 auto; padding:32px 16px 56px; }
+
+    .game-label {
+      font-family:'Cinzel',serif; font-size:.58rem; letter-spacing:.22em;
+      text-transform:uppercase; color:var(--gold-dark); text-align:center;
+      margin-bottom:2px;
+    }
+    .game-title {
+      font-family:'Pirata One',cursive; font-size:2.6rem;
+      color:var(--gold-light); text-align:center; letter-spacing:.06em;
+      text-shadow:0 0 20px rgba(210,150,40,.3);
+      margin-bottom:4px;
+    }
+    .game-subtitle {
+      font-family:'EB Garamond',serif; font-style:italic;
+      font-size:.95rem; color:var(--cream); opacity:.65;
+      text-align:center; margin-bottom:22px;
+    }
+
+    /* ── Misstep pips ── */
+    .misstep-row {
+      display:flex; align-items:center; justify-content:center;
+      gap:8px; margin-bottom:24px;
+    }
+    .misstep-label {
+      font-family:'Cinzel',serif; font-size:.55rem;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--gold-dark); margin-right:4px;
+    }
+    .pip {
+      width:13px; height:13px; border-radius:50%;
+      background:var(--gold); border:1px solid var(--gold-dark);
+      transition:background .3s, opacity .3s;
+    }
+    .pip.used { background:var(--wood-mid); opacity:.35; }
+
+    /* ── Book covers ── */
+    .book-covers {
+      display:flex; justify-content:center; gap:14px;
+      margin-bottom:26px; flex-wrap:wrap;
+    }
+    .cover-card {
+      display:flex; flex-direction:column; align-items:center;
+      width:90px; position:relative;
+      opacity:.28; transition:opacity .4s;
+    }
+    .cover-card.solved { opacity:1; }
+    .cover-img {
+      width:68px; height:100px; object-fit:cover;
+      border:2px solid var(--gold-dark); border-radius:2px;
+      background:var(--wood-mid); display:block;
+    }
+    .cover-swatch {
+      position:absolute; top:0; left:11px;
+      width:68px; height:100px; border-radius:2px;
+      opacity:0; transition:opacity .5s; pointer-events:none;
+    }
+    .cover-card.solved .cover-swatch { opacity:.22; }
+    .cover-title {
+      font-family:'EB Garamond',serif; font-size:.66rem;
+      color:var(--cream); text-align:center; margin-top:5px;
+      line-height:1.3; max-width:90px;
+    }
+    .cover-author {
+      font-family:'EB Garamond',serif; font-style:italic;
+      font-size:.58rem; color:var(--gold-dark); text-align:center; line-height:1.3;
+    }
+
+    /* ── Word grid ── */
+    .word-grid {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:8px; margin-bottom:16px;
+    }
+    .tile {
+      background:var(--parchment); color:var(--ink);
+      font-family:'Cinzel',serif; font-size:.72rem;
+      font-weight:600; letter-spacing:.07em;
+      text-align:center; padding:14px 4px;
+      border-radius:4px; border:1px solid var(--parchment-mid);
+      cursor:pointer; user-select:none;
+      min-height:54px; display:flex; align-items:center; justify-content:center;
+      transition:background .12s, transform .1s, box-shadow .12s;
+    }
+    .tile:hover:not(.locked) {
+      background:var(--cream); transform:translateY(-1px);
+      box-shadow:0 3px 8px rgba(0,0,0,.4);
+    }
+    .tile.selected {
+      background:var(--gold); color:var(--ink);
+      border-color:var(--gold-dark);
+      box-shadow:0 0 0 2px var(--gold-dark);
+    }
+    .tile.locked {
+      cursor:default; color:var(--parchment); font-weight:700;
+    }
+    .tile.locked:hover { transform:none; box-shadow:none; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-7px)}
+      40%{transform:translateX(7px)}
+      60%{transform:translateX(-4px)}
+      80%{transform:translateX(4px)}
+    }
+    @keyframes pop {
+      0%{transform:scale(1)}50%{transform:scale(1.09)}100%{transform:scale(1)}
+    }
+    .tile.shake { animation:shake .38s ease; }
+    .tile.pop   { animation:pop .28s ease; }
+
+    /* ── Controls ── */
+    .controls { display:flex; justify-content:center; gap:12px; margin-bottom:24px; }
+    .btn {
+      font-family:'Cinzel',serif; font-size:.68rem;
+      letter-spacing:.14em; text-transform:uppercase;
+      padding:9px 28px; border-radius:3px;
+      border:1px solid var(--gold-dark); cursor:pointer;
+      transition:background .18s, color .18s, opacity .18s;
+    }
+    .btn-clear { background:transparent; color:var(--gold); }
+    .btn-clear:hover { background:rgba(200,144,60,.12); }
+    .btn-submit { background:var(--gold-dark); color:var(--parchment); }
+    .btn-submit:hover:not(:disabled) { background:var(--gold); color:var(--ink); }
+    .btn:disabled { opacity:.3; cursor:default; }
+
+    /* ── Result banner ── */
+    .result-banner {
+      display:none; text-align:center; padding:20px 16px;
+      margin-bottom:22px;
+      border:1px solid var(--gold-dark); border-radius:4px;
+      background:rgba(12,5,2,.7);
+    }
+    .result-banner h3 {
+      font-family:'Pirata One',cursive; font-size:1.7rem;
+      color:var(--gold-light); margin-bottom:6px;
+    }
+    .result-banner p { font-size:.95rem; color:var(--cream); opacity:.8; }
+    .share-btn { margin-top:14px; }
+
+    /* ── Stats ── */
+    .stats-strip {
+      display:flex; justify-content:center; gap:32px;
+      padding:16px 0; border-top:1px solid var(--gold-dark);
+      margin-top:6px;
+    }
+    .stat-cell { text-align:center; }
+    .stat-num { font-family:'Cinzel',serif; font-size:1.5rem; color:var(--gold-light); display:block; }
+    .stat-lbl { font-family:'Cinzel',serif; font-size:.5rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-dark); }
+
+    /* ── How to play ── */
+    .how-to-play {
+      margin-top:28px; padding:16px 20px;
+      border:1px solid rgba(200,144,60,.18); border-radius:4px;
+      background:rgba(12,5,2,.35);
+    }
+    .how-to-play h4 {
+      font-family:'Cinzel',serif; font-size:.65rem;
+      letter-spacing:.16em; text-transform:uppercase;
+      color:var(--gold-dark); margin-bottom:10px;
+    }
+    .how-to-play li {
+      font-size:.9rem; color:var(--cream); opacity:.7;
+      line-height:1.75; margin-left:16px;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position:fixed; top:22px; left:50%; transform:translateX(-50%);
+      background:var(--wood-mid); color:var(--gold-light);
+      font-family:'Cinzel',serif; font-size:.68rem; letter-spacing:.12em;
+      padding:9px 22px; border-radius:3px; border:1px solid var(--gold-dark);
+      z-index:999; opacity:0; transition:opacity .2s; pointer-events:none;
+    }
+
+    footer {
+      text-align:center; padding:22px;
+      font-family:'Cinzel',serif; font-size:.48rem;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--gold-dark); opacity:.35;
+    }
+  </style>
+</head>
+<body>
+
+<header class="lib-header">
+  <div class="header-top-rule"><span>· · ·</span></div>
+  <h1 class="lib-title"><a href="index.html">The Renne Library</a></h1>
+  <p class="lib-subtitle">Books are Weapons &hellip;</p>
+  <nav class="header-nav">
+    <a class="nav-link" href="index.html">Collection</a>
+    <a class="nav-link" href="analytics.html">Analytics</a>
+    <a class="nav-link active" href="arcade.html">Arcade</a>
+  </nav>
+  <div class="header-bottom-rules">
+    <div class="rule-heavy"></div>
+    <div class="rule-light"></div>
+  </div>
+</header>
+
+<main class="arcade-area">
+  <p class="game-label" id="puzzle-date"></p>
+  <h2 class="game-title">Plotlines</h2>
+  <p class="game-subtitle">Connect 4 sets of 4 words, each tied to a different book.</p>
+
+  <div class="misstep-row">
+    <span class="misstep-label">Missteps remaining</span>
+    <span class="pip" id="pip0"></span>
+    <span class="pip" id="pip1"></span>
+    <span class="pip" id="pip2"></span>
+    <span class="pip" id="pip3"></span>
+  </div>
+
+  <div class="book-covers" id="book-covers"></div>
+
+  <div class="result-banner" id="result-banner">
+    <h3 id="result-heading"></h3>
+    <p id="result-msg"></p>
+    <button class="btn btn-submit share-btn" id="share-btn">Share Result</button>
+  </div>
+
+  <div class="word-grid" id="word-grid"></div>
+
+  <div class="controls">
+    <button class="btn btn-clear" id="btn-clear">Clear</button>
+    <button class="btn btn-submit" id="btn-submit" disabled>Submit</button>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-cell"><span class="stat-num" id="s-played">0</span><span class="stat-lbl">Played</span></div>
+    <div class="stat-cell"><span class="stat-num" id="s-won">0</span><span class="stat-lbl">Won</span></div>
+    <div class="stat-cell"><span class="stat-num" id="s-streak">0</span><span class="stat-lbl">Streak</span></div>
+    <div class="stat-cell"><span class="stat-num" id="s-best">0</span><span class="stat-lbl">Best</span></div>
+  </div>
+
+  <div class="how-to-play">
+    <h4>How to Play</h4>
+    <ul>
+      <li>Select four words that all belong to the same book.</li>
+      <li>Press <strong>Submit</strong> to check. Correct groups lock in and reveal the cover.</li>
+      <li>Wrong guesses cost one misstep. You have four before the game ends.</li>
+      <li>A puzzle is available every day — come back tomorrow for a new one.</li>
+    </ul>
+  </div>
+</main>
+
+<div id="toast"></div>
+<footer>&copy; The Renne Library</footer>
+
+<script>
+// ─────────────────────────────────────────────
+// PUZZLE DATA  (12 puzzles, cycling daily)
+// ─────────────────────────────────────────────
+const PUZZLES = [
+  { // 0 — Dystopias
+    books: [
+      { title:'1984', author:'George Orwell', isbn:'9780451524935', color:'#7c1a1a',
+        words:['WINSTON','DOUBLETHINK','OCEANIA','PROLES'] },
+      { title:'Brave New World', author:'Aldous Huxley', isbn:'9780060850524', color:'#1c3e20',
+        words:['SOMA','BERNARD','BOKANOVSKY','LENINA'] },
+      { title:'Fahrenheit 451', author:'Ray Bradbury', isbn:'9781451673319', color:'#18285c',
+        words:['MONTAG','MILDRED','SALAMANDER','CLARISSE'] },
+      { title:"The Handmaid's Tale", author:'Margaret Atwood', isbn:'9780385490818', color:'#5c3410',
+        words:['OFFRED','GILEAD','COMMANDER','UNWOMAN'] },
+    ]
+  },
+  { // 1 — Jane Austen
+    books: [
+      { title:'Pride and Prejudice', author:'Jane Austen', isbn:'9780141439518', color:'#7c1a1a',
+        words:['DARCY','WICKHAM','BINGLEY','NETHERFIELD'] },
+      { title:'Sense and Sensibility', author:'Jane Austen', isbn:'9780141439662', color:'#1c3e20',
+        words:['ELINOR','MARIANNE','WILLOUGHBY','DASHWOOD'] },
+      { title:'Emma', author:'Jane Austen', isbn:'9780141439587', color:'#18285c',
+        words:['WOODHOUSE','KNIGHTLEY','WESTON','HARRIET'] },
+      { title:'Persuasion', author:'Jane Austen', isbn:'9780141439686', color:'#5c3410',
+        words:['WENTWORTH','KELLYNCH','MUSGROVE','BENWICK'] },
+    ]
+  },
+  { // 2 — American Classics
+    books: [
+      { title:'To Kill a Mockingbird', author:'Harper Lee', isbn:'9780061935466', color:'#7c1a1a',
+        words:['ATTICUS','MAYCOMB','RADLEY','CALPURNIA'] },
+      { title:'The Great Gatsby', author:'F. Scott Fitzgerald', isbn:'9780743273565', color:'#1c3e20',
+        words:['DAISY','BUCHANAN','MYRTLE','CARRAWAY'] },
+      { title:'The Catcher in the Rye', author:'J.D. Salinger', isbn:'9780316769174', color:'#18285c',
+        words:['HOLDEN','PHOEBE','PENCEY','ACKLEY'] },
+      { title:'Of Mice and Men', author:'John Steinbeck', isbn:'9780140177398', color:'#5c3410',
+        words:['LENNIE','GEORGE','CURLEY','CROOKS'] },
+    ]
+  },
+  { // 3 — Victorian England
+    books: [
+      { title:'Jane Eyre', author:'Charlotte Brontë', isbn:'9780141441146', color:'#7c1a1a',
+        words:['ROCHESTER','THORNFIELD','LOWOOD','BERTHA'] },
+      { title:'Wuthering Heights', author:'Emily Brontë', isbn:'9780141439556', color:'#1c3e20',
+        words:['HEATHCLIFF','HINDLEY','EARNSHAW','LOCKWOOD'] },
+      { title:'Middlemarch', author:'George Eliot', isbn:'9780141439549', color:'#18285c',
+        words:['CASAUBON','DOROTHEA','LYDGATE','BULSTRODE'] },
+      { title:'Great Expectations', author:'Charles Dickens', isbn:'9780141439563', color:'#5c3410',
+        words:['PIP','HAVISHAM','MAGWITCH','ESTELLA'] },
+    ]
+  },
+  { // 4 — At Sea
+    books: [
+      { title:'Moby-Dick', author:'Herman Melville', isbn:'9780142437247', color:'#7c1a1a',
+        words:['AHAB','PEQUOD','ISHMAEL','STARBUCK'] },
+      { title:'The Old Man and the Sea', author:'Ernest Hemingway', isbn:'9780684801223', color:'#1c3e20',
+        words:['SANTIAGO','MANOLIN','MARLIN','HAVANA'] },
+      { title:'Lord Jim', author:'Joseph Conrad', isbn:'9780141441610', color:'#18285c',
+        words:['PATUSAN','MARLOW','PATNA','JEWEL'] },
+      { title:'Treasure Island', author:'Robert Louis Stevenson', isbn:'9780141321004', color:'#5c3410',
+        words:['HAWKINS','SILVER','FLINT','HISPANIOLA'] },
+    ]
+  },
+  { // 5 — Russian Masters
+    books: [
+      { title:'Crime and Punishment', author:'Fyodor Dostoevsky', isbn:'9780143058144', color:'#7c1a1a',
+        words:['RASKOLNIKOV','SONIA','PORFIRY','DUNYA'] },
+      { title:'The Brothers Karamazov', author:'Fyodor Dostoevsky', isbn:'9780374528379', color:'#1c3e20',
+        words:['ALYOSHA','DMITRI','GRUSHENKA','ZOSIMA'] },
+      { title:'Anna Karenina', author:'Leo Tolstoy', isbn:'9780143035008', color:'#18285c',
+        words:['VRONSKY','LEVIN','KITTY','OBLONSKY'] },
+      { title:'War and Peace', author:'Leo Tolstoy', isbn:'9781400079988', color:'#5c3410',
+        words:['NATASHA','PIERRE','ANDREI','BORODINO'] },
+    ]
+  },
+  { // 6 — Gothic & Horror
+    books: [
+      { title:'Frankenstein', author:'Mary Shelley', isbn:'9780141439471', color:'#7c1a1a',
+        words:['CREATURE','WALTON','INGOLSTADT','CLERVAL'] },
+      { title:'Dracula', author:'Bram Stoker', isbn:'9780141439846', color:'#1c3e20',
+        words:['MINA','RENFIELD','HARKER','TRANSYLVANIA'] },
+      { title:'The Picture of Dorian Gray', author:'Oscar Wilde', isbn:'9780141439570', color:'#18285c',
+        words:['DORIAN','BASIL','SIBYL','WOTTON'] },
+      { title:'Rebecca', author:'Daphne du Maurier', isbn:'9780380730407', color:'#5c3410',
+        words:['MANDERLEY','MAXIM','DANVERS','FAVELL'] },
+    ]
+  },
+  { // 7 — Grand Adventures
+    books: [
+      { title:'Don Quixote', author:'Miguel de Cervantes', isbn:'9780060934347', color:'#7c1a1a',
+        words:['SANCHO','DULCINEA','ROCINANTE','QUIJANO'] },
+      { title:"Gulliver's Travels", author:'Jonathan Swift', isbn:'9780141439495', color:'#1c3e20',
+        words:['LILLIPUT','BROBDINGNAG','HOUYHNHNM','LAPUTA'] },
+      { title:'Robinson Crusoe', author:'Daniel Defoe', isbn:'9780141439523', color:'#18285c',
+        words:['CRUSOE','FRIDAY','XURY','CANNIBALS'] },
+      { title:'Around the World in 80 Days', author:'Jules Verne', isbn:'9780140449068', color:'#5c3410',
+        words:['FOGG','PASSEPARTOUT','AOUDA','FIX'] },
+    ]
+  },
+  { // 8 — Magical Realism
+    books: [
+      { title:'One Hundred Years of Solitude', author:'Gabriel García Márquez', isbn:'9780060883287', color:'#7c1a1a',
+        words:['BUENDIA','MACONDO','REMEDIOS','URSULA'] },
+      { title:'Like Water for Chocolate', author:'Laura Esquivel', isbn:'9780385420174', color:'#1c3e20',
+        words:['TITA','ROSAURA','NACHA','PEDRO'] },
+      { title:'The House of the Spirits', author:'Isabel Allende', isbn:'9780553383805', color:'#18285c',
+        words:['BLANCA','CLARA','ESTEBAN','ALBA'] },
+      { title:"Midnight's Children", author:'Salman Rushdie', isbn:'9780812976533', color:'#5c3410',
+        words:['SALEEM','SHIVA','PADMA','SINAI'] },
+    ]
+  },
+  { // 9 — Fantasy Epics
+    books: [
+      { title:'The Lord of the Rings', author:'J.R.R. Tolkien', isbn:'9780618346257', color:'#7c1a1a',
+        words:['MORDOR','GANDALF','FRODO','RIVENDELL'] },
+      { title:'The Hobbit', author:'J.R.R. Tolkien', isbn:'9780547928227', color:'#1c3e20',
+        words:['BILBO','SMAUG','THORIN','EREBOR'] },
+      { title:'Dune', author:'Frank Herbert', isbn:'9780441013593', color:'#18285c',
+        words:['ARRAKIS','SPICE','HARKONNEN','FREMEN'] },
+      { title:'The Name of the Wind', author:'Patrick Rothfuss', isbn:'9780756404741', color:'#5c3410',
+        words:['KVOTHE','DENNA','KILVIN','EOLIAN'] },
+    ]
+  },
+  { // 10 — Shakespeare Tragedies
+    books: [
+      { title:'Hamlet', author:'William Shakespeare', isbn:'9780521618748', color:'#7c1a1a',
+        words:['OPHELIA','YORICK','ELSINORE','POLONIUS'] },
+      { title:'Macbeth', author:'William Shakespeare', isbn:'9780521615259', color:'#1c3e20',
+        words:['BANQUO','MACDUFF','GLAMIS','HECATE'] },
+      { title:'Othello', author:'William Shakespeare', isbn:'9780521618762', color:'#18285c',
+        words:['IAGO','DESDEMONA','CASSIO','BIANCA'] },
+      { title:'King Lear', author:'William Shakespeare', isbn:'9780521618731', color:'#5c3410',
+        words:['CORDELIA','GONERIL','REGAN','GLOUCESTER'] },
+    ]
+  },
+  { // 11 — Nobel Laureates
+    books: [
+      { title:'Beloved', author:'Toni Morrison', isbn:'9781400033416', color:'#7c1a1a',
+        words:['SETHE','DENVER','SUGGS','SCHOOLTEACHER'] },
+      { title:'The Tin Drum', author:'Günter Grass', isbn:'9780156907392', color:'#1c3e20',
+        words:['OSKAR','DANZIG','MATZERATH','BEBRA'] },
+      { title:'The Stranger', author:'Albert Camus', isbn:'9780679720201', color:'#18285c',
+        words:['MEURSAULT','MARIE','RAYMOND','SALAMANO'] },
+      { title:'Pedro Páramo', author:'Juan Rulfo', isbn:'9780802133908', color:'#5c3410',
+        words:['PEDRO','COMALA','SUSANA','DOROTEA'] },
+    ]
+  },
+];
+
+// ─────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────
+const MAX_MISTAKES  = 4;
+const STATS_KEY     = 'plotlines_stats_v1';
+const HISTORY_KEY   = 'plotlines_history_v1';
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let puzzle, tiles, selected, mistakes, solvedTitles, gameOver, todayStr;
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function init() {
+  const now = new Date();
+  todayStr = now.toISOString().slice(0, 10);
+  const dayIdx = Math.floor(now.getTime() / 86400000) % PUZZLES.length;
+  puzzle = PUZZLES[dayIdx];
+
+  document.getElementById('puzzle-date').textContent =
+    now.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+  // Build shuffled word list
+  const allWords = puzzle.books.flatMap(b => b.words);
+  selected     = new Set();
+  mistakes     = 0;
+  solvedTitles = new Set();
+  gameOver     = false;
+
+  // Restore today's progress if any
+  const history = loadHistory();
+  const saved   = history[todayStr];
+  if (saved && saved.puzzleIdx === dayIdx) {
+    tiles        = saved.tiles;
+    mistakes     = saved.mistakes;
+    solvedTitles = new Set(saved.solved);
+    gameOver     = saved.gameOver;
+  } else {
+    tiles = shuffle(allWords);
+  }
+
+  renderCovers();
+  renderGrid();
+  renderPips();
+  renderStats();
+
+  // Reveal solved covers immediately on restore
+  solvedTitles.forEach(title => {
+    const idx = puzzle.books.findIndex(b => b.title === title);
+    if (idx >= 0) document.getElementById(`cover${idx}`)?.classList.add('solved');
+  });
+  if (gameOver) showBanner(solvedTitles.size === puzzle.books.length);
+
+  document.getElementById('btn-clear').addEventListener('click', clearSel);
+  document.getElementById('btn-submit').addEventListener('click', submit);
+  document.getElementById('share-btn').addEventListener('click', share);
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function renderCovers() {
+  const row = document.getElementById('book-covers');
+  row.innerHTML = '';
+  puzzle.books.forEach((book, i) => {
+    const card = document.createElement('div');
+    card.className = 'cover-card';
+    card.id = `cover${i}`;
+
+    const img = document.createElement('img');
+    img.className = 'cover-img';
+    img.src = `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`;
+    img.alt = book.title;
+    img.onerror = () => { img.style.visibility = 'hidden'; };
+
+    const swatch = document.createElement('div');
+    swatch.className = 'cover-swatch';
+    swatch.style.background = book.color;
+
+    const tEl = document.createElement('div');
+    tEl.className = 'cover-title';
+    tEl.textContent = book.title;
+
+    const aEl = document.createElement('div');
+    aEl.className = 'cover-author';
+    aEl.textContent = book.author;
+
+    card.append(img, swatch, tEl, aEl);
+    row.appendChild(card);
+  });
+}
+
+function renderGrid() {
+  const grid = document.getElementById('word-grid');
+  grid.innerHTML = '';
+  tiles.forEach(word => {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.textContent = word;
+    tile.dataset.word = word;
+
+    const book = bookOf(word);
+    if (solvedTitles.has(book.title)) {
+      tile.classList.add('locked');
+      tile.style.background   = book.color;
+      tile.style.borderColor  = book.color;
+    } else if (selected.has(word)) {
+      tile.classList.add('selected');
+    }
+
+    tile.addEventListener('click', () => toggleTile(word));
+    grid.appendChild(tile);
+  });
+}
+
+function renderPips() {
+  for (let i = 0; i < MAX_MISTAKES; i++) {
+    const pip = document.getElementById(`pip${i}`);
+    if (pip) pip.classList.toggle('used', i >= MAX_MISTAKES - mistakes);
+  }
+}
+
+function renderStats() {
+  const s = loadStats();
+  document.getElementById('s-played').textContent = s.played;
+  document.getElementById('s-won').textContent    = s.won;
+  document.getElementById('s-streak').textContent = s.streak;
+  document.getElementById('s-best').textContent   = s.maxStreak;
+}
+
+// ─────────────────────────────────────────────
+// INTERACTION
+// ─────────────────────────────────────────────
+function toggleTile(word) {
+  if (gameOver) return;
+  if (solvedTitles.has(bookOf(word).title)) return;
+
+  const tile = tileEl(word);
+  if (selected.has(word)) {
+    selected.delete(word);
+    tile?.classList.remove('selected');
+  } else {
+    if (selected.size >= 4) return;
+    selected.add(word);
+    tile?.classList.add('selected');
+  }
+  document.getElementById('btn-submit').disabled = selected.size !== 4;
+}
+
+function clearSel() {
+  selected.clear();
+  document.querySelectorAll('.tile.selected').forEach(t => t.classList.remove('selected'));
+  document.getElementById('btn-submit').disabled = true;
+}
+
+function submit() {
+  if (selected.size !== 4 || gameOver) return;
+
+  // Count how many words map to each book
+  const tally = {};
+  for (const w of selected) {
+    const t = bookOf(w).title;
+    tally[t] = (tally[t] || 0) + 1;
+  }
+  const titles = Object.keys(tally);
+
+  if (titles.length === 1 && tally[titles[0]] === 4) {
+    // ── Correct ──
+    const book = puzzle.books.find(b => b.title === titles[0]);
+    solvedTitles.add(titles[0]);
+
+    selected.forEach(w => {
+      const el = tileEl(w);
+      if (!el) return;
+      el.classList.add('locked', 'pop');
+      el.style.background  = book.color;
+      el.style.borderColor = book.color;
+      el.addEventListener('animationend', () => el.classList.remove('pop'), { once: true });
+    });
+
+    const coverCard = document.getElementById(`cover${puzzle.books.indexOf(book)}`);
+    coverCard?.classList.add('solved');
+
+    selected.clear();
+    document.getElementById('btn-submit').disabled = true;
+
+    if (solvedTitles.size === puzzle.books.length) {
+      endGame(true);
+    } else {
+      saveHistory();
+    }
+  } else {
+    // ── Wrong ──
+    const isOneOff = titles.length === 2 &&
+      Object.values(tally).sort((a,b)=>a-b).join(',') === '1,3';
+
+    mistakes++;
+    renderPips();
+
+    selected.forEach(w => {
+      const el = tileEl(w);
+      el?.classList.add('shake');
+      el?.addEventListener('animationend', () => el.classList.remove('shake'), { once: true });
+    });
+
+    if (isOneOff) toast('One away…');
+
+    if (mistakes >= MAX_MISTAKES) {
+      endGame(false);
+    } else {
+      saveHistory();
+    }
+  }
+}
+
+function endGame(won) {
+  gameOver = true;
+  // Lock all remaining tiles with their book colour
+  puzzle.books.forEach((book, i) => {
+    if (!solvedTitles.has(book.title)) {
+      solvedTitles.add(book.title);
+      document.getElementById(`cover${i}`)?.classList.add('solved');
+      book.words.forEach(w => {
+        const el = tileEl(w);
+        if (el && !el.classList.contains('locked')) {
+          el.classList.add('locked');
+          el.style.background  = book.color;
+          el.style.borderColor = book.color;
+        }
+      });
+    }
+  });
+  updateStats(won);
+  saveHistory();
+  renderStats();
+  showBanner(won);
+}
+
+function showBanner(won) {
+  const banner = document.getElementById('result-banner');
+  banner.style.display = 'block';
+  document.getElementById('result-heading').textContent = won ? 'Well Read!' : 'The Stacks Win';
+  document.getElementById('result-msg').textContent = won
+    ? `Solved with ${mistakes} misstep${mistakes !== 1 ? 's' : ''}. Another page turned.`
+    : "Better luck with tomorrow’s puzzle.";
+}
+
+// ─────────────────────────────────────────────
+// SHARE
+// ─────────────────────────────────────────────
+function share() {
+  const won = solvedTitles.size === puzzle.books.length;
+  let text = `Plotlines — The Renne Library\n${todayStr}\n`;
+  text += won
+    ? `Solved with ${mistakes} misstep${mistakes !== 1 ? 's' : ''}!\n`
+    : `Did not finish (${mistakes} missteps)\n`;
+  text += '\nPlay at: ' + window.location.origin + '/arcade.html';
+  navigator.clipboard?.writeText(text)
+    .then(() => toast('Copied to clipboard!'))
+    .catch(() => toast('Could not copy'));
+}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function bookOf(word) {
+  return puzzle.books.find(b => b.words.includes(word));
+}
+function tileEl(word) {
+  return [...document.querySelectorAll('.tile')].find(t => t.dataset.word === word) ?? null;
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.opacity = '0'; }, 1800);
+}
+
+// ─────────────────────────────────────────────
+// PERSISTENCE
+// ─────────────────────────────────────────────
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem(STATS_KEY)) || blankStats(); }
+  catch(_) { return blankStats(); }
+}
+function blankStats() {
+  return { played:0, won:0, streak:0, maxStreak:0, lastWon:null };
+}
+function updateStats(won) {
+  const s = loadStats();
+  s.played++;
+  if (won) {
+    s.won++;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+    s.streak = (s.lastWon === yesterday || s.lastWon === todayStr)
+      ? s.streak + (s.lastWon === todayStr ? 0 : 1)
+      : 1;
+    s.maxStreak = Math.max(s.streak, s.maxStreak);
+    s.lastWon   = todayStr;
+  } else {
+    s.streak = 0;
+  }
+  localStorage.setItem(STATS_KEY, JSON.stringify(s));
+}
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || {}; }
+  catch(_) { return {}; }
+}
+function saveHistory() {
+  const h = loadHistory();
+  h[todayStr] = {
+    puzzleIdx: PUZZLES.indexOf(puzzle),
+    tiles, mistakes,
+    solved: [...solvedTitles],
+    gameOver,
+  };
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
+}
+
+// ─────────────────────────────────────────────
+// GO
+// ─────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
