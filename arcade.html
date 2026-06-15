@@ -482,7 +482,7 @@ const PUZZLES = [
 // ─────────────────────────────────────────────
 const MAX_MISTAKES  = 4;
 const STATS_KEY     = 'plotlines_stats_v1';
-const HISTORY_KEY   = 'plotlines_history_v1';
+const HISTORY_KEY   = 'plotlines_history_v2';
 
 // ─────────────────────────────────────────────
 // STATE
@@ -511,7 +511,10 @@ function init() {
   // Restore today's progress if any
   const history = loadHistory();
   const saved   = history[todayStr];
-  if (saved && saved.puzzleIdx === dayIdx) {
+  const currentWords = new Set(allWords);
+  const savedValid = saved && saved.puzzleIdx === dayIdx &&
+    Array.isArray(saved.tiles) && saved.tiles.every(w => currentWords.has(w));
+  if (savedValid) {
     tiles        = saved.tiles;
     mistakes     = saved.mistakes;
     solvedTitles = new Set(saved.solved);
