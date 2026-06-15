@@ -331,148 +331,148 @@
 // PUZZLE DATA  (12 puzzles, cycling daily)
 // ─────────────────────────────────────────────
 const PUZZLES = [
-  { // 0 — Dystopias
+  { // 0 — Harry Potter (J.K. Rowling) — all four books in the collection
     books: [
-      { title:'1984', author:'George Orwell', isbn:'9780451524935', color:'#7c1a1a',
-        words:['WINSTON','DOUBLETHINK','OCEANIA','PROLES'] },
-      { title:'Brave New World', author:'Aldous Huxley', isbn:'9780060850524', color:'#1c3e20',
-        words:['SOMA','BERNARD','BOKANOVSKY','LENINA'] },
-      { title:'Fahrenheit 451', author:'Ray Bradbury', isbn:'9781451673319', color:'#18285c',
-        words:['MONTAG','MILDRED','SALAMANDER','CLARISSE'] },
-      { title:"The Handmaid's Tale", author:'Margaret Atwood', isbn:'9780385490818', color:'#5c3410',
-        words:['OFFRED','GILEAD','COMMANDER','UNWOMAN'] },
+      { title:"Harry Potter and the Sorcerer's Stone", author:'J.K. Rowling', isbn:'9780590353427', color:'#7c1a1a',
+        words:['QUIRRELL','FLUFFY','ERISED','NORBERT'] },
+      { title:'Harry Potter and the Chamber of Secrets', author:'J.K. Rowling', isbn:'9780439420105', color:'#1c3e20',
+        words:['BASILISK','LOCKHART','ARAGOG','MANDRAKES'] },
+      { title:'Harry Potter and the Prisoner of Azkaban', author:'J.K. Rowling', isbn:'9780439136358', color:'#18285c',
+        words:['LUPIN','SIRIUS','BUCKBEAK','MARAUDER'] },
+      { title:'Harry Potter and the Goblet of Fire', author:'J.K. Rowling', isbn:'9780439139595', color:'#5c3410',
+        words:['CEDRIC','KRUM','PORTKEY','TRIWIZARD'] },
     ]
   },
-  { // 1 — Jane Austen
+  { // 1 — J.R.R. Tolkien — four books in the collection
     books: [
-      { title:'Pride and Prejudice', author:'Jane Austen', isbn:'9780141439518', color:'#7c1a1a',
-        words:['DARCY','WICKHAM','BINGLEY','NETHERFIELD'] },
-      { title:'Sense and Sensibility', author:'Jane Austen', isbn:'9780141439662', color:'#1c3e20',
-        words:['ELINOR','MARIANNE','WILLOUGHBY','DASHWOOD'] },
-      { title:'Emma', author:'Jane Austen', isbn:'9780141439587', color:'#18285c',
-        words:['WOODHOUSE','KNIGHTLEY','WESTON','HARRIET'] },
-      { title:'Persuasion', author:'Jane Austen', isbn:'9780141439686', color:'#5c3410',
-        words:['WENTWORTH','KELLYNCH','MUSGROVE','BENWICK'] },
+      { title:'The Hobbit', author:'J.R.R. Tolkien', isbn:'9780395282656', color:'#7c1a1a',
+        words:['SMAUG','THORIN','MIRKWOOD','LAKETOWN'] },
+      { title:'The Lord of the Rings', author:'J.R.R. Tolkien', isbn:'9780395974681', color:'#1c3e20',
+        words:['BOROMIR','MORIA','FELLOWSHIP','ELROND'] },
+      { title:'The Two Towers', author:'J.R.R. Tolkien', isbn:'9780345339713', color:'#18285c',
+        words:['TREEBEARD','THEODEN','FANGORN','EDORAS'] },
+      { title:'The Silmarillion', author:'J.R.R. Tolkien', isbn:'9780618391110', color:'#5c3410',
+        words:['BEREN','LUTHIEN','MORGOTH','VALINOR'] },
     ]
   },
-  { // 2 — American Classics
+  { // 2 — The Dark Tower (Stephen King) — four books in the collection
     books: [
-      { title:'To Kill a Mockingbird', author:'Harper Lee', isbn:'9780061935466', color:'#7c1a1a',
-        words:['ATTICUS','MAYCOMB','RADLEY','CALPURNIA'] },
-      { title:'The Great Gatsby', author:'F. Scott Fitzgerald', isbn:'9780743273565', color:'#1c3e20',
-        words:['DAISY','BUCHANAN','MYRTLE','CARRAWAY'] },
-      { title:'The Catcher in the Rye', author:'J.D. Salinger', isbn:'9780316769174', color:'#18285c',
-        words:['HOLDEN','PHOEBE','PENCEY','ACKLEY'] },
-      { title:'Of Mice and Men', author:'John Steinbeck', isbn:'9780140177398', color:'#5c3410',
-        words:['LENNIE','GEORGE','CURLEY','CROOKS'] },
+      { title:'The Gunslinger', author:'Stephen King', isbn:'9780452284692', color:'#7c1a1a',
+        words:['JAKE','TULL','WALTER','GOLGOTHA'] },
+      { title:'The Drawing of the Three', author:'Stephen King', isbn:'9780451210852', color:'#1c3e20',
+        words:['ODETTA','BALAZAR','DOORS','EDDIE'] },
+      { title:'The Waste Lands', author:'Stephen King', isbn:'9780451210869', color:'#18285c',
+        words:['BLAINE','OY','SHARDIK','CHARLIE'] },
+      { title:'Wizard and Glass', author:'Stephen King', isbn:'9780451210876', color:'#5c3410',
+        words:['SUSAN','MEJIS','RHEA','REAP'] },
     ]
   },
-  { // 3 — Victorian England
+  { // 3 — Ernest Hemingway — four books in the collection
     books: [
-      { title:'Jane Eyre', author:'Charlotte Brontë', isbn:'9780141441146', color:'#7c1a1a',
-        words:['ROCHESTER','THORNFIELD','LOWOOD','BERTHA'] },
-      { title:'Wuthering Heights', author:'Emily Brontë', isbn:'9780141439556', color:'#1c3e20',
-        words:['HEATHCLIFF','HINDLEY','EARNSHAW','LOCKWOOD'] },
-      { title:'Middlemarch', author:'George Eliot', isbn:'9780141439549', color:'#18285c',
-        words:['CASAUBON','DOROTHEA','LYDGATE','BULSTRODE'] },
-      { title:'Great Expectations', author:'Charles Dickens', isbn:'9780141439563', color:'#5c3410',
-        words:['PIP','HAVISHAM','MAGWITCH','ESTELLA'] },
+      { title:'For Whom the Bell Tolls', author:'Ernest Hemingway', isbn:'9780684803357', color:'#7c1a1a',
+        words:['JORDAN','PILAR','PABLO','MARIA'] },
+      { title:'A Moveable Feast', author:'Ernest Hemingway', isbn:'9780684824994', color:'#1c3e20',
+        words:['SYLVIA','HADLEY','GERTRUDE','SCOTT'] },
+      { title:'The Nick Adams Stories', author:'Ernest Hemingway', isbn:'9780684169408', color:'#18285c',
+        words:['NICK','MICHIGAN','TROUT','MARJORIE'] },
+      { title:'To Have and Have Not', author:'Ernest Hemingway', isbn:'9780684818986', color:'#5c3410',
+        words:['MORGAN','HAVANA','MARIE','EDDY'] },
     ]
   },
-  { // 4 — At Sea
+  { // 4 — Neil Gaiman — four books in the collection
     books: [
-      { title:'Moby-Dick', author:'Herman Melville', isbn:'9780142437247', color:'#7c1a1a',
-        words:['AHAB','PEQUOD','ISHMAEL','STARBUCK'] },
-      { title:'The Old Man and the Sea', author:'Ernest Hemingway', isbn:'9780684801223', color:'#1c3e20',
-        words:['SANTIAGO','MANOLIN','MARLIN','HAVANA'] },
-      { title:'Lord Jim', author:'Joseph Conrad', isbn:'9780141441610', color:'#18285c',
-        words:['PATUSAN','MARLOW','PATNA','JEWEL'] },
-      { title:'Treasure Island', author:'Robert Louis Stevenson', isbn:'9780141321004', color:'#5c3410',
-        words:['HAWKINS','SILVER','FLINT','HISPANIOLA'] },
+      { title:'American Gods', author:'Neil Gaiman', isbn:'9780380789030', color:'#7c1a1a',
+        words:['SHADOW','WEDNESDAY','CZERNOBOG','LAKESIDE'] },
+      { title:'The Graveyard Book', author:'Neil Gaiman', isbn:'9780060530945', color:'#1c3e20',
+        words:['BOD','SILAS','JACK','SCARLETT'] },
+      { title:'Neverwhere', author:'Neil Gaiman', isbn:'9780060557812', color:'#18285c',
+        words:['RICHARD','DOOR','CARABAS','BELOW'] },
+      { title:'Good Omens', author:'Neil Gaiman & Terry Pratchett', isbn:'9780441008612', color:'#5c3410',
+        words:['AZIRAPHALE','CROWLEY','NEWTON','ANATHEMA'] },
     ]
   },
-  { // 5 — Russian Masters
+  { // 5 — Cormac McCarthy — four books in the collection
     books: [
-      { title:'Crime and Punishment', author:'Fyodor Dostoevsky', isbn:'9780143058144', color:'#7c1a1a',
-        words:['RASKOLNIKOV','SONIA','PORFIRY','DUNYA'] },
-      { title:'The Brothers Karamazov', author:'Fyodor Dostoevsky', isbn:'9780374528379', color:'#1c3e20',
-        words:['ALYOSHA','DMITRI','GRUSHENKA','ZOSIMA'] },
-      { title:'Anna Karenina', author:'Leo Tolstoy', isbn:'9780143035008', color:'#18285c',
-        words:['VRONSKY','LEVIN','KITTY','OBLONSKY'] },
-      { title:'War and Peace', author:'Leo Tolstoy', isbn:'9781400079988', color:'#5c3410',
-        words:['NATASHA','PIERRE','ANDREI','BORODINO'] },
+      { title:'Blood Meridian', author:'Cormac McCarthy', isbn:'9780679728757', color:'#7c1a1a',
+        words:['JUDGE','GLANTON','TOADVINE','SCALPS'] },
+      { title:'The Road', author:'Cormac McCarthy', isbn:'9780307387899', color:'#1c3e20',
+        words:['PAPA','ASHES','BUNKER','CANNIBALS'] },
+      { title:'All the Pretty Horses', author:'Cormac McCarthy', isbn:'9780679744399', color:'#18285c',
+        words:['JOHN','ALEJANDRA','RAWLINS','BLEVINS'] },
+      { title:'Child of God', author:'Cormac McCarthy', isbn:'9780679728740', color:'#5c3410',
+        words:['BALLARD','CAVE','CORPSES','SEVIER'] },
     ]
   },
-  { // 6 — Gothic & Horror
+  { // 6 — A Song of Ice and Fire (George R.R. Martin) — four books in the collection
     books: [
-      { title:'Frankenstein', author:'Mary Shelley', isbn:'9780141439471', color:'#7c1a1a',
-        words:['CREATURE','WALTON','INGOLSTADT','CLERVAL'] },
-      { title:'Dracula', author:'Bram Stoker', isbn:'9780141439846', color:'#1c3e20',
-        words:['MINA','RENFIELD','HARKER','TRANSYLVANIA'] },
-      { title:'The Picture of Dorian Gray', author:'Oscar Wilde', isbn:'9780141439570', color:'#18285c',
-        words:['DORIAN','BASIL','SIBYL','WOTTON'] },
-      { title:'Rebecca', author:'Daphne du Maurier', isbn:'9780380730407', color:'#5c3410',
-        words:['MANDERLEY','MAXIM','DANVERS','FAVELL'] },
+      { title:'A Game of Thrones', author:'George R.R. Martin', isbn:'9780553573404', color:'#7c1a1a',
+        words:['NED','DROGO','NEEDLE','JOFFREY'] },
+      { title:'A Clash of Kings', author:'George R.R. Martin', isbn:'9780345535429', color:'#1c3e20',
+        words:['STANNIS','RENLY','THEON','BLACKWATER'] },
+      { title:'A Storm of Swords', author:'George R.R. Martin', isbn:'9780345543981', color:'#18285c',
+        words:['ROBB','VIPER','WEDDING','MOUNTAIN'] },
+      { title:'A Feast for Crows', author:'George R.R. Martin', isbn:'9780553582031', color:'#5c3410',
+        words:['CERSEI','BRIENNE','AERON','KRAKEN'] },
     ]
   },
-  { // 7 — Grand Adventures
+  { // 7 — Bob Woodward — four books in the collection
     books: [
-      { title:'Don Quixote', author:'Miguel de Cervantes', isbn:'9780060934347', color:'#7c1a1a',
-        words:['SANCHO','DULCINEA','ROCINANTE','QUIJANO'] },
-      { title:"Gulliver's Travels", author:'Jonathan Swift', isbn:'9780141439495', color:'#1c3e20',
-        words:['LILLIPUT','BROBDINGNAG','HOUYHNHNM','LAPUTA'] },
-      { title:'Robinson Crusoe', author:'Daniel Defoe', isbn:'9780141439523', color:'#18285c',
-        words:['CRUSOE','FRIDAY','XURY','CANNIBALS'] },
-      { title:'Around the World in 80 Days', author:'Jules Verne', isbn:'9780140449068', color:'#5c3410',
-        words:['FOGG','PASSEPARTOUT','AOUDA','FIX'] },
+      { title:"All the President's Men", author:'Bob Woodward', isbn:'9780671894412', color:'#7c1a1a',
+        words:['BERNSTEIN','DEEPTHROAT','SIRICA','SLOAN'] },
+      { title:'The Final Days', author:'Bob Woodward', isbn:'9780671894405', color:'#1c3e20',
+        words:['HAIG','ZIEGLER','JAWORSKI','TAPES'] },
+      { title:'Bush at War', author:'Bob Woodward', isbn:'9780743204736', color:'#18285c',
+        words:['TENET','RUMSFELD','COFER','BUNKER'] },
+      { title:"Obama's Wars", author:'Bob Woodward', isbn:'9781439172490', color:'#5c3410',
+        words:['MCCHRYSTAL','HOLBROOKE','KARZAI','KABUL'] },
     ]
   },
-  { // 8 — Magical Realism
+  { // 8 — Walter Isaacson — four books in the collection
     books: [
-      { title:'One Hundred Years of Solitude', author:'Gabriel García Márquez', isbn:'9780060883287', color:'#7c1a1a',
-        words:['BUENDIA','MACONDO','REMEDIOS','URSULA'] },
-      { title:'Like Water for Chocolate', author:'Laura Esquivel', isbn:'9780385420174', color:'#1c3e20',
-        words:['TITA','ROSAURA','NACHA','PEDRO'] },
-      { title:'The House of the Spirits', author:'Isabel Allende', isbn:'9780553383805', color:'#18285c',
-        words:['BLANCA','CLARA','ESTEBAN','ALBA'] },
-      { title:"Midnight's Children", author:'Salman Rushdie', isbn:'9780812976533', color:'#5c3410',
-        words:['SALEEM','SHIVA','PADMA','SINAI'] },
+      { title:'Steve Jobs', author:'Walter Isaacson', isbn:'9781451648539', color:'#7c1a1a',
+        words:['WOZNIAK','PIXAR','SCULLEY','IVES'] },
+      { title:'Einstein', author:'Walter Isaacson', isbn:'9780743264747', color:'#1c3e20',
+        words:['MILEVA','EDDINGTON','LORENTZ','ZURICH'] },
+      { title:'Benjamin Franklin', author:'Walter Isaacson', isbn:'9780743258074', color:'#18285c',
+        words:['JUNTO','DEBORAH','LIGHTNING','BIFOCALS'] },
+      { title:'The Innovators', author:'Walter Isaacson', isbn:'9781476708690', color:'#5c3410',
+        words:['LOVELACE','TURING','TRANSISTOR','SHOCKLEY'] },
     ]
   },
-  { // 9 — Fantasy Epics
+  { // 9 — Fantasy (four different series, all in the collection)
     books: [
-      { title:'The Lord of the Rings', author:'J.R.R. Tolkien', isbn:'9780618346257', color:'#7c1a1a',
-        words:['MORDOR','GANDALF','FRODO','RIVENDELL'] },
-      { title:'The Hobbit', author:'J.R.R. Tolkien', isbn:'9780547928227', color:'#1c3e20',
-        words:['BILBO','SMAUG','THORIN','EREBOR'] },
-      { title:'Dune', author:'Frank Herbert', isbn:'9780441013593', color:'#18285c',
-        words:['ARRAKIS','SPICE','HARKONNEN','FREMEN'] },
-      { title:'The Name of the Wind', author:'Patrick Rothfuss', isbn:'9780756404741', color:'#5c3410',
-        words:['KVOTHE','DENNA','KILVIN','EOLIAN'] },
+      { title:'The Name of the Wind', author:'Patrick Rothfuss', isbn:'9780756404741', color:'#7c1a1a',
+        words:['KVOTHE','DENNA','KILVIN','TARBEAN'] },
+      { title:'Mistborn', author:'Brandon Sanderson', isbn:'9780765350381', color:'#1c3e20',
+        words:['KELSIER','LUTHADEL','ALLOMANCY','ELEND'] },
+      { title:'The Way of Kings', author:'Brandon Sanderson', isbn:'9780765365279', color:'#18285c',
+        words:['KALADIN','DALINAR','SHALLAN','STORMLIGHT'] },
+      { title:'A Wizard of Earthsea', author:'Ursula K. Le Guin', isbn:'9780547773742', color:'#5c3410',
+        words:['GED','ROKE','VETCH','SPARROWHAWK'] },
     ]
   },
-  { // 10 — Shakespeare Tragedies
+  { // 10 — George Orwell — four books in the collection
     books: [
-      { title:'Hamlet', author:'William Shakespeare', isbn:'9780521618748', color:'#7c1a1a',
-        words:['OPHELIA','YORICK','ELSINORE','POLONIUS'] },
-      { title:'Macbeth', author:'William Shakespeare', isbn:'9780521615259', color:'#1c3e20',
-        words:['BANQUO','MACDUFF','GLAMIS','HECATE'] },
-      { title:'Othello', author:'William Shakespeare', isbn:'9780521618762', color:'#18285c',
-        words:['IAGO','DESDEMONA','CASSIO','BIANCA'] },
-      { title:'King Lear', author:'William Shakespeare', isbn:'9780521618731', color:'#5c3410',
-        words:['CORDELIA','GONERIL','REGAN','GLOUCESTER'] },
+      { title:'Homage to Catalonia', author:'George Orwell', isbn:'9781849025973', color:'#7c1a1a',
+        words:['POUM','HUESCA','BARCELONA','TRENCHES'] },
+      { title:'The Road to Wigan Pier', author:'George Orwell', isbn:'9780156767507', color:'#1c3e20',
+        words:['WIGAN','MINERS','TRIPE','PIER'] },
+      { title:'Down and Out in Paris and London', author:'George Orwell', isbn:'9780156262248', color:'#18285c',
+        words:['BORIS','PLONGEUR','SPIKE','TRAMP'] },
+      { title:'Burmese Days', author:'George Orwell', isbn:'9780156148504', color:'#5c3410',
+        words:['FLORY','VERASWAMI','KYAUKTADA','WESTFIELD'] },
     ]
   },
-  { // 11 — Nobel Laureates
+  { // 11 — YA / Adventure (four books in the collection)
     books: [
-      { title:'Beloved', author:'Toni Morrison', isbn:'9781400033416', color:'#7c1a1a',
-        words:['SETHE','DENVER','SUGGS','SCHOOLTEACHER'] },
-      { title:'The Tin Drum', author:'Günter Grass', isbn:'9780156907392', color:'#1c3e20',
-        words:['OSKAR','DANZIG','MATZERATH','BEBRA'] },
-      { title:'The Stranger', author:'Albert Camus', isbn:'9780679720201', color:'#18285c',
-        words:['MEURSAULT','MARIE','RAYMOND','SALAMANO'] },
-      { title:'Pedro Páramo', author:'Juan Rulfo', isbn:'9780802133908', color:'#5c3410',
-        words:['PEDRO','COMALA','SUSANA','DOROTEA'] },
+      { title:'The Hunger Games', author:'Suzanne Collins', isbn:'9780439023528', color:'#7c1a1a',
+        words:['KATNISS','PEETA','HAYMITCH','EFFIE'] },
+      { title:'Eragon', author:'Christopher Paolini', isbn:'9780440240730', color:'#1c3e20',
+        words:['SAPHIRA','BROM','MURTAGH','URGAL'] },
+      { title:'The Lightning Thief', author:'Rick Riordan', isbn:'9780786838653', color:'#18285c',
+        words:['PERCY','ANNABETH','GROVER','OLYMPUS'] },
+      { title:'A Wrinkle in Time', author:'Madeleine L\'Engle', isbn:'9780312367541', color:'#5c3410',
+        words:['TESSERACT','MURRY','CAMAZOTZ','CHARLES'] },
     ]
   },
 ];
