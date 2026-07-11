@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authors — The Renne Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --wood-darkest: #0c0502;
+      --wood-dark:    #180903;
+      --wood-mid:     #2a1006;
+      --wood-panel:   #3a1a0a;
+      --gold:         #c8903c;
+      --gold-light:   #e6b450;
+      --gold-bright:  #f2d060;
+      --gold-dark:    #78560e;
+      --cream:        #f2ead4;
+      --parchment:    #f8f0d6;
+      --parchment-mid:#eadcac;
+      --ink:          #150e08;
+      /* domain colors — validated for CVD + contrast on --wood-darkest */
+      --c-fantasy:  #1baf7a;
+      --c-literary: #c08316;
+      --c-history:  #33639f;
+      --c-politics: #c05050;
+      --c-ideas:    #bd6dbe;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--wood-darkest);
+      color: var(--cream);
+      font-family: 'EB Garamond', serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .lib-header {
+      text-align: center;
+      padding: 28px 20px 0;
+      background: linear-gradient(to bottom, var(--wood-dark) 0%, var(--wood-darkest) 100%);
+      border-bottom: 2px solid var(--gold-dark);
+    }
+    .header-top-rule { font-size:.6rem; letter-spacing:.5em; color:var(--gold-dark); margin-bottom:10px; }
+    .lib-title {
+      font-family: 'Pirata One', cursive;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      color: var(--gold-light);
+      letter-spacing: .04em;
+      text-shadow: 0 0 28px rgba(210,150,40,.45), 0 2px 4px rgba(0,0,0,.85);
+      margin-bottom: 4px;
+    }
+    .lib-title a { color: inherit; text-decoration: none; }
+    .lib-title a:hover { opacity: .8; }
+    .lib-subtitle {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      font-size: 1.2rem; color: var(--gold-light); opacity: .75;
+      letter-spacing: .04em; line-height: 1.55;
+      max-width: 680px; margin: 0 auto 8px;
+    }
+    .header-nav { display:flex; justify-content:center; gap:24px; margin-bottom:10px; }
+    .nav-link {
+      font-family: 'Cinzel', serif; font-size:.62rem;
+      letter-spacing:.18em; text-transform:uppercase;
+      color:var(--gold); opacity:.6; text-decoration:none;
+      border-bottom:1px solid transparent;
+      transition:opacity .2s, border-color .2s; padding-bottom:2px;
+    }
+    .nav-link:hover { opacity:1; }
+    .nav-link.active { opacity:1; border-bottom-color:var(--gold); }
+    .header-bottom-rules { padding:10px 0 0; }
+    .rule-heavy {
+      height:2px;
+      background:linear-gradient(to right,transparent,var(--gold-dark) 20%,var(--gold) 50%,var(--gold-dark) 80%,transparent);
+      margin-bottom:3px;
+    }
+    .rule-light {
+      height:1px;
+      background:linear-gradient(to right,transparent,var(--gold-dark) 20%,var(--gold-dark) 80%,transparent);
+    }
+
+    /* ── Main ── */
+    .graph-area { max-width:1200px; margin:0 auto; padding:36px 20px 64px; }
+    .page-label {
+      font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.22em;
+      text-transform:uppercase; color:var(--gold-dark); text-align:center;
+      margin-bottom:4px;
+    }
+    .page-title {
+      font-family:'Pirata One',cursive; font-size:3.4rem;
+      color:var(--gold-light); text-align:center; letter-spacing:.06em;
+      text-shadow:0 0 20px rgba(210,150,40,.3);
+      margin-bottom:6px;
+    }
+    .page-intro {
+      font-family:'EB Garamond',serif; font-style:italic;
+      font-size:1.15rem; color:var(--cream); opacity:.8;
+      text-align:center; max-width:720px; margin:0 auto 24px;
+      line-height:1.6;
+    }
+
+    /* ── Legend & filters ── */
+    .legend-row {
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap:10px 18px; margin-bottom:12px;
+    }
+    .legend-chip {
+      display:flex; align-items:center; gap:7px;
+      font-family:'Cinzel',serif; font-size:.68rem;
+      letter-spacing:.1em; text-transform:uppercase;
+      color:var(--cream); opacity:.85;
+      background:rgba(42,16,6,.6);
+      border:1px solid rgba(200,144,60,.25);
+      border-radius:20px; padding:6px 14px;
+      cursor:pointer; user-select:none;
+      transition:opacity .15s, border-color .15s;
+    }
+    .legend-chip:hover { border-color:var(--gold); }
+    .legend-chip.off { opacity:.3; }
+    .legend-dot { width:11px; height:11px; border-radius:50%; flex:none; }
+    .edge-row { margin-bottom:20px; }
+    .edge-swatch { width:26px; height:0; flex:none; border-bottom-width:2px; border-bottom-color:var(--gold); }
+    .edge-solid  { border-bottom-style:solid; }
+    .edge-dashed { border-bottom-style:dashed; }
+    .edge-dotted { border-bottom-style:dotted; border-bottom-width:3px; }
+
+    /* ── Graph canvas ── */
+    .graph-wrap {
+      position:relative;
+      border:1px solid rgba(200,144,60,.3);
+      border-radius:6px;
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(58,26,10,.45) 0%, rgba(12,5,2,0) 70%),
+        var(--wood-darkest);
+      overflow:hidden;
+    }
+    #graph { display:block; width:100%; height:72vh; min-height:480px; cursor:grab; touch-action:none; }
+    #graph.dragging { cursor:grabbing; }
+    .graph-hint {
+      position:absolute; left:12px; bottom:10px;
+      font-family:'Cinzel',serif; font-size:.58rem;
+      letter-spacing:.12em; text-transform:uppercase;
+      color:var(--gold-dark); opacity:.7; pointer-events:none;
+    }
+
+    /* ── Detail panel ── */
+    .detail-panel {
+      position:absolute; top:14px; right:14px;
+      width:300px; max-width:calc(100% - 28px);
+      max-height:calc(100% - 28px); overflow-y:auto;
+      background:rgba(18,8,3,.94);
+      border:1px solid var(--gold-dark); border-radius:5px;
+      padding:18px 20px; display:none;
+      box-shadow:0 8px 30px rgba(0,0,0,.7);
+    }
+    .detail-panel.open { display:block; }
+    .detail-close {
+      position:absolute; top:8px; right:12px;
+      background:none; border:none; color:var(--gold);
+      font-size:1.1rem; cursor:pointer; opacity:.7; font-family:inherit;
+    }
+    .detail-close:hover { opacity:1; }
+    .detail-domain {
+      font-family:'Cinzel',serif; font-size:.6rem;
+      letter-spacing:.16em; text-transform:uppercase;
+      display:flex; align-items:center; gap:7px; margin-bottom:6px;
+      color:var(--cream); opacity:.8;
+    }
+    .detail-name {
+      font-family:'Pirata One',cursive; font-size:1.7rem;
+      color:var(--gold-light); line-height:1.15; margin-bottom:4px;
+    }
+    .detail-count {
+      font-family:'Cinzel',serif; font-size:.68rem;
+      letter-spacing:.12em; text-transform:uppercase;
+      color:var(--gold); margin-bottom:12px;
+    }
+    .detail-sec {
+      font-family:'Cinzel',serif; font-size:.62rem;
+      letter-spacing:.16em; text-transform:uppercase;
+      color:var(--gold-dark); margin:14px 0 6px;
+      border-bottom:1px solid rgba(200,144,60,.2); padding-bottom:4px;
+    }
+    .detail-books li {
+      font-size:.98rem; font-style:italic; color:var(--cream);
+      opacity:.85; margin-left:16px; line-height:1.5;
+    }
+    .detail-links { list-style:none; }
+    .detail-links li {
+      font-size:.95rem; color:var(--cream); opacity:.85;
+      line-height:1.45; margin-bottom:8px;
+      padding-left:12px; border-left:2px solid var(--gold-dark);
+    }
+    .detail-links .link-name {
+      color:var(--gold-light); cursor:pointer; font-weight:500;
+    }
+    .detail-links .link-name:hover { text-decoration:underline; }
+    .detail-links .link-note { display:block; font-style:italic; font-size:.88rem; opacity:.75; }
+
+    /* ── Table view ── */
+    .view-toggle-row { text-align:center; margin:18px 0 0; }
+    .btn {
+      font-family:'Cinzel',serif; font-size:.72rem;
+      letter-spacing:.14em; text-transform:uppercase;
+      padding:9px 26px; border-radius:3px;
+      border:1px solid var(--gold-dark); cursor:pointer;
+      background:transparent; color:var(--gold);
+      transition:background .18s, color .18s;
+    }
+    .btn:hover { background:rgba(200,144,60,.12); }
+    .table-wrap { display:none; margin-top:22px; overflow-x:auto; }
+    .table-wrap.open { display:block; }
+    table.author-table {
+      width:100%; border-collapse:collapse;
+      font-size:.98rem;
+    }
+    .author-table th {
+      font-family:'Cinzel',serif; font-size:.62rem;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--gold-dark); text-align:left;
+      padding:8px 12px; border-bottom:1px solid var(--gold-dark);
+    }
+    .author-table td {
+      padding:8px 12px; border-bottom:1px solid rgba(200,144,60,.12);
+      vertical-align:top; color:var(--cream);
+    }
+    .author-table td:first-child { color:var(--gold-light); white-space:nowrap; }
+    .author-table .t-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; }
+
+    footer {
+      text-align:center; padding:22px;
+      font-family:'Cinzel',serif; font-size:.6rem;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--gold-dark); opacity:.35;
+    }
+
+    @media (max-width: 700px) {
+      #graph { height:60vh; min-height:400px; }
+      .detail-panel { width:calc(100% - 28px); max-height:55%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="lib-header">
+  <div class="header-top-rule"><span>· · ·</span></div>
+  <h1 class="lib-title"><a href="index.html">The Renne Library</a></h1>
+  <p class="lib-subtitle">&ldquo;The mind once enlightened cannot again become dark.&rdquo; &mdash; Thomas Paine</p>
+  <nav class="header-nav">
+    <a class="nav-link" href="index.html">Collection</a>
+    <a class="nav-link" href="analytics.html">Analytics</a>
+    <a class="nav-link" href="arcade.html">Arcade</a>
+    <a class="nav-link active" href="authors.html">Authors</a>
+  </nav>
+  <div class="header-bottom-rules">
+    <div class="rule-heavy"></div>
+    <div class="rule-light"></div>
+  </div>
+</header>
+
+<main class="graph-area">
+  <p class="page-label">A Map of the Stacks</p>
+  <h2 class="page-title">The Author Constellation</h2>
+  <p class="page-intro">
+    Every author represented by three or more books in the collection, drawn together by
+    the threads that bind them &mdash; who influenced whom, who knew whom, and who worked
+    the same seam of thought. Node size reflects shelf presence. Drag to explore; click an
+    author for details.
+  </p>
+
+  <div class="legend-row" id="domain-legend"></div>
+  <div class="legend-row edge-row" id="edge-legend"></div>
+
+  <div class="graph-wrap">
+    <canvas id="graph"></canvas>
+    <div class="graph-hint">Drag nodes &middot; Scroll to zoom &middot; Drag background to pan</div>
+    <aside class="detail-panel" id="detail-panel">
+      <button class="detail-close" id="detail-close" aria-label="Close">&times;</button>
+      <div class="detail-domain" id="detail-domain"></div>
+      <div class="detail-name" id="detail-name"></div>
+      <div class="detail-count" id="detail-count"></div>
+      <div class="detail-sec">From the shelves</div>
+      <ul class="detail-books" id="detail-books"></ul>
+      <div class="detail-sec">Connections</div>
+      <ul class="detail-links" id="detail-links"></ul>
+    </aside>
+  </div>
+
+  <div class="view-toggle-row">
+    <button class="btn" id="table-toggle">Show as Table</button>
+  </div>
+  <div class="table-wrap" id="table-wrap">
+    <table class="author-table">
+      <thead><tr><th>Author</th><th>Domain</th><th>Books</th><th>Connections</th></tr></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</main>
+
+<footer>&copy; The Renne Library</footer>
+
+<script>
+// ─────────────────────────────────────────────
+// DOMAINS  (colors validated: CVD + contrast on #0c0502)
+// ─────────────────────────────────────────────
+const DOMAINS = {
+  fantasy:  { label:'Fantasy & Science Fiction',      color:'#1baf7a' },
+  literary: { label:'Literary Fiction & Classics',    color:'#c08316' },
+  history:  { label:'History & Biography',            color:'#33639f' },
+  politics: { label:'Politics & Society',             color:'#c05050' },
+  ideas:    { label:'Philosophy, Religion & Science', color:'#bd6dbe' },
+};
+
+// ─────────────────────────────────────────────
+// AUTHORS  (every author with 3+ books in the collection)
+// n = book count in collection; titles = sample titles from the shelves
+// ─────────────────────────────────────────────
+const AUTHORS = {
+  'J.R.R. Tolkien':        { d:'fantasy',  n:26, titles:['The Lord of the Rings','The Silmarillion','The Treason of Isengard'] },
+  'George R.R. Martin':    { d:'fantasy',  n:13, titles:['A Game of Thrones','A Clash of Kings','A Feast for Crows'] },
+  'J.K. Rowling':          { d:'fantasy',  n:8,  titles:['Harry Potter and the Order of the Phoenix','Harry Potter and the Half-Blood Prince','Harry Potter and the Deathly Hallows'] },
+  'Brandon Sanderson':     { d:'fantasy',  n:8,  titles:['Mistborn','The Way of Kings','Words of Radiance'] },
+  'Jeff VanderMeer':       { d:'fantasy',  n:9,  titles:['Area X: The Southern Reach Trilogy','Borne','The Strange Bird'] },
+  'Neil Gaiman':           { d:'fantasy',  n:7,  titles:['American Gods','The Graveyard Book','Neverwhere'] },
+  'Neal Stephenson':       { d:'fantasy',  n:5,  titles:['Snow Crash','Anathem','Cryptonomicon'] },
+  'Stephen King':          { d:'fantasy',  n:5,  titles:['The Gunslinger','The Waste Lands','Wizard and Glass'] },
+  'Patrick Rothfuss':      { d:'fantasy',  n:4,  titles:['The Name of the Wind',"The Wise Man's Fear",'The Slow Regard of Silent Things'] },
+  'Ursula K. Le Guin':     { d:'fantasy',  n:4,  titles:['A Wizard of Earthsea',"The Wind's Twelve Quarters",'The Tombs of Atuan'] },
+  'John Scalzi':           { d:'fantasy',  n:3,  titles:["Old Man's War",'The Collapsing Empire','The Consuming Fire'] },
+  'Christopher Paolini':   { d:'fantasy',  n:3,  titles:['Eragon','Eldest','Brisingr'] },
+  'Sean Russell':          { d:'fantasy',  n:3,  titles:['The One Kingdom','The Isle of Battle','The Shadow Roads'] },
+  'Cory Doctorow':         { d:'fantasy',  n:3,  titles:["Information Doesn't Want to Be Free",'Overclocked','The Internet Con'] },
+  'Ken Liu':               { d:'fantasy',  n:3,  titles:['The Grace of Kings','The Wall of Storms','The Hidden Girl and Other Stories'] },
+  'Tomi Adeyemi':          { d:'fantasy',  n:3,  titles:['Children of Blood and Bone','Children of Virtue and Vengeance'] },
+  'Alan Moore':            { d:'fantasy',  n:3,  titles:['Jerusalem','Voice of the Fire','Saga of the Swamp Thing'] },
+
+  'George Orwell':         { d:'literary', n:12, titles:['The Road to Wigan Pier','Why I Write','All Art Is Propaganda'] },
+  'James Baldwin':         { d:'literary', n:8,  titles:['The Fire Next Time','Go Tell It on the Mountain','The Cross of Redemption'] },
+  'John Steinbeck':        { d:'literary', n:7,  titles:['Cannery Row','The Wayward Bus','The Long Valley'] },
+  'Charles Dickens':       { d:'literary', n:6,  titles:['A Tale of Two Cities','Our Mutual Friend','The Mystery of Edwin Drood'] },
+  'Ernest Hemingway':      { d:'literary', n:6,  titles:['In Our Time','To Have and Have Not','The Nick Adams Stories'] },
+  'William Shakespeare':   { d:'literary', n:5,  titles:['King Lear','The Merchant of Venice','The Tempest'] },
+  'Thomas Hardy':          { d:'literary', n:5,  titles:["Tess of the d'Urbervilles",'The Return of the Native'] },
+  'Joseph Conrad':         { d:'literary', n:4,  titles:['Heart of Darkness','Lord Jim'] },
+  'Cormac McCarthy':       { d:'literary', n:4,  titles:['Blood Meridian','The Road','Child of God'] },
+  'Thomas Pynchon':        { d:'literary', n:4,  titles:["Gravity's Rainbow",'Mason & Dixon','Slow Learner'] },
+  'Albert Camus':          { d:'literary', n:4,  titles:['The Plague','The Stranger','The Fall'] },
+  'Bob Dylan':             { d:'literary', n:4,  titles:['Chronicles','Tarantula','Writings and Drawings'] },
+  'Anton Chekhov':         { d:'literary', n:3,  titles:['Plays','The Portable Chekhov','Ward No. 6 and Other Stories'] },
+  'Mario Puzo':            { d:'literary', n:3,  titles:['The Godfather','The Last Don','The Sicilian'] },
+  'James Joyce':           { d:'literary', n:3,  titles:['A Portrait of the Artist as a Young Man','The Portable James Joyce'] },
+  'Michael Chabon':        { d:'literary', n:3,  titles:['Summerland','Gentlemen of the Road','Manhood for Amateurs'] },
+  'Richard Wright':        { d:'literary', n:3,  titles:['Native Son','Black Boy',"Uncle Tom's Children"] },
+  'Langston Hughes':       { d:'literary', n:3,  titles:['The Collected Poems of Langston Hughes','The Langston Hughes Reader','Vintage Hughes'] },
+  'Bernard Cornwell':      { d:'literary', n:3,  titles:['The Last Kingdom','The Pale Horseman','Lords of the North'] },
+
+  'Bob Woodward':          { d:'history',  n:10, titles:['The Final Days','The Price of Politics','Maestro'] },
+  'Howard Zinn':           { d:'history',  n:9,  titles:["A People's History of the United States","You Can't Be Neutral on a Moving Train",'Marx in Soho'] },
+  'Dumas Malone':          { d:'history',  n:6,  titles:['Jefferson and the Ordeal of Liberty','Jefferson the President','The Sage of Monticello'] },
+  'David Day':             { d:'history',  n:5,  titles:['Tolkien: The Illustrated Encyclopedia','The World of Tolkien','Tolkien: A Dictionary'] },
+  'Joseph Ellis':          { d:'history',  n:4,  titles:['Founding Brothers','American Sphinx','Revolutionary Summer'] },
+  'David McCullough':      { d:'history',  n:4,  titles:['John Adams','1776','The Greater Journey'] },
+  'Brian Sibley':          { d:'history',  n:4,  titles:['The Lord of the Rings: The Making of the Trilogy','The Maps of Tolkien’s Middle-earth'] },
+  'Niall Ferguson':        { d:'history',  n:4,  titles:['The Ascent of Money','Colossus','The House of Rothschild'] },
+  'Stephen Ambrose':       { d:'history',  n:4,  titles:['Band of Brothers','D-Day','Citizen Soldiers'] },
+  'Walter Isaacson':       { d:'history',  n:4,  titles:['Steve Jobs','Einstein','Benjamin Franklin'] },
+  'Simon Sebag Montefiore':{ d:'history',  n:3,  titles:['Jerusalem','Stalin','Young Stalin'] },
+  'David Halberstam':      { d:'history',  n:3,  titles:['The Best and the Brightest','The Coldest Winter','The Making of a Quagmire'] },
+  'Daniel Boorstin':       { d:'history',  n:3,  titles:['The Lost World of Thomas Jefferson','The Americans','The Seekers'] },
+  'Rick Atkinson':         { d:'history',  n:3,  titles:['An Army at Dawn','The Day of Battle','The Guns at Last Light'] },
+  'Taylor Branch':         { d:'history',  n:3,  titles:['Parting the Waters','Pillar of Fire',"At Canaan's Edge"] },
+  'Simon Winchester':      { d:'history',  n:3,  titles:['The Professor and the Madman','The Man Who Loved China','The Men Who United the States'] },
+  'Burke Davis':           { d:'history',  n:3,  titles:['To Appomattox',"Sherman's March"] },
+
+  'Noam Chomsky':          { d:'politics', n:18, titles:['Understanding Power','Interventions','Objectivity and Liberal Scholarship'] },
+  'Christopher Hitchens':  { d:'politics', n:5,  titles:['Why Orwell Matters','The Trial of Henry Kissinger','Love, Poverty, and War'] },
+  'Neil Postman':          { d:'politics', n:5,  titles:['Amusing Ourselves to Death','Technopoly','Building a Bridge to the 18th Century'] },
+  'Derrick Jensen':        { d:'politics', n:5,  titles:['A Language Older Than Words','Endgame Vol. 1','Endgame Vol. 2'] },
+  'Edward Said':           { d:'politics', n:4,  titles:['The Question of Palestine','Peace and Its Discontents','The End of the Peace Process'] },
+  'Thomas Friedman':       { d:'politics', n:4,  titles:['From Beirut to Jerusalem','The World Is Flat','Longitudes and Attitudes'] },
+  'Kevin Phillips':        { d:'politics', n:3,  titles:['Wealth and Democracy','American Dynasty','Bad Money'] },
+  'Cornel West':           { d:'politics', n:3,  titles:['Race Matters','Democracy Matters','The Cornel West Reader'] },
+  'David Graeber':         { d:'politics', n:3,  titles:['Debt: The First 5,000 Years','The Dawn of Everything','Fragments of an Anarchist Anthropology'] },
+  'Karl Marx':             { d:'politics', n:3,  titles:['Capital','The Class Struggles in France','The Poverty of Philosophy'] },
+
+  'Bertrand Russell':      { d:'ideas',    n:4,  titles:['The History of Western Philosophy','The Problems of Philosophy','Sceptical Essays'] },
+  'Henry David Thoreau':   { d:'ideas',    n:4,  titles:['Walden','Civil Disobedience and Other Essays','The Portable Thoreau'] },
+  'Thomas Jefferson':      { d:'ideas',    n:4,  titles:['Notes on the State of Virginia','The Jefferson Bible','Life and Selected Writings'] },
+  'John Dominic Crossan':  { d:'ideas',    n:4,  titles:['The Historical Jesus','God and Empire','In Search of Paul'] },
+  'Abraham Heschel':       { d:'ideas',    n:4,  titles:['The Sabbath','Moral Grandeur and Spiritual Audacity','Thunder in the Soul'] },
+  'Jim Wallis':            { d:'ideas',    n:3,  titles:["God's Politics",'The Great Awakening'] },
+  'Joseph Campbell':       { d:'ideas',    n:3,  titles:['The Hero with a Thousand Faces','The Masks of God','Primitive Mythology'] },
+  'Carl Sagan':            { d:'ideas',    n:3,  titles:['Cosmos','The Demon-Haunted World','Billions & Billions'] },
+  'James Gleick':          { d:'ideas',    n:3,  titles:['Chaos','The Information','Time Travel: A History'] },
+  'Yuval Noah Harari':     { d:'ideas',    n:3,  titles:['Sapiens','Homo Deus','Nexus'] },
+};
+
+// ─────────────────────────────────────────────
+// EDGES — the threads that bind
+// types: influence (one shaped the other's work),
+//        personal  (they knew each other),
+//        kindred   (shared tradition, movement, or subject)
+// ─────────────────────────────────────────────
+const EDGE_TYPES = {
+  influence: { label:'Influence',        dash:[7,5],  width:1.6 },
+  personal:  { label:'Personal ties',    dash:[],     width:2.2 },
+  kindred:   { label:'Shared tradition', dash:[2,5],  width:1.6 },
+};
+
+const EDGES = [
+  // Fantasy constellation
+  ['J.R.R. Tolkien','George R.R. Martin','influence','Martin calls The Lord of the Rings the model for the modern fantasy epic.'],
+  ['J.R.R. Tolkien','J.K. Rowling','influence','The template of British fantasy that Harry Potter grew up inside.'],
+  ['J.R.R. Tolkien','Christopher Paolini','influence','Eragon’s maps, elves, and dwarves are pure Middle-earth inheritance.'],
+  ['J.R.R. Tolkien','Brandon Sanderson','influence','Epic secondary-world fantasy in the Tolkien tradition.'],
+  ['J.R.R. Tolkien','Stephen King','influence','King has said The Lord of the Rings helped inspire The Dark Tower.'],
+  ['J.R.R. Tolkien','Ursula K. Le Guin','kindred','The two great mid-century myth-makers of fantasy.'],
+  ['J.R.R. Tolkien','David Day','kindred','Day has spent a career mapping and cataloguing Middle-earth.'],
+  ['J.R.R. Tolkien','Brian Sibley','kindred','Sibley chronicled the making of the film trilogy.'],
+  ['David Day','Brian Sibley','kindred','Fellow Tolkien scholars and chroniclers.'],
+  ['Ursula K. Le Guin','Patrick Rothfuss','influence','Rothfuss names Le Guin among his masters.'],
+  ['Ursula K. Le Guin','Jeff VanderMeer','kindred','Literary speculative fiction with an ecological soul.'],
+  ['Alan Moore','Neil Gaiman','personal','Moore gave Gaiman early advice and an early break in comics.'],
+  ['Neil Gaiman','Stephen King','kindred','Mutual admirers across the dark-fantasy aisle.'],
+  ['Neil Gaiman','Joseph Campbell','influence','American Gods walks Campbell’s mythic road.'],
+  ['George R.R. Martin','Bernard Cornwell','kindred','Martin calls Cornwell’s battle scenes the best in fiction.'],
+  ['Brandon Sanderson','Patrick Rothfuss','kindred','Twin pillars of 2000s epic fantasy.'],
+  ['John Scalzi','Cory Doctorow','kindred','Bloggers-turned-novelists of the internet age.'],
+  ['Neal Stephenson','Cory Doctorow','kindred','Fiction about code, networks, and freedom.'],
+  ['Neal Stephenson','James Gleick','kindred','Chroniclers of information — one in fiction, one in fact.'],
+  ['Ken Liu','John Scalzi','kindred','The contemporary American science-fiction award circuit.'],
+  ['Ken Liu','Jeff VanderMeer','kindred','The literary edge of modern speculative fiction.'],
+  ['Tomi Adeyemi','J.K. Rowling','influence','Adeyemi cites Harry Potter as a formative influence.'],
+  ['Sean Russell','Patrick Rothfuss','kindred','Lyrical, slow-burning secondary-world fantasy.'],
+
+  // Literary constellation
+  ['Ernest Hemingway','James Joyce','personal','Paris café companions in the 1920s.'],
+  ['Ernest Hemingway','John Steinbeck','kindred','Nobel laureates of hard-bitten American prose.'],
+  ['Anton Chekhov','Ernest Hemingway','influence','Hemingway studied Chekhov’s art of compression.'],
+  ['Ernest Hemingway','Cormac McCarthy','influence','McCarthy’s spare, unpunctuated prose descends from Hemingway.'],
+  ['Joseph Conrad','Cormac McCarthy','kindred','Blood Meridian is often read against Heart of Darkness.'],
+  ['Joseph Conrad','Edward Said','influence','Said’s first book was a study of Conrad.'],
+  ['Charles Dickens','George Orwell','influence','Orwell’s great essay “Charles Dickens” wrestles with him at length.'],
+  ['Charles Dickens','Thomas Hardy','kindred','Giants of the Victorian novel.'],
+  ['William Shakespeare','James Joyce','influence','Ulysses spins an entire theory of Hamlet.'],
+  ['William Shakespeare','Charles Dickens','influence','Dickens’s theatrical imagination fed on Shakespeare.'],
+  ['William Shakespeare','Bernard Cornwell','kindred','Cornwell’s Fools and Mortals imagines Shakespeare’s playhouse.'],
+  ['James Joyce','Thomas Pynchon','influence','From the modernist encyclopedia to the postmodern one.'],
+  ['Richard Wright','James Baldwin','personal','Wright mentored Baldwin — then Baldwin broke with him in print.'],
+  ['Langston Hughes','James Baldwin','personal','Harlem elders — Hughes reviewed the young Baldwin.'],
+  ['Richard Wright','Langston Hughes','kindred','Titans of mid-century Black American letters.'],
+  ['James Baldwin','Cornel West','influence','West carries Baldwin’s prophetic fire into philosophy.'],
+  ['James Baldwin','Taylor Branch','kindred','Witness and chronicler of the same civil-rights years.'],
+  ['Albert Camus','George Orwell','kindred','Anti-totalitarian moralists writing through the same dark decade.'],
+  ['George Orwell','Christopher Hitchens','influence','Hitchens wrote Why Orwell Matters.'],
+  ['George Orwell','Karl Marx','kindred','A democratic socialist’s lifelong quarrel with Marxism.'],
+  ['John Steinbeck','Bob Dylan','influence','Dylan’s dust-bowl America comes straight out of Steinbeck.'],
+  ['Mario Puzo','Michael Chabon','kindred','American myth-makers of the mob and the comic book.'],
+  ['Michael Chabon','Neil Gaiman','kindred','Novelists who took genre seriously as literature.'],
+
+  // History constellation
+  ['Dumas Malone','Thomas Jefferson','kindred','Six volumes on one man: Jefferson and His Time.'],
+  ['Joseph Ellis','Thomas Jefferson','kindred','American Sphinx: the character of Thomas Jefferson.'],
+  ['Daniel Boorstin','Thomas Jefferson','kindred','Boorstin’s Lost World of Thomas Jefferson.'],
+  ['David McCullough','Thomas Jefferson','kindred','John Adams — Jefferson’s friend, rival, and correspondent.'],
+  ['Dumas Malone','Joseph Ellis','kindred','Two generations of Jefferson biography.'],
+  ['David McCullough','Walter Isaacson','kindred','The great popular biographers of the founders.'],
+  ['David McCullough','Burke Davis','kindred','Narrative American history in the grand style.'],
+  ['Stephen Ambrose','Rick Atkinson','kindred','The soldier’s-eye epic of the Second World War.'],
+  ['Rick Atkinson','Burke Davis','kindred','Battle narratives, from Appomattox to Normandy.'],
+  ['Bob Woodward','David Halberstam','kindred','The reporters who defined Washington and Vietnam.'],
+  ['Bob Woodward','Kevin Phillips','kindred','Anatomists of American power and money.'],
+  ['David Halberstam','Thomas Friedman','kindred','New York Times legends, a generation apart.'],
+  ['Howard Zinn','Noam Chomsky','personal','Close friends and Boston’s twin dissident professors.'],
+  ['Howard Zinn','Karl Marx','kindred','Zinn even put him on stage in Marx in Soho.'],
+  ['Howard Zinn','Taylor Branch','kindred','The movement Zinn marched in, Branch chronicled.'],
+  ['Niall Ferguson','Simon Sebag Montefiore','kindred','British historians of empire and power.'],
+  ['Niall Ferguson','Yuval Noah Harari','kindred','Big-sweep macrohistory for the general reader.'],
+  ['Simon Winchester','James Gleick','kindred','Storytellers of how knowledge gets made.'],
+
+  // Politics & ideas constellation
+  ['Noam Chomsky','Edward Said','personal','Friends and allies on Palestine.'],
+  ['Bertrand Russell','Noam Chomsky','influence','Chomsky keeps Russell’s portrait above his desk.'],
+  ['Noam Chomsky','Neil Postman','kindred','Manufacturing consent; amusing ourselves to death.'],
+  ['Christopher Hitchens','Edward Said','personal','Friends who fell out in public.'],
+  ['Daniel Boorstin','Neil Postman','influence','Postman built on Boorstin’s The Image.'],
+  ['David Graeber','Karl Marx','influence','Debt argues with Marx across 5,000 years.'],
+  ['David Graeber','Noam Chomsky','kindred','The anarchist professors.'],
+  ['David Graeber','Yuval Noah Harari','kindred','The Dawn of Everything answers the Sapiens view of history.'],
+  ['Derrick Jensen','Henry David Thoreau','influence','Civil disobedience taken to the end of civilization.'],
+  ['Cornel West','Jim Wallis','kindred','The religious left’s most public voices.'],
+  ['Bertrand Russell','Carl Sagan','kindred','The rationalist tradition, from logic to the cosmos.'],
+  ['Carl Sagan','Joseph Campbell','kindred','PBS icons — Cosmos and The Power of Myth.'],
+  ['Henry David Thoreau','Thomas Jefferson','kindred','American liberty, from Monticello to Walden Pond.'],
+  ['John Dominic Crossan','Abraham Heschel','kindred','Scholars who put scripture back into history.'],
+  ['John Dominic Crossan','Jim Wallis','kindred','A historical Jesus for a political faith.'],
+  ['Abraham Heschel','Taylor Branch','kindred','Heschel marched at Selma — and walks through Branch’s pages.'],
+];
+
+// ─────────────────────────────────────────────
+// BUILD GRAPH MODEL
+// ─────────────────────────────────────────────
+const names = Object.keys(AUTHORS);
+const idx = new Map(names.map((n,i)=>[n,i]));
+const nodes = names.map(name => {
+  const a = AUTHORS[name];
+  return {
+    name, d:a.d, n:a.n, titles:a.titles,
+    r: 6 + Math.sqrt(a.n) * 2.4,
+    x:0, y:0, vx:0, vy:0, fixed:false,
+  };
+});
+const links = EDGES.map(([a,b,type,note]) => {
+  if (!(idx.has(a) && idx.has(b))) { console.error('Unknown author in edge:', a, b); return null; }
+  return { s: idx.get(a), t: idx.get(b), type, note };
+}).filter(Boolean);
+
+const neighbors = names.map(()=>[]);
+links.forEach((l,li) => { neighbors[l.s].push(li); neighbors[l.t].push(li); });
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+const domainOn = Object.fromEntries(Object.keys(DOMAINS).map(k=>[k,true]));
+const edgeOn   = Object.fromEntries(Object.keys(EDGE_TYPES).map(k=>[k,true]));
+let hoverNode = -1, selectedNode = -1;
+let camX = 0, camY = 0, camZ = 1;   // pan / zoom
+let alpha = 1;                       // simulation heat
+
+// ─────────────────────────────────────────────
+// CANVAS SETUP
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('graph');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+
+function resize() {
+  DPR = window.devicePixelRatio || 1;
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', () => { resize(); alpha = Math.max(alpha,.15); });
+
+// Seed positions: each domain gets a wedge of the circle
+(function seed() {
+  const dKeys = Object.keys(DOMAINS);
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const perDomain = {};
+  nodes.forEach(nd => { (perDomain[nd.d] = perDomain[nd.d] || []).push(nd); });
+  dKeys.forEach((dk, di) => {
+    const baseAngle = (di / dKeys.length) * Math.PI * 2;
+    (perDomain[dk] || []).forEach((nd, i) => {
+      const r = 90 + 26 * Math.sqrt(i);
+      const a = baseAngle + golden * i * .22;
+      nd.x = Math.cos(a) * r + Math.cos(baseAngle) * 190;
+      nd.y = Math.sin(a) * r + Math.sin(baseAngle) * 190;
+    });
+  });
+})();
+
+// ─────────────────────────────────────────────
+// SIMULATION  (simple force layout)
+// ─────────────────────────────────────────────
+function step() {
+  const repel = 2600, springK = .015, springLen = 105, gravity = .012;
+  for (let i = 0; i < nodes.length; i++) {
+    const a = nodes[i];
+    for (let j = i+1; j < nodes.length; j++) {
+      const b = nodes[j];
+      let dx = b.x - a.x, dy = b.y - a.y;
+      let d2 = dx*dx + dy*dy;
+      if (d2 < 1) { d2 = 1; dx = (Math.random()-.5); dy = (Math.random()-.5); }
+      const d = Math.sqrt(d2);
+      const f = repel / d2;
+      const fx = dx/d * f, fy = dy/d * f;
+      a.vx -= fx; a.vy -= fy;
+      b.vx += fx; b.vy += fy;
+    }
+  }
+  links.forEach(l => {
+    const a = nodes[l.s], b = nodes[l.t];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const d = Math.max(Math.sqrt(dx*dx + dy*dy), 1);
+    const f = (d - springLen) * springK;
+    const fx = dx/d * f, fy = dy/d * f;
+    a.vx += fx; a.vy += fy;
+    b.vx -= fx; b.vy -= fy;
+  });
+  nodes.forEach(nd => {
+    nd.vx -= nd.x * gravity;
+    nd.vy -= nd.y * gravity;
+    if (!nd.fixed) {
+      nd.x += nd.vx * alpha;
+      nd.y += nd.vy * alpha;
+    }
+    nd.vx *= .55; nd.vy *= .55;
+  });
+  alpha = Math.max(alpha * .995, .04);
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function nodeVisible(nd) { return domainOn[nd.d]; }
+function linkVisible(l) {
+  return edgeOn[l.type] && nodeVisible(nodes[l.s]) && nodeVisible(nodes[l.t]);
+}
+
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(W/2 + camX, H/2 + camY);
+  ctx.scale(camZ, camZ);
+
+  const focus = selectedNode >= 0 ? selectedNode : hoverNode;
+  const focusSet = new Set();
+  if (focus >= 0) {
+    focusSet.add(focus);
+    neighbors[focus].forEach(li => {
+      const l = links[li];
+      if (linkVisible(l)) { focusSet.add(l.s); focusSet.add(l.t); }
+    });
+  }
+
+  // edges
+  links.forEach(l => {
+    if (!linkVisible(l)) return;
+    const a = nodes[l.s], b = nodes[l.t];
+    const spec = EDGE_TYPES[l.type];
+    const inFocus = focus < 0 || (focusSet.has(l.s) && focusSet.has(l.t) && (l.s === focus || l.t === focus));
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    ctx.setLineDash(spec.dash);
+    ctx.lineWidth = spec.width / camZ * (inFocus && focus >= 0 ? 1.5 : 1);
+    ctx.strokeStyle = focus >= 0 && !inFocus
+      ? 'rgba(200,144,60,.07)'
+      : (inFocus && focus >= 0 ? 'rgba(230,180,80,.75)' : 'rgba(200,144,60,.32)');
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // nodes
+  nodes.forEach((nd, i) => {
+    if (!nodeVisible(nd)) return;
+    const dim = focus >= 0 && !focusSet.has(i);
+    const col = DOMAINS[nd.d].color;
+    ctx.beginPath();
+    ctx.arc(nd.x, nd.y, nd.r, 0, Math.PI*2);
+    ctx.fillStyle = dim ? 'rgba(60,40,25,.5)' : col;
+    ctx.fill();
+    ctx.lineWidth = 1.4 / camZ;
+    ctx.strokeStyle = dim ? 'rgba(120,86,14,.25)' : (i === focus ? '#f2d060' : 'rgba(12,5,2,.9)');
+    if (i === focus) ctx.lineWidth = 2.4 / camZ;
+    ctx.stroke();
+
+    // label
+    if (!dim) {
+      const fs = Math.max(10.5, Math.min(13, 9 + nd.r * .18)) / camZ * Math.min(camZ, 1.35);
+      ctx.font = `500 ${fs}px 'EB Garamond', serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const label = nd.name;
+      const ly = nd.y + nd.r + 3;
+      ctx.lineWidth = 3 / camZ;
+      ctx.strokeStyle = 'rgba(12,5,2,.85)';
+      ctx.strokeText(label, nd.x, ly);
+      ctx.fillStyle = i === focus ? '#f2d060' : 'rgba(242,234,212,.88)';
+      ctx.fillText(label, nd.x, ly);
+    }
+  });
+
+  ctx.restore();
+}
+
+function loop() { step(); draw(); requestAnimationFrame(loop); }
+
+// ─────────────────────────────────────────────
+// HIT TESTING & POINTER
+// ─────────────────────────────────────────────
+function toWorld(px, py) {
+  return { x: (px - W/2 - camX) / camZ, y: (py - H/2 - camY) / camZ };
+}
+function pick(px, py) {
+  const p = toWorld(px, py);
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const nd = nodes[i];
+    if (!nodeVisible(nd)) continue;
+    const dx = p.x - nd.x, dy = p.y - nd.y;
+    const hit = Math.max(nd.r + 4, 12 / camZ);
+    if (dx*dx + dy*dy <= hit*hit) return i;
+  }
+  return -1;
+}
+
+let dragNode = -1, panning = false, lastP = null, moved = false;
+
+canvas.addEventListener('pointerdown', e => {
+  canvas.setPointerCapture(e.pointerId);
+  const rect = canvas.getBoundingClientRect();
+  const px = e.clientX - rect.left, py = e.clientY - rect.top;
+  const hit = pick(px, py);
+  moved = false;
+  if (hit >= 0) { dragNode = hit; nodes[hit].fixed = true; }
+  else { panning = true; canvas.classList.add('dragging'); }
+  lastP = { x:px, y:py };
+});
+canvas.addEventListener('pointermove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const px = e.clientX - rect.left, py = e.clientY - rect.top;
+  if (dragNode >= 0) {
+    const p = toWorld(px, py);
+    nodes[dragNode].x = p.x; nodes[dragNode].y = p.y;
+    nodes[dragNode].vx = 0; nodes[dragNode].vy = 0;
+    alpha = Math.max(alpha, .12);
+    moved = true;
+  } else if (panning && lastP) {
+    camX += px - lastP.x; camY += py - lastP.y;
+    moved = true;
+  } else {
+    const h = pick(px, py);
+    if (h !== hoverNode) { hoverNode = h; canvas.style.cursor = h >= 0 ? 'pointer' : 'grab'; }
+  }
+  lastP = { x:px, y:py };
+});
+canvas.addEventListener('pointerup', e => {
+  if (dragNode >= 0) {
+    nodes[dragNode].fixed = false;
+    if (!moved) selectNode(dragNode);
+    dragNode = -1;
+  } else if (panning && !moved) {
+    selectNode(-1); // click on empty space clears selection
+  }
+  panning = false;
+  canvas.classList.remove('dragging');
+});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const px = e.clientX - rect.left, py = e.clientY - rect.top;
+  const before = toWorld(px, py);
+  camZ = Math.min(3, Math.max(.35, camZ * (e.deltaY < 0 ? 1.12 : .89)));
+  const after = toWorld(px, py);
+  camX += (after.x - before.x) * camZ;
+  camY += (after.y - before.y) * camZ;
+}, { passive:false });
+
+// ─────────────────────────────────────────────
+// DETAIL PANEL
+// ─────────────────────────────────────────────
+const panel = document.getElementById('detail-panel');
+function selectNode(i) {
+  selectedNode = i;
+  if (i < 0) { panel.classList.remove('open'); return; }
+  const nd = nodes[i];
+  const dom = DOMAINS[nd.d];
+  document.getElementById('detail-domain').innerHTML =
+    `<span class="legend-dot" style="background:${dom.color}"></span>${dom.label}`;
+  document.getElementById('detail-name').textContent = nd.name;
+  document.getElementById('detail-count').textContent =
+    `${nd.n} book${nd.n !== 1 ? 's' : ''} on the shelves`;
+  document.getElementById('detail-books').innerHTML =
+    nd.titles.map(t => `<li>${t}</li>`).join('');
+  const linkItems = neighbors[i].map(li => {
+    const l = links[li];
+    const other = nodes[l.s === i ? l.t : l.s];
+    return `<li><span class="link-name" data-idx="${idx.get(other.name)}">${other.name}</span>` +
+           `<span class="link-note">${EDGE_TYPES[l.type].label} &mdash; ${l.note}</span></li>`;
+  }).join('');
+  document.getElementById('detail-links').innerHTML =
+    linkItems || '<li>No charted connections.</li>';
+  panel.classList.add('open');
+}
+document.getElementById('detail-close').addEventListener('click', () => selectNode(-1));
+document.getElementById('detail-links').addEventListener('click', e => {
+  const t = e.target.closest('.link-name');
+  if (t) selectNode(+t.dataset.idx);
+});
+
+// ─────────────────────────────────────────────
+// LEGENDS
+// ─────────────────────────────────────────────
+const domLegend = document.getElementById('domain-legend');
+Object.entries(DOMAINS).forEach(([key, dom]) => {
+  const chip = document.createElement('button');
+  chip.className = 'legend-chip';
+  chip.innerHTML = `<span class="legend-dot" style="background:${dom.color}"></span>${dom.label}`;
+  chip.addEventListener('click', () => {
+    domainOn[key] = !domainOn[key];
+    chip.classList.toggle('off', !domainOn[key]);
+    if (selectedNode >= 0 && !domainOn[nodes[selectedNode].d]) selectNode(-1);
+  });
+  domLegend.appendChild(chip);
+});
+const edgeLegend = document.getElementById('edge-legend');
+Object.entries(EDGE_TYPES).forEach(([key, spec]) => {
+  const chip = document.createElement('button');
+  chip.className = 'legend-chip';
+  const cls = spec.dash.length === 0 ? 'edge-solid' : (spec.dash[0] > 4 ? 'edge-dashed' : 'edge-dotted');
+  chip.innerHTML = `<span class="edge-swatch ${cls}"></span>${spec.label}`;
+  chip.addEventListener('click', () => {
+    edgeOn[key] = !edgeOn[key];
+    chip.classList.toggle('off', !edgeOn[key]);
+  });
+  edgeLegend.appendChild(chip);
+});
+
+// ─────────────────────────────────────────────
+// TABLE VIEW
+// ─────────────────────────────────────────────
+document.getElementById('table-toggle').addEventListener('click', function () {
+  const wrap = document.getElementById('table-wrap');
+  const open = wrap.classList.toggle('open');
+  this.textContent = open ? 'Hide Table' : 'Show as Table';
+  if (open && !wrap.dataset.built) {
+    wrap.dataset.built = '1';
+    const rows = names
+      .slice().sort((a,b) => AUTHORS[b].n - AUTHORS[a].n || a.localeCompare(b))
+      .map(name => {
+        const a = AUTHORS[name];
+        const i = idx.get(name);
+        const conns = neighbors[i].map(li => {
+          const l = links[li];
+          return nodes[l.s === i ? l.t : l.s].name;
+        }).join(', ');
+        return `<tr><td><span class="t-dot" style="background:${DOMAINS[a.d].color}"></span>${name}</td>` +
+               `<td>${DOMAINS[a.d].label}</td><td>${a.n}</td><td>${conns || '&mdash;'}</td></tr>`;
+      }).join('');
+    document.getElementById('table-body').innerHTML = rows;
+  }
+});
+
+// ─────────────────────────────────────────────
+// GO
+// ─────────────────────────────────────────────
+resize();
+for (let i = 0; i < 260; i++) step();  // pre-settle before first paint
+loop();
+</script>
+</body>
+</html>
