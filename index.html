@@ -21,27 +21,27 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      /* ── Wood tones (Bodleian dark mahogany) ── */
-      --wood-darkest:   #0c0502;
-      --wood-dark:      #180903;
-      --wood-mid:       #2a1006;
-      --wood-panel:     #3a1a0a;
+      /* ── Paper tones (light reading room) ── */
+      --wood-darkest:   #f4f1e8;
+      --wood-dark:      #ece7d9;
+      --wood-mid:       #e0d9c6;
+      --wood-panel:     #cfc5ac;
 
-      /* ── Shelf planks ── */
-      --plank-top:      #d08c2a;
-      --plank-mid:      #a06018;
-      --plank-bot:      #643a0c;
+      /* ── Shelf planks (light oak) ── */
+      --plank-top:      #d8b57e;
+      --plank-mid:      #bc9459;
+      --plank-bot:      #966d38;
 
-      /* ── Gold / amber (Bodleian window light) ── */
-      --gold:           #c8903c;
-      --gold-light:     #e6b450;
-      --gold-bright:    #f2d060;
-      --gold-dark:      #78560e;
+      /* ── Bronze (muted gold for light surfaces) ── */
+      --gold:           #8a6a2f;
+      --gold-light:     #6b4f1d;
+      --gold-bright:    #5d431a;
+      --gold-dark:      #7c5f28;
 
       /* ── Text ── */
-      --cream:          #f2ead4;
-      --parchment:      #f8f0d6;
-      --parchment-mid:  #eadcac;
+      --cream:          #3a352b;
+      --parchment:      #faf6e8;
+      --parchment-mid:  #e8dfc4;
       --ink:            #150e08;
       --ink-mid:        #38180a;
     }
@@ -56,24 +56,24 @@
       font-family: 'EB Garamond', Georgia, serif;
       background-color: var(--wood-darkest);
       background-image:
-        /* Amber window-glow from above */
+        /* Soft window-glow from above */
         radial-gradient(ellipse 90% 45% at 50% 0%,
-          rgba(190, 120, 25, 0.14) 0%,
+          rgba(190, 150, 60, 0.10) 0%,
           transparent 68%),
-        /* Fine vertical wood grain */
+        /* Fine vertical paper grain */
         repeating-linear-gradient(91deg,
           transparent            0,   transparent            5px,
-          rgba(255,255,255,.010) 5px, rgba(255,255,255,.010) 6px,
+          rgba(255,255,255,.14)  5px, rgba(255,255,255,.14)  6px,
           transparent            6px, transparent            13px,
-          rgba(0,0,0,.040)      13px, rgba(0,0,0,.040)      14px,
+          rgba(120,95,55,.045)  13px, rgba(120,95,55,.045)  14px,
           transparent           14px, transparent            21px,
-          rgba(255,255,255,.007)21px, rgba(255,255,255,.007) 22px),
+          rgba(255,255,255,.10) 21px, rgba(255,255,255,.10)  22px),
         /* Horizontal panel joints */
         repeating-linear-gradient(180deg,
           transparent          0,   transparent          68px,
-          rgba(0,0,0,.055)    68px, rgba(0,0,0,.055)    69px,
+          rgba(120,95,55,.05) 68px, rgba(120,95,55,.05) 69px,
           transparent          69px, transparent          70px,
-          rgba(255,255,255,.02)70px, rgba(255,255,255,.02)71px);
+          rgba(255,255,255,.12)70px, rgba(255,255,255,.12)71px);
       min-height: 100vh;
       color: var(--cream);
     }
@@ -85,8 +85,8 @@
     .lib-header {
       background:
         radial-gradient(ellipse 65% 220% at 50% -10%,
-          rgba(210, 145, 45, 0.24) 0%, transparent 60%),
-        linear-gradient(180deg, #080301 0%, #180804 40%, #120606 75%, #0a0302 100%);
+          rgba(210, 170, 80, 0.18) 0%, transparent 60%),
+        linear-gradient(180deg, #ece6d5 0%, #f1ecdf 40%, #f3efe4 75%, #f4f1e8 100%);
       padding: 30px 56px 24px;
       text-align: center;
       position: relative;
@@ -138,9 +138,7 @@
       color: var(--gold-bright);
       letter-spacing: 0.03em;
       line-height: 1.05;
-      text-shadow:
-        0 0 28px rgba(210, 150, 40, 0.45),
-        0 2px  4px rgba(0, 0, 0, 0.85);
+      text-shadow: 0 1px 2px rgba(90, 70, 30, 0.25);
       margin-bottom: 10px;
     }
 
@@ -229,8 +227,8 @@
        CONTROLS BAR
     ════════════════════════════════════ */
     .controls-bar {
-      background: linear-gradient(180deg, #1c0a04 0%, #140702 100%);
-      border-bottom: 1px solid rgba(110,80,15,.45);
+      background: linear-gradient(180deg, #ece7d9 0%, #e4ddc9 100%);
+      border-bottom: 1px solid rgba(138,106,47,.4);
       padding: 10px 28px;
       display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
     }
@@ -241,8 +239,8 @@
     }
     .search-input {
       width: 100%; padding: 7px 12px 7px 32px;
-      background: rgba(0,0,0,.5);
-      border: 1px solid rgba(110,80,15,.5);
+      background: #fbf8f0;
+      border: 1px solid rgba(138,106,47,.4);
       border-radius: 2px; color: var(--cream);
       font-family: 'EB Garamond', serif; font-size: 1rem; outline: none;
       transition: border-color .2s, box-shadow .2s;
@@ -251,31 +249,31 @@
       border-color: var(--gold);
       box-shadow: 0 0 0 2px rgba(200,144,60,.12);
     }
-    .search-input::placeholder { color: rgba(242,234,212,.28); font-style: italic; }
+    .search-input::placeholder { color: rgba(58,50,40,.4); font-style: italic; }
 
     select.sort-sel {
       padding: 7px 12px;
-      background: rgba(0,0,0,.5);
-      border: 1px solid rgba(110,80,15,.5);
+      background: #fbf8f0;
+      border: 1px solid rgba(138,106,47,.4);
       border-radius: 2px; color: var(--cream);
       font-family: 'EB Garamond', serif; font-size: 1rem;
       outline: none; cursor: pointer;
     }
-    select.sort-sel option { background: #140702; }
+    select.sort-sel option { background: #fbf8f0; }
 
     .book-count {
       margin-left: auto;
       font-family: 'EB Garamond', serif; font-style: italic;
-      color: var(--gold); opacity: 0.6; font-size: 0.95rem; white-space: nowrap;
+      color: var(--gold); opacity: 0.8; font-size: 0.95rem; white-space: nowrap;
     }
     .sync-status {
       font-family: 'EB Garamond', serif; font-style: italic;
       font-size: 0.82rem; white-space: nowrap;
-      color: rgba(200,144,60,.38); transition: color .3s;
+      color: rgba(110,90,50,.55); transition: color .3s;
     }
-    .sync-status.syncing { color: rgba(200,144,60,.75); }
-    .sync-status.ok      { color: rgba(120,190,100,.60); }
-    .sync-status.error   { color: rgba(210,100,80,.70); }
+    .sync-status.syncing { color: rgba(110,90,50,.85); }
+    .sync-status.ok      { color: rgba(60,130,50,.80); }
+    .sync-status.error   { color: rgba(180,60,40,.80); }
 
 
     /* ════════════════════════════════════
@@ -288,20 +286,20 @@
       max-width: 1480px;
       margin: 0 auto;
       border-radius: 4px 4px 3px 3px;
-      box-shadow: 0 28px 80px rgba(0,0,0,.92), 0 8px 24px rgba(0,0,0,.6);
+      box-shadow: 0 28px 80px rgba(100,80,50,.35), 0 8px 24px rgba(100,80,50,.22);
     }
 
     /* Crown molding */
     .bookcase-crown {
       height: 32px;
       background: linear-gradient(180deg,
-        #5c3014 0%, #422010 35%, #2e1208 70%, #1e0c04 100%);
-      border-top: 3px solid rgba(210,155,50,.78);
+        #d8b57e 0%, #c49a5c 35%, #ac8146 70%, #976d38 100%);
+      border-top: 3px solid rgba(140,105,50,.8);
       border-radius: 4px 4px 0 0;
       position: relative;
       box-shadow:
-        inset 0 3px 0 rgba(255,210,90,.14),
-        inset 0 -3px 8px rgba(0,0,0,.45);
+        inset 0 3px 0 rgba(255,230,150,.35),
+        inset 0 -3px 8px rgba(100,70,35,.3);
     }
     .bookcase-crown::before {    /* decorative profile line */
       content: '';
@@ -315,7 +313,7 @@
       content: '';
       position: absolute;
       bottom: 0; left: 0; right: 0; height: 5px;
-      background: linear-gradient(180deg, rgba(0,0,0,.5), transparent);
+      background: linear-gradient(180deg, rgba(100,70,35,.3), transparent);
     }
 
     /* Cabinet body — side posts flanking the shelf interior */
@@ -330,7 +328,7 @@
       width: 26px;
       position: relative;
       background: linear-gradient(90deg,
-        #221008 0%, #381a0c 28%, #4a2412 54%, #3c1c0a 76%, #261006 100%);
+        #a87c46 0%, #c39a5f 28%, #d0aa6e 54%, #bd9155 76%, #a1763f 100%);
     }
     .bookcase-post::before {     /* horizontal grain on post */
       content: '';
@@ -342,37 +340,37 @@
         rgba(255,255,255,.018) 66px, rgba(255,255,255,.018) 67px);
     }
     .post-left {
-      border-right: 2px solid rgba(0,0,0,.65);
-      box-shadow: inset -8px 0 18px rgba(0,0,0,.55);
+      border-right: 2px solid rgba(90,65,35,.5);
+      box-shadow: inset -8px 0 18px rgba(120,90,50,.3);
     }
     .post-right {
-      border-left: 2px solid rgba(0,0,0,.65);
-      box-shadow: inset 8px 0 18px rgba(0,0,0,.55);
+      border-left: 2px solid rgba(90,65,35,.5);
+      box-shadow: inset 8px 0 18px rgba(120,90,50,.3);
     }
 
-    /* Back panel — dark panelled wood behind the books */
+    /* Back panel — light panelled wood behind the books */
     .bookcase-interior {
       flex: 1;
       min-width: 0;
-      background-color: #140b05;
+      background-color: #e8dec4;
       background-image: repeating-linear-gradient(90deg,
         transparent            0,   transparent            58px,
-        rgba(0,0,0,.038)      58px, rgba(0,0,0,.038)      59px,
+        rgba(120,95,55,.06)   58px, rgba(120,95,55,.06)   59px,
         transparent            59px, transparent           116px,
-        rgba(255,255,255,.011)116px, rgba(255,255,255,.011)117px);
+        rgba(255,255,255,.25)116px, rgba(255,255,255,.25)117px);
     }
 
     /* Base / plinth */
     .bookcase-plinth {
       height: 26px;
       background: linear-gradient(180deg,
-        #1a0c04 0%, #2c1408 42%, #3a1c0c 72%, #281008 100%);
-      border-bottom: 3px solid rgba(210,155,50,.68);
+        #b8905a 0%, #c9a066 42%, #b98a4e 72%, #a1773f 100%);
+      border-bottom: 3px solid rgba(140,105,50,.75);
       border-radius: 0 0 3px 3px;
       position: relative;
       box-shadow:
-        inset 0 4px 10px rgba(0,0,0,.52),
-        inset 0 -2px 0 rgba(255,210,90,.10);
+        inset 0 4px 10px rgba(100,70,35,.3),
+        inset 0 -2px 0 rgba(255,230,150,.3);
     }
     .bookcase-plinth::before {   /* decorative profile line */
       content: '';
@@ -393,7 +391,7 @@
       content: '';
       position: absolute;
       bottom: 20px; left: 0; right: 0; height: 32px;
-      background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.28) 100%);
+      background: linear-gradient(180deg, transparent 0%, rgba(120,95,60,.22) 100%);
       pointer-events: none;
       z-index: 1;
     }
@@ -416,9 +414,9 @@
         var(--plank-mid) 52%,
         var(--plank-bot) 100%);
       box-shadow:
-        0 6px 16px rgba(0,0,0,.75),
-        inset 0 2px 0 rgba(255,200,80,.10),
-        inset 0 1px 0 rgba(255,255,255,.07);
+        0 6px 16px rgba(110,85,50,.4),
+        inset 0 2px 0 rgba(255,225,140,.25),
+        inset 0 1px 0 rgba(255,255,255,.2);
       border-radius: 1px 1px 3px 3px;
     }
     .shelf-plank::before {       /* wood-grain lines */
@@ -438,7 +436,7 @@
       position: absolute;
       bottom: -13px; left: -2px; right: -2px; height: 13px;
       background: linear-gradient(180deg,
-        rgba(0,0,0,.68), rgba(0,0,0,.15), transparent);
+        rgba(110,85,50,.38), rgba(110,85,50,.1), transparent);
       border-radius: 0 0 4px 4px;
     }
 
@@ -500,8 +498,8 @@
       border-radius: 4px;
       padding: 12px;
       box-shadow:
-        0 14px 40px rgba(0,0,0,.72),
-        0  3px  8px rgba(0,0,0,.40),
+        0 14px 40px rgba(100,80,50,.4),
+        0  3px  8px rgba(100,80,50,.25),
         inset 0 1px 0 rgba(255,220,110,.20);
       pointer-events: none;
       opacity: 0;
@@ -533,7 +531,7 @@
     .popout-cover-ph .ph-ornament { font-size: 1rem; opacity: .42; margin-bottom: 5px; }
     .popout-cover-ph .ph-t {
       font-family: 'Cinzel', serif; font-size: 0.52rem;
-      color: var(--gold-light); line-height: 1.4; word-break: break-word;
+      color: #f0e0b8; line-height: 1.4; word-break: break-word;
     }
 
     .popout-title {
@@ -559,7 +557,7 @@
     ════════════════════════════════════ */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.90);
+      background: rgba(60,50,35,.55);
       z-index: 1000; align-items: center; justify-content: center; padding: 20px;
     }
     .modal-overlay.active { display: flex; }
@@ -571,12 +569,12 @@
       max-width: 780px; width: 100%;
       max-height: 90vh; overflow-y: auto;
       box-shadow:
-        0 30px 90px rgba(0,0,0,.82),
+        0 30px 90px rgba(80,60,35,.5),
         inset 0 1px 0 rgba(255,228,120,.14);
     }
 
     .modal-head {
-      background: linear-gradient(180deg, #0e0402 0%, #200c06 55%, #180a04 100%);
+      background: linear-gradient(180deg, #efe9d9 0%, #e6dec9 100%);
       padding: 16px 24px;
       border-bottom: 2px solid rgba(130,95,18,.70);
       display: flex; align-items: center; justify-content: space-between;
@@ -595,7 +593,7 @@
       display: flex; align-items: center; justify-content: center;
       transition: all .18s; flex-shrink: 0;
     }
-    .modal-close-btn:hover { background: var(--gold-dark); color: var(--cream); }
+    .modal-close-btn:hover { background: var(--gold-dark); color: var(--parchment); }
 
     .book-modal-body { padding: 28px; display: flex; gap: 28px; }
 
@@ -655,7 +653,7 @@
     ════════════════════════════════════ */
     .empty-shelf {
       text-align: center; padding: 80px 20px;
-      color: rgba(242,234,212,.26);
+      color: rgba(58,50,40,.45);
     }
     .empty-shelf-icon { font-size: 3rem; margin-bottom: 16px; }
     .empty-shelf-text {
@@ -668,12 +666,12 @@
     ════════════════════════════════════ */
     .toast {
       position: fixed; bottom: 28px; right: 28px;
-      background: linear-gradient(135deg, #180a03, #261006);
-      border: 1px solid rgba(130,95,18,.65);
+      background: linear-gradient(135deg, #faf6ea, #f0e9d6);
+      border: 1px solid rgba(130,95,18,.5);
       color: var(--gold-light);
       padding: 12px 18px; border-radius: 3px;
       font-family: 'EB Garamond', serif; font-style: italic; font-size: 0.95rem;
-      box-shadow: 0 8px 28px rgba(0,0,0,.65);
+      box-shadow: 0 8px 28px rgba(100,80,50,.35);
       transform: translateY(120px); opacity: 0;
       transition: transform .3s ease, opacity .3s ease;
       z-index: 9998; max-width: 300px;
