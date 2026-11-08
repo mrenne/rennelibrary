@@ -519,8 +519,13 @@
     // ═════════════════════════════════════════
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_PYVb-qMGrPLPsUz6Phg6tpbIquYMHrY-c4jNWD7BQ0hawPWx8NjwGGv0byFClwlFrDgihLPQzGX/pub?gid=673406086&single=true&output=csv';
 
+    // Optional: a Google Books API key (free, from console.cloud.google.com → APIs → Books API).
+    // Without one, Google Books shares a public daily quota that is often used up.
+    // Restrict the key to your site's address (HTTP referrer) since it is visible in this page.
+    const GOOGLE_BOOKS_KEY = '';
+
     const BOOKS_KEY = 'rl_paper_books_v1';
-    const SYN_KEY   = 'rl_paper_synopses_v1';
+    const META_KEY  = 'rl_paper_meta_v1';
     const UNSORTED  = 'Miscellany';
 
     // Editorial order of sections; any new genre typed in the sheet is appended alphabetically.
@@ -620,11 +625,17 @@
     function booksFromCSV(text) {
       const rec = parseCSV(text.replace(/^﻿/, ''));
       if (rec.length < 2) return [];
-      const h = rec[0].map(x => x.trim().toLowerCase());
+      const h = rec[0].map(x => x.trim().toLowerCase().replace(/[\s-]+/g, '_'));
       const col = name => h.indexOf(name);
       const ti = col('title'), fi = col('first_name'), li = col('last_name'), gi = col('genre'), ii = col('isbn');
+      const ci = col('cover_url') >= 0 ? col('cover_url') : col('cover');
       if (ti < 0) return [];
       const clean = s => (s ?? '').replace(/\s+/g, ' ').trim();
+      // cover_url: a web address (https://…) or a path to an image in the site, e.g. covers/9780.jpg
+      const coverOf = s => {
+        const v = (s ?? '').trim();
+        return /^https?:\/\/\S+$/i.test(v) || /^[\w\-./]+\.(jpe?g|png|webp|gif)$/i.test(v) ? v : '';
+      };
       return rec.slice(1).flatMap((r, n) => {
         const title = clean(r[ti]);
         if (!title) return [];
@@ -634,6 +645,7 @@
           last:  li >= 0 ? clean(r[li]) : '',
           genre: gi >= 0 ? canonicalGenre(r[gi]) : '',
           isbn:  ii >= 0 ? clean(r[ii]).replace(/[^0-9Xx]/g, '') : '',
+          coverUrl: ci >= 0 ? coverOf(r[ci]) : '',
           row: n,
         }];
       });
@@ -657,22 +669,112 @@
     }
 
     // ═════════════════════════════════════════
-    // OPEN LIBRARY — covers & synopses
+    // BOOK DETAILS — covers & synopses
+    // Cover lookup order:
+    //   1. the sheet's cover_url column
+    //   2. Open Library: this edition's cover, then a cover from any other edition of the work
+    //   3. Google Books, by ISBN
+    //   Books without an ISBN: Open Library search, then Google Books search, by title + author
     // ═════════════════════════════════════════
-    const coverUrl = b => b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-M.jpg?default=false` : '';
+    const RECHECK_MS = 14 * 86400000;          // look again for a missing cover after two weeks
+    let metaCache = {};
+    try { metaCache = JSON.parse(localStorage.getItem(META_KEY) || '{}'); } catch (_) {}
+    function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(metaCache)); } catch (_) {} }
 
-    let synCache = {};
-    try { synCache = JSON.parse(localStorage.getItem(SYN_KEY) || '{}'); } catch (_) {}
-    function saveSyn() { try { localStorage.setItem(SYN_KEY, JSON.stringify(synCache)); } catch (_) {} }
+    const metaKey  = b => b.isbn || `${b.title}|${b.last}`.toLowerCase();
+    const olCover  = id => `https://covers.openlibrary.org/b/id/${id}-M.jpg`;
+    const firstId  = ids => (ids || []).find(id => id > 0);
 
     function cleanDesc(d) {
       let s = typeof d === 'string' ? d : (d?.value ?? '');
       s = s.split(/\n-{3,}|\n\*{3,}|\(\[source\]/)[0];
-      s = s.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\r/g, '').replace(/\n{2,}/g, '\n').trim();
+      s = s.replace(/<[^>]+>/g, ' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+           .replace(/\r/g, '').replace(/\n{2,}/g, '\n').replace(/[ \t]{2,}/g, ' ').trim();
       return s;
     }
 
-    // simple serial queue so we stay polite to the API
+    // "not found" is an answer worth remembering; any other failure is not
+    async function getJSON(url) {
+      const r = await fetch(url);
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    }
+
+    // Guards title searches against grabbing a different book
+    const words = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(w => w && !['the', 'a', 'an', 'and', 'of'].includes(w));
+    function titleMatches(b, found) {
+      const want = words(headTitle(b.title)).slice(0, 3);
+      const have = new Set(words(found));
+      return want.length > 0 && want.every(w => have.has(w));
+    }
+
+    function gbImage(item) {
+      const l = item?.volumeInfo?.imageLinks;
+      const u = l?.thumbnail || l?.smallThumbnail || '';
+      return u.replace(/^http:/, 'https:').replace(/&edge=curl/, '');
+    }
+    async function googleBooks(b) {
+      const q = b.isbn
+        ? `isbn:${b.isbn}`
+        : `intitle:${headTitle(b.title)}${b.last ? ` inauthor:${b.last}` : ''}`;
+      const key = GOOGLE_BOOKS_KEY ? `&key=${encodeURIComponent(GOOGLE_BOOKS_KEY)}` : '';
+      const j = await getJSON(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=5&printType=books${key}`);
+      const items = (j?.items || []).filter(i => b.isbn || titleMatches(b, i.volumeInfo?.title));
+      const pick = items.find(i => gbImage(i)) || items[0];
+      return { cover: gbImage(pick), desc: cleanDesc(pick?.volumeInfo?.description) };
+    }
+
+    // Open Library catalog search by title + author; returns the best matching work
+    async function olSearch(b) {
+      const q = new URLSearchParams({ title: headTitle(b.title), limit: '5', fields: 'key,title,cover_i' });
+      if (b.last) q.set('author', b.last);
+      const s = await getJSON(`https://openlibrary.org/search.json?${q}`);
+      const docs = (s?.docs || []).filter(d => titleMatches(b, d.title));
+      return docs.find(d => d.cover_i) || docs[0] || null;
+    }
+
+    async function lookupMeta(b) {
+      let desc = '', cover = '', workKey = '', partial = false;
+      if (b.isbn) {
+        const ed = await getJSON(`https://openlibrary.org/isbn/${b.isbn}.json`);
+        if (ed) {
+          desc = cleanDesc(ed.description);
+          const id = firstId(ed.covers);
+          if (id) cover = olCover(id);
+          workKey = ed.works?.[0]?.key || '';
+        }
+      }
+      if (!workKey) {
+        const hit = await olSearch(b);
+        if (hit) { workKey = hit.key; if (!cover && hit.cover_i) cover = olCover(hit.cover_i); }
+      }
+      if (workKey && (!desc || !cover)) {
+        const w = await getJSON(`https://openlibrary.org${workKey}.json`);
+        if (w) {
+          if (!desc) desc = cleanDesc(w.description);
+          if (!cover) { const id = firstId(w.covers); if (id) cover = olCover(id); }
+        }
+      }
+      if (!cover && b.isbn) {
+        // this edition and its work have no cover: try other catalog records of the same book
+        const hit = await olSearch(b);
+        if (hit?.cover_i) cover = olCover(hit.cover_i);
+      }
+      if (!cover || !desc) {
+        try {
+          const g = await googleBooks(b);
+          if (!cover) cover = g.cover;
+          if (!desc) desc = g.desc;
+        } catch (_) {
+          partial = true;   // Google Books refused or failed: look again soon rather than in two weeks
+        }
+      }
+      return { desc, cover, partial };
+    }
+
+    // simple serial queue so we stay polite to the APIs
     let qChain = Promise.resolve();
     function queued(fn) {
       const p = qChain.then(fn, fn);
@@ -680,22 +782,56 @@
       return p;
     }
 
-    function getSynopsis(b) {
-      if (!b.isbn) return Promise.resolve('');
-      if (b.isbn in synCache) return Promise.resolve(synCache[b.isbn]);
-      return queued(async () => {
-        let text = '';
-        try {
-          const ed = await fetch(`https://openlibrary.org/isbn/${b.isbn}.json`).then(r => r.ok ? r.json() : null);
-          if (ed?.description) text = cleanDesc(ed.description);
-          if (!text && ed?.works?.[0]?.key) {
-            const w = await fetch(`https://openlibrary.org${ed.works[0].key}.json`).then(r => r.ok ? r.json() : null);
-            if (w?.description) text = cleanDesc(w.description);
-          }
-        } catch (_) { return ''; }   // network trouble: don't cache, try again next visit
-        synCache[b.isbn] = text;
-        saveSyn();
-        return text;
+    const inflight = new Map();
+    function getMeta(b) {
+      const key = metaKey(b);
+      const hit = metaCache[key];
+      if (hit && (hit.c || Date.now() - hit.t < RECHECK_MS)) return Promise.resolve({ desc: hit.d, cover: hit.c });
+      if (inflight.has(key)) return inflight.get(key);
+      const p = queued(() => lookupMeta(b))
+        .then(m => {
+          // a lookup Google Books couldn't finish is retried after a day instead of two weeks
+          const t = m.partial && !m.cover ? Date.now() - RECHECK_MS + 86400000 : Date.now();
+          metaCache[key] = { d: m.desc, c: m.cover, t };
+          saveMeta();
+          return m;
+        })
+        .catch(() => hit ? { desc: hit.d, cover: hit.c } : { desc: '', cover: '' })   // network trouble: try again next visit
+        .finally(() => inflight.delete(key));
+      inflight.set(key, p);
+      return p;
+    }
+
+    function resolveCover(b, skipSheet = false) {
+      if (b.coverUrl && !skipSheet) return Promise.resolve(b.coverUrl);
+      return getMeta(b).then(m => m.cover);
+    }
+
+    function showCover(frame, b, url) {
+      frame.classList.remove('pending');
+      if (!url) {
+        frame.classList.add('missing');
+        frame.innerHTML = '<span>No photograph on file</span>';
+        return;
+      }
+      const img = new Image();
+      img.alt = `Cover of ${b.title}`;
+      img.onerror = () => {
+        // a broken link in the sheet falls back to the automatic lookup
+        if (url === b.coverUrl) resolveCover(b, true).then(u => showCover(frame, b, u === url ? '' : u));
+        else showCover(frame, b, '');
+      };
+      img.src = url;
+      frame.innerHTML = '';
+      frame.appendChild(img);
+    }
+
+    function fillCovers(root) {
+      root.querySelectorAll('[data-cover]').forEach(frame => {
+        if (frame.dataset.loaded) return;
+        frame.dataset.loaded = '1';
+        const b = BOOKS[+frame.dataset.cover];
+        resolveCover(b).then(url => showCover(frame, b, url));
       });
     }
 
@@ -729,11 +865,8 @@
     }
 
     function photoHTML(b, caption = true) {
-      const url = coverUrl(b);
       const idx = BOOKS.indexOf(b);
-      const frame = url
-        ? `<div class="photo-frame" data-open="${idx}"><img src="${url}" alt="Cover of ${esc(b.title)}" loading="lazy" onerror="this.parentNode.classList.add('missing');this.parentNode.innerHTML='<span>No photograph on file</span>'"></div>`
-        : `<div class="photo-frame missing" data-open="${idx}"><span>No photograph on file</span></div>`;
+      const frame = `<div class="photo-frame pending" data-open="${idx}" data-cover="${idx}"></div>`;
       return `<figure class="photo">${frame}${caption ? `<figcaption>${esc(headTitle(b.title))}${authorOf(b) ? ` &mdash; ${esc(authorOf(b))}` : ''}</figcaption>` : ''}</figure>`;
     }
 
@@ -756,7 +889,7 @@
         el.dataset.loaded = '1';
         const b = BOOKS[+el.dataset.syn];
         const max = +el.dataset.max || 600;
-        getSynopsis(b).then(text => {
+        getMeta(b).then(({ desc: text }) => {
           let t = text || noSynopsisText(b);
           if (t.length > max) t = t.slice(0, max).replace(/\s+\S*$/, '') + '…';
           el.textContent = t;
@@ -914,7 +1047,7 @@
       } else {
         panes.forEach(p => { p.hidden = p.id !== route; });
         const pane = $(route);
-        if (pane) fillSynopses(pane);
+        if (pane) { fillCovers(pane); fillSynopses(pane); }
       }
       document.querySelectorAll('.index-list a').forEach(a => {
         a.classList.toggle('active', !searchQuery && a.dataset.route === route);
@@ -972,6 +1105,7 @@
     function openBook(b) {
       const sec = SECTIONS.find(s => s.name === (b.genre || UNSORTED));
       $('clip-photo').innerHTML = photoHTML(b, false);
+      fillCovers($('clip-photo'));
       $('clip-kicker').textContent = `Section ${sec?.letter ?? ''} — ${b.genre || UNSORTED}`;
       $('clip-title').textContent = b.title;
       $('clip-meta').innerHTML =
@@ -982,7 +1116,7 @@
       body.textContent = 'Consulting the archives…';
       $('modal').classList.add('active');
       $('clip-close').focus();
-      getSynopsis(b).then(text => {
+      getMeta(b).then(({ desc: text }) => {
         if (!$('modal').classList.contains('active') || $('clip-title').textContent !== b.title) return;
         body.textContent = text || noSynopsisText(b);
         body.classList.remove('pending');
@@ -1004,7 +1138,7 @@
     $('dl-date').textContent = new Date().toLocaleDateString('en-US',
       { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-    function sig(list) { return list.map(b => `${b.title}|${b.last}|${b.genre}|${b.isbn}`).join('\n'); }
+    function sig(list) { return list.map(b => `${b.title}|${b.last}|${b.genre}|${b.isbn}|${b.coverUrl || ''}`).join('\n'); }
 
     async function boot() {
       try {
