@@ -869,7 +869,7 @@
         <section class="banner">
           <p class="banner-kicker">Today&rsquo;s Featured Volume &bull; From the ${esc(banner.genre || UNSORTED)} Stacks</p>
           <h2 class="${bannerCls}" data-open="${BOOKS.indexOf(banner)}">${esc(bannerTitle)}</h2>
-          <p class="banner-deck">${authorOf(banner) ? `By ${esc(authorOf(banner))} &mdash; ` : ''}${total.toLocaleString()} Volumes in ${SECTIONS.length} Sections Report for Duty</p>
+          ${authorOf(banner) ? `<p class="banner-deck">By ${esc(authorOf(banner))}</p>` : ''}
         </section>
 
         <section class="front">
