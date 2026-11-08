@@ -640,7 +640,9 @@
     }
 
     async function fetchSheet() {
-      const urls = [SHEET_URL, `https://corsproxy.io/?${encodeURIComponent(SHEET_URL)}`];
+      // A unique query string sidesteps Google's cached copy of the published sheet
+      const fresh = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+      const urls = [fresh, `https://corsproxy.io/?${encodeURIComponent(fresh)}`];
       for (const url of urls) {
         try {
           const r = await fetch(url, { cache: 'no-store' });
