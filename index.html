@@ -4,1487 +4,954 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Renne Library</title>
-
-  <!--
-    TYPOGRAPHY NOTE
-    ───────────────
-    Pirata One          →  blackletter title  (Gothic ink-drawn style, more legible than traditional Fraktur)
-    EB Garamond         →  body / UI text      (scholarly old-style serif)
-    Cinzel              →  small-caps labels
-
-    If you locate the Telegraph .ttf / .woff2 file, add it here and replace
-    'UnifrakturMaguntia' with your font-family name in .lib-title below.
-  -->
-  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Oswald:wght@500;600;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      /* ── Paper tones (light reading room) ── */
-      --wood-darkest:   #f4f1e8;
-      --wood-dark:      #ece7d9;
-      --wood-mid:       #e0d9c6;
-      --wood-panel:     #cfc5ac;
-
-      /* ── Shelf planks (light oak) ── */
-      --plank-top:      #d8b57e;
-      --plank-mid:      #bc9459;
-      --plank-bot:      #966d38;
-
-      /* ── Bronze (muted gold for light surfaces) ── */
-      --gold:           #8a6a2f;
-      --gold-light:     #6b4f1d;
-      --gold-bright:    #5d431a;
-      --gold-dark:      #7c5f28;
-
-      /* ── Text ── */
-      --cream:          #3a352b;
-      --parchment:      #faf6e8;
-      --parchment-mid:  #e8dfc4;
-      --ink:            #150e08;
-      --ink-mid:        #38180a;
+      --paper:      #f3eee2;
+      --paper-dark: #e7dfcc;
+      --ink:        #1b1915;
+      --ink-soft:   #3b372f;
+      --ink-faint:  #6b6458;
+      --rule:       #1b1915;
+      --head:  'Oswald', 'Arial Narrow', sans-serif;
+      --body:  'Old Standard TT', Georgia, serif;
+      --mast:  'Pirata One', 'Old Standard TT', serif;
     }
 
-    /* ════════════════════════════════════
-       BODY / BACKGROUND
-       Dark mahogany panelling with a warm
-       amber glow from above — like the
-       Bodleian's Gothic clerestory windows
-    ════════════════════════════════════ */
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'EB Garamond', Georgia, serif;
-      background-color: var(--wood-darkest);
-      background-image:
-        /* Soft window-glow from above */
-        radial-gradient(ellipse 90% 45% at 50% 0%,
-          rgba(190, 150, 60, 0.10) 0%,
-          transparent 68%),
-        /* Fine vertical paper grain */
-        repeating-linear-gradient(91deg,
-          transparent            0,   transparent            5px,
-          rgba(255,255,255,.14)  5px, rgba(255,255,255,.14)  6px,
-          transparent            6px, transparent            13px,
-          rgba(120,95,55,.045)  13px, rgba(120,95,55,.045)  14px,
-          transparent           14px, transparent            21px,
-          rgba(255,255,255,.10) 21px, rgba(255,255,255,.10)  22px),
-        /* Horizontal panel joints */
-        repeating-linear-gradient(180deg,
-          transparent          0,   transparent          68px,
-          rgba(120,95,55,.05) 68px, rgba(120,95,55,.05) 69px,
-          transparent          69px, transparent          70px,
-          rgba(255,255,255,.12)70px, rgba(255,255,255,.12)71px);
+      background: #d9d2c1;
+      color: var(--ink);
+      font-family: var(--body);
+      line-height: 1.45;
       min-height: 100vh;
-      color: var(--cream);
+      padding: 24px 16px 48px;
     }
 
-
-    /* ════════════════════════════════════
-       HEADER
-    ════════════════════════════════════ */
-    .lib-header {
+    /* The sheet of newsprint */
+    .sheet {
+      max-width: 1320px;
+      margin: 0 auto;
       background:
-        radial-gradient(ellipse 65% 220% at 50% -10%,
-          rgba(210, 170, 80, 0.18) 0%, transparent 60%),
-        linear-gradient(180deg, #ece6d5 0%, #f1ecdf 40%, #f3efe4 75%, #f4f1e8 100%);
-      padding: 30px 56px 24px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
+        radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(120,100,60,.08), transparent 55%),
+        var(--paper);
+      padding: 22px 28px 34px;
+      box-shadow: 0 2px 4px rgba(40,30,15,.18), 0 18px 50px rgba(40,30,15,.22);
     }
 
-    /* Thin gold left / right column lines */
-    .lib-header::before,
-    .lib-header::after {
-      content: '';
-      position: absolute;
-      top: 0; bottom: 0;
-      width: 3px;
-      background: linear-gradient(180deg,
-        rgba(200,144,60,.55) 0%,
-        rgba(200,144,60,.25) 55%,
-        transparent 100%);
-    }
-    .lib-header::before { left: 0; }
-    .lib-header::after  { right: 0; }
+    a { color: inherit; }
 
-    /* Masthead rule above title */
-    .header-top-rule {
-      display: flex; align-items: center; justify-content: center;
-      gap: 10px; margin-bottom: 12px;
+    /* ═════════ MASTHEAD ═════════ */
+    .masthead { text-align: center; }
+    .mast-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 18px;
     }
-    .header-top-rule::before,
-    .header-top-rule::after {
-      content: '';
-      flex: 1; max-width: 200px; height: 1px;
-      background: linear-gradient(90deg,
-        transparent, rgba(200,144,60,.65), rgba(200,144,60,.65));
+    .ear {
+      border: 2px solid var(--ink);
+      padding: 6px 10px;
+      font-family: var(--head);
+      text-transform: uppercase;
+      font-size: .72rem;
+      letter-spacing: .06em;
+      line-height: 1.25;
+      max-width: 210px;
     }
-    .header-top-rule::after {
-      background: linear-gradient(90deg,
-        rgba(200,144,60,.65), rgba(200,144,60,.65), transparent);
-    }
-    .header-top-rule span {
-      font-size: 0.6rem; letter-spacing: 0.45em;
-      color: var(--gold); opacity: 0.55;
-    }
-
-    /* ── BLACKLETTER TITLE (Telegraph style) ── */
-    .lib-title {
-      /* Swap 'Pirata One' for your Telegraph font-family name once the file is added */
-      font-family: 'Pirata One', 'EB Garamond', serif;
-      font-size: clamp(2.4rem, 6.5vw, 4.2rem);
-      font-weight: 400;   /* UnifrakturMaguntia is single-weight */
-      color: var(--gold-bright);
-      letter-spacing: 0.03em;
-      line-height: 1.05;
-      text-shadow: 0 1px 2px rgba(90, 70, 30, 0.25);
-      margin-bottom: 10px;
-    }
-
-    /* Ornamental separator */
-    .ornament-row {
-      display: flex; align-items: center; justify-content: center;
-      gap: 14px; margin: 0 auto 9px; max-width: 500px;
-    }
-    .ornament-row::before,
-    .ornament-row::after {
-      content: '';
-      flex: 1; height: 1px;
-    }
-    .ornament-row::before {
-      background: linear-gradient(90deg,
-        transparent 0%, rgba(200,144,60,.3) 20%,
-        rgba(200,144,60,.75) 100%);
-    }
-    .ornament-row::after {
-      background: linear-gradient(90deg,
-        rgba(200,144,60,.75) 0%,
-        rgba(200,144,60,.3) 80%, transparent 100%);
-    }
-    .ornament-row .gem {
-      color: var(--gold); font-size: 0.62rem;
-      letter-spacing: 0.3em; opacity: 0.75;
-    }
-
-    /* Italic subtitle */
-    .lib-subtitle {
-      font-family: 'EB Garamond', serif;
-      font-style: italic;
-      font-size: 0.92rem;
-      color: var(--gold-light);
-      opacity: 0.62;
-      letter-spacing: 0.04em;
-      margin-bottom: 8px;
-      max-width: 680px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.55;
-    }
-
-    .header-nav {
-      display: flex; justify-content: center; gap: 24px;
-      margin-bottom: 10px;
-    }
-    .nav-link {
-      font-family: 'Cinzel', serif; font-size: .62rem;
-      letter-spacing: .18em; text-transform: uppercase;
-      color: var(--gold); opacity: .6; text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: opacity .2s, border-color .2s;
-      padding-bottom: 2px;
-    }
-    .nav-link:hover { opacity: 1; }
-    .nav-link.active { opacity: 1; border-bottom-color: var(--gold); }
-
-    /* Double rule below subtitle — mirrors Telegraph masthead */
-    .header-bottom-rules {
-      margin: 0 auto;
-      max-width: 640px;
-    }
-    .rule-heavy {
-      height: 2px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(200,144,60,.70) 15%,
-        rgba(224,170,60,.90) 50%,
-        rgba(200,144,60,.70) 85%,
-        transparent 100%);
-    }
-    .rule-light {
-      height: 1px;
-      margin-top: 3px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(200,144,60,.35) 20%,
-        rgba(200,144,60,.55) 50%,
-        rgba(200,144,60,.35) 80%,
-        transparent 100%);
-    }
-
-
-    /* ════════════════════════════════════
-       CONTROLS BAR
-    ════════════════════════════════════ */
-    .controls-bar {
-      background: linear-gradient(180deg, #ece7d9 0%, #e4ddc9 100%);
-      border-bottom: 1px solid rgba(138,106,47,.4);
-      padding: 10px 28px;
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    }
-    .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 360px; }
-    .search-icon {
-      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-      color: var(--gold-dark); font-size: 0.85rem; pointer-events: none;
-    }
-    .search-input {
-      width: 100%; padding: 7px 12px 7px 32px;
-      background: #fbf8f0;
-      border: 1px solid rgba(138,106,47,.4);
-      border-radius: 2px; color: var(--cream);
-      font-family: 'EB Garamond', serif; font-size: 1rem; outline: none;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .search-input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 2px rgba(200,144,60,.12);
-    }
-    .search-input::placeholder { color: rgba(58,50,40,.4); font-style: italic; }
-
-    select.sort-sel {
-      padding: 7px 12px;
-      background: #fbf8f0;
-      border: 1px solid rgba(138,106,47,.4);
-      border-radius: 2px; color: var(--cream);
-      font-family: 'EB Garamond', serif; font-size: 1rem;
-      outline: none; cursor: pointer;
-    }
-    select.sort-sel option { background: #fbf8f0; }
-
-    .book-count {
-      margin-left: auto;
-      font-family: 'EB Garamond', serif; font-style: italic;
-      color: var(--gold); opacity: 0.8; font-size: 0.95rem; white-space: nowrap;
-    }
-    .sync-status {
-      font-family: 'EB Garamond', serif; font-style: italic;
-      font-size: 0.82rem; white-space: nowrap;
-      color: rgba(110,90,50,.55); transition: color .3s;
-    }
-    .sync-status.syncing { color: rgba(110,90,50,.85); }
-    .sync-status.ok      { color: rgba(60,130,50,.80); }
-    .sync-status.error   { color: rgba(180,60,40,.80); }
-
-
-    /* ════════════════════════════════════
-       BOOKCASE CABINET
-    ════════════════════════════════════ */
-    .shelves-area { padding: 20px 20px 44px; }
-
-    /* Outer cabinet wrapper */
-    .bookcase {
-      max-width: 1480px;
-      margin: 0 auto;
-      border-radius: 4px 4px 3px 3px;
-      box-shadow: 0 28px 80px rgba(100,80,50,.35), 0 8px 24px rgba(100,80,50,.22);
-    }
-
-    /* Crown molding */
-    .bookcase-crown {
-      height: 32px;
-      background: linear-gradient(180deg,
-        #d8b57e 0%, #c49a5c 35%, #ac8146 70%, #976d38 100%);
-      border-top: 3px solid rgba(140,105,50,.8);
-      border-radius: 4px 4px 0 0;
-      position: relative;
-      box-shadow:
-        inset 0 3px 0 rgba(255,230,150,.35),
-        inset 0 -3px 8px rgba(100,70,35,.3);
-    }
-    .bookcase-crown::before {    /* decorative profile line */
-      content: '';
-      position: absolute;
-      bottom: 7px; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg,
-        transparent 0%, rgba(200,140,40,.38) 5%,
-        rgba(200,140,40,.58) 50%, rgba(200,140,40,.38) 95%, transparent 100%);
-    }
-    .bookcase-crown::after {     /* shadow draping down from crown */
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0; height: 5px;
-      background: linear-gradient(180deg, rgba(100,70,35,.3), transparent);
-    }
-
-    /* Cabinet body — side posts flanking the shelf interior */
-    .bookcase-body {
-      display: flex;
-      align-items: stretch;
-    }
-
-    /* Wooden side posts */
-    .bookcase-post {
-      flex-shrink: 0;
-      width: 26px;
-      position: relative;
-      background: linear-gradient(90deg,
-        #a87c46 0%, #c39a5f 28%, #d0aa6e 54%, #bd9155 76%, #a1763f 100%);
-    }
-    .bookcase-post::before {     /* horizontal grain on post */
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(180deg,
-        transparent            0,  transparent            32px,
-        rgba(0,0,0,.06)       32px, rgba(0,0,0,.06)       33px,
-        transparent            33px, transparent            66px,
-        rgba(255,255,255,.018) 66px, rgba(255,255,255,.018) 67px);
-    }
-    .post-left {
-      border-right: 2px solid rgba(90,65,35,.5);
-      box-shadow: inset -8px 0 18px rgba(120,90,50,.3);
-    }
-    .post-right {
-      border-left: 2px solid rgba(90,65,35,.5);
-      box-shadow: inset 8px 0 18px rgba(120,90,50,.3);
-    }
-
-    /* Back panel — light panelled wood behind the books */
-    .bookcase-interior {
-      flex: 1;
-      min-width: 0;
-      background-color: #e8dec4;
-      background-image: repeating-linear-gradient(90deg,
-        transparent            0,   transparent            58px,
-        rgba(120,95,55,.06)   58px, rgba(120,95,55,.06)   59px,
-        transparent            59px, transparent           116px,
-        rgba(255,255,255,.25)116px, rgba(255,255,255,.25)117px);
-    }
-
-    /* Base / plinth */
-    .bookcase-plinth {
-      height: 26px;
-      background: linear-gradient(180deg,
-        #b8905a 0%, #c9a066 42%, #b98a4e 72%, #a1773f 100%);
-      border-bottom: 3px solid rgba(140,105,50,.75);
-      border-radius: 0 0 3px 3px;
-      position: relative;
-      box-shadow:
-        inset 0 4px 10px rgba(100,70,35,.3),
-        inset 0 -2px 0 rgba(255,230,150,.3);
-    }
-    .bookcase-plinth::before {   /* decorative profile line */
-      content: '';
-      position: absolute;
-      top: 6px; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg,
-        transparent 0%, rgba(200,140,40,.32) 5%,
-        rgba(200,140,40,.52) 50%, rgba(200,140,40,.32) 95%, transparent 100%);
-    }
-
-    /* Individual shelf unit — padding-top reveals the back panel above books */
-    .shelf-unit {
-      position: relative;
-      padding-top: 22px;
-    }
-    /* Ambient shadow cast by books down onto back panel */
-    .shelf-unit::before {
-      content: '';
-      position: absolute;
-      bottom: 20px; left: 0; right: 0; height: 32px;
-      background: linear-gradient(180deg, transparent 0%, rgba(120,95,60,.22) 100%);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .books-row {
-      display: flex;
-      align-items: flex-end;
-      width: 100%;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Shelf plank */
-    .shelf-plank {
-      position: relative;
-      z-index: 2;
-      height: 20px;
-      background: linear-gradient(180deg,
-        var(--plank-top) 0%,
-        var(--plank-mid) 52%,
-        var(--plank-bot) 100%);
-      box-shadow:
-        0 6px 16px rgba(110,85,50,.4),
-        inset 0 2px 0 rgba(255,225,140,.25),
-        inset 0 1px 0 rgba(255,255,255,.2);
-      border-radius: 1px 1px 3px 3px;
-    }
-    .shelf-plank::before {       /* wood-grain lines */
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(90deg,
-        transparent           0,   transparent           20px,
-        rgba(0,0,0,.042)     20px, rgba(0,0,0,.042)     21px,
-        transparent           21px, transparent           46px,
-        rgba(255,255,255,.022)46px, rgba(255,255,255,.022)47px,
-        transparent           47px, transparent           72px,
-        rgba(0,0,0,.030)     72px, rgba(0,0,0,.030)     73px);
-      border-radius: 1px 1px 3px 3px;
-    }
-    .shelf-plank::after {        /* deep drop shadow below lip */
-      content: '';
-      position: absolute;
-      bottom: -13px; left: -2px; right: -2px; height: 13px;
-      background: linear-gradient(180deg,
-        rgba(110,85,50,.38), rgba(110,85,50,.1), transparent);
-      border-radius: 0 0 4px 4px;
-    }
-
-
-    /* ════════════════════════════════════
-       BOOK SPINE
-    ════════════════════════════════════ */
-    .book-spine {
-      position: relative;
-      flex-shrink: 0;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      border-left:  2px solid rgba(255,255,255,.10);
-      border-right: 1px solid rgba(0,0,0,.50);
-      transition: transform .15s ease, filter .15s ease;
-      user-select: none;
-    }
-    .book-spine:hover {
-      transform: translateY(-13px);
-      filter: brightness(1.22);
-      z-index: 20;
-    }
-    .book-spine::before {             /* top edge highlight */
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: rgba(255,255,255,.16);
-      border-radius: 1px 1px 0 0;
-    }
-
-    .spine-label {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      font-family: 'EB Garamond', serif;
-      font-size: 0.6rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      line-height: 1;
+    .ear.left  { justify-self: start; }
+    .ear.right { justify-self: end; text-align: center; }
+    .ear .big  { display: block; font-size: 1.5rem; font-weight: 700; letter-spacing: .02em; line-height: 1; }
+    .mast-title {
+      font-family: var(--mast);
+      font-weight: 400;
+      font-size: clamp(2.8rem, 8.5vw, 6.6rem);
+      line-height: .95;
+      letter-spacing: .01em;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 6px 3px;
-      max-height: calc(100% - 12px);
-      color: inherit;
-      opacity: 0.92;
     }
+    .mast-title a { text-decoration: none; }
+    .motto {
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--ink-soft);
+      margin: 6px 0 8px;
+    }
+    .dateline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-top: 3px double var(--rule);
+      border-bottom: 3px double var(--rule);
+      padding: 5px 2px;
+      font-family: var(--head);
+      font-size: .78rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .dateline nav { display: flex; gap: 16px; }
+    .dateline nav a { text-decoration: none; border-bottom: 1px solid transparent; }
+    .dateline nav a:hover, .dateline nav a.active { border-bottom-color: var(--ink); }
 
-
-    /* ════════════════════════════════════
-       HOVER POPOUT
-    ════════════════════════════════════ */
-    .spine-popout {
-      position: fixed;
-      z-index: 500;
-      width: 174px;
-      background: linear-gradient(160deg, #faf3e0 0%, #f4e8c4 55%, #ecdaaa 100%);
-      border: 1px solid rgba(120,88,18,.72);
-      border-radius: 4px;
-      padding: 12px;
-      box-shadow:
-        0 14px 40px rgba(100,80,50,.4),
-        0  3px  8px rgba(100,80,50,.25),
-        inset 0 1px 0 rgba(255,220,110,.20);
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(8px) scale(.97);
-      transition: opacity .16s ease, transform .16s ease;
+    /* ═════════ BANNER ═════════ */
+    .banner {
       text-align: center;
-      user-select: none;
+      padding: 12px 0 10px;
+      border-bottom: 1px solid var(--rule);
     }
-    .spine-popout.visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
+    .banner-kicker {
+      font-family: var(--head);
+      font-size: .85rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .banner h2 {
+      font-family: var(--head);
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: .98;
+      letter-spacing: -.005em;
+      font-size: clamp(2rem, 6.4vw, 5.2rem);
       cursor: pointer;
     }
-    .popout-cover-wrap {
-      width: 100%; aspect-ratio: 2/3;
-      margin-bottom: 9px;
-      border-radius: 2px 5px 5px 2px;
+    .banner h2.long  { font-size: clamp(1.7rem, 4.8vw, 3.9rem); }
+    .banner h2.xlong { font-size: clamp(1.4rem, 3.6vw, 2.9rem); }
+    .banner-deck {
+      font-family: var(--head);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      letter-spacing: .04em;
+      margin-top: 6px;
+    }
+
+    /* ═════════ FRONT PAGE GRID ═════════ */
+    .front {
+      display: grid;
+      grid-template-columns: 1fr 2.1fr 1.15fr 1.35fr;
+      border-bottom: 3px double var(--rule);
+      padding: 14px 0 18px;
+    }
+    .col { padding: 0 14px; border-left: 1px solid var(--rule); min-width: 0; }
+    .col:first-child { border-left: none; padding-left: 0; }
+    .col:last-child  { padding-right: 0; }
+
+    /* Boxed items, like the paper's sidebars */
+    .box {
+      border: 2px solid var(--ink);
+      padding: 10px 10px 12px;
+      margin-bottom: 16px;
+    }
+    .box-title {
+      font-family: var(--head);
+      font-weight: 700;
+      text-transform: uppercase;
+      text-align: center;
+      font-size: 1.05rem;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    .index-list { list-style: none; font-size: .92rem; }
+    .index-list li a {
+      display: flex; align-items: baseline; gap: 4px;
+      text-decoration: none; padding: 2px 0;
+    }
+    .index-list .letter { font-family: var(--head); font-weight: 700; width: 1.1em; }
+    .index-list .name { white-space: nowrap; }
+    .index-list .dots { flex: 1; border-bottom: 1px dotted var(--ink-faint); transform: translateY(-3px); min-width: 10px; }
+    .index-list a:hover .name { text-decoration: underline; }
+    .index-total {
+      margin-top: 8px; padding-top: 6px;
+      border-top: 1px solid var(--rule);
+      display: flex; justify-content: space-between;
+      font-family: var(--head); text-transform: uppercase; font-size: .8rem; letter-spacing: .06em;
+    }
+
+    .search-box label {
+      display: block; font-family: var(--head); font-size: .74rem;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; text-align: center;
+    }
+    .search-box input {
+      width: 100%;
+      font-family: var(--body); font-size: 1rem;
+      padding: 6px 8px;
+      background: #fbf8f0;
+      border: 1px solid var(--ink);
+      border-radius: 0;
+      color: var(--ink);
+    }
+    .search-box input:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+    #search-count { font-size: .85rem; font-style: italic; margin-top: 6px; text-align: center; min-height: 1.2em; }
+
+    /* ═════════ STORIES ═════════ */
+    .story { margin-bottom: 18px; }
+    .story + .story { border-top: 1px solid var(--rule); padding-top: 12px; }
+    .story-kicker {
+      font-family: var(--head);
+      font-size: .72rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .story-head {
+      font-family: var(--head);
+      font-weight: 700;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.02;
+      font-size: 1.55rem;
+      cursor: pointer;
+    }
+    .story-head:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+    .lead .story-head { font-size: clamp(1.8rem, 3vw, 2.6rem); }
+    .story-deck {
+      font-family: var(--head);
+      font-weight: 500;
+      text-transform: uppercase;
+      text-align: center;
+      font-size: .9rem;
+      letter-spacing: .04em;
+      margin: 6px 0 8px;
+      padding: 4px 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .story-body {
+      font-size: .97rem;
+      text-align: justify;
+      hyphens: auto;
+    }
+    .story-body::first-letter {
+      font-family: var(--head);
+      font-weight: 700;
+      font-size: 2.6em;
+      float: left;
+      line-height: .85;
+      padding: 4px 6px 0 0;
+    }
+    .story-body.pending { color: var(--ink-faint); font-style: italic; }
+    .story-body.pending::first-letter { all: unset; }
+    .read-more {
+      display: inline-block; margin-top: 6px;
+      font-family: var(--head); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase;
+      background: none; border: none; border-bottom: 1px solid var(--ink); cursor: pointer; color: var(--ink);
+    }
+    .lead .story-deck { margin-top: 0; }
+    .lead .story-body { font-size: 1.02rem; }
+
+    /* Halftone "news photo" */
+    .photo { margin: 6px auto 10px; max-width: 220px; text-align: center; }
+    .lead .photo { max-width: 260px; }
+    .photo-frame {
+      position: relative;
+      border: 1px solid var(--ink);
+      background: var(--paper-dark);
+      aspect-ratio: 2 / 3;
       overflow: hidden;
-      box-shadow: -2px 0 6px rgba(0,0,0,.42), 2px 3px 10px rgba(0,0,0,.30);
+      cursor: pointer;
     }
-    .popout-cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .popout-cover-ph {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 8px 6px; text-align: center;
+    .photo-frame img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      filter: grayscale(1) contrast(1.25) brightness(1.04) sepia(.12);
     }
-    .popout-cover-ph .ph-ornament { font-size: 1rem; opacity: .42; margin-bottom: 5px; }
-    .popout-cover-ph .ph-t {
-      font-family: 'Cinzel', serif; font-size: 0.52rem;
-      color: #f0e0b8; line-height: 1.4; word-break: break-word;
+    .photo-frame::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,.55) 0.9px, transparent 1.3px);
+      background-size: 3.2px 3.2px;
+      mix-blend-mode: multiply;
+      opacity: .38;
+      pointer-events: none;
     }
+    .photo-frame.missing {
+      display: flex; align-items: center; justify-content: center;
+      background: repeating-linear-gradient(45deg, var(--paper-dark) 0 6px, var(--paper) 6px 12px);
+    }
+    .photo-frame.missing::after { display: none; }
+    .photo-frame.missing span {
+      background: var(--paper); border: 1px solid var(--ink); padding: 6px 8px;
+      font-family: var(--head); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    }
+    .photo figcaption { font-size: .8rem; font-style: italic; margin-top: 4px; line-height: 1.3; }
 
-    .popout-title {
-      font-family: 'Cinzel', serif;
-      font-size: 0.64rem; font-weight: 600;
-      color: #180c06; line-height: 1.3; margin-bottom: 3px;
+    /* ═════════ LATE NEWS ═════════ */
+    .late-title {
+      font-family: var(--head); font-weight: 700; text-transform: uppercase;
+      font-size: 2rem; text-align: center; line-height: 1;
+      border: 3px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 2px;
+      padding: 6px 4px; margin: 2px 2px 10px;
     }
-    .popout-author {
-      font-family: 'EB Garamond', serif; font-style: italic;
-      font-size: 0.8rem; color: #5a2e0a;
+    .late-sub {
+      font-family: var(--head); text-transform: uppercase; text-align: center;
+      font-size: .8rem; letter-spacing: .12em; margin-bottom: 8px;
     }
-    .popout-hint {
-      margin-top: 7px;
-      font-family: 'EB Garamond', serif; font-style: italic;
-      font-size: 0.7rem; color: rgba(75,36,8,.48);
-      border-top: 1px solid rgba(120,88,18,.22);
-      padding-top: 6px;
+    .late-item { padding: 7px 0; border-top: 1px solid var(--rule); font-size: .92rem; }
+    .late-item h5 {
+      font-family: var(--head); font-weight: 600; text-transform: uppercase;
+      text-align: center; font-size: .86rem; letter-spacing: .03em; margin-bottom: 3px; cursor: pointer;
     }
+    .late-item h5:hover { text-decoration: underline; }
+    .late-item .dl { font-family: var(--head); font-weight: 600; text-transform: uppercase; font-size: .8rem; letter-spacing: .04em; }
 
+    /* ═════════ SECTIONS ═════════ */
+    .paper-section { padding-top: 22px; border-bottom: 3px double var(--rule); padding-bottom: 20px; }
+    .section-flag {
+      display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      font-family: var(--head); text-transform: uppercase; letter-spacing: .1em; font-size: .78rem;
+      border-top: 4px solid var(--ink);
+      border-bottom: 1px solid var(--rule);
+      padding: 4px 0;
+    }
+    .section-flag a { text-decoration: none; }
+    .section-flag a:hover { text-decoration: underline; }
+    .section-name {
+      font-family: var(--mast);
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      text-align: center; line-height: 1; margin: 10px 0 2px;
+      font-weight: 400;
+    }
+    .section-head {
+      font-family: var(--head); font-weight: 700; text-transform: uppercase;
+      text-align: center; font-size: clamp(1.3rem, 3vw, 2.2rem); line-height: 1.05;
+    }
+    .section-deck {
+      font-family: var(--head); font-weight: 500; text-transform: uppercase; text-align: center;
+      font-size: .92rem; letter-spacing: .04em; margin: 6px auto 14px; max-width: 900px;
+    }
+    .section-leads {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+      padding: 12px 0; margin-bottom: 14px;
+    }
+    .section-leads .story { margin: 0; padding: 0 14px; border-left: 1px solid var(--rule); border-top: none; }
+    .section-leads .story:first-child { border-left: none; padding-left: 0; }
+    .section-leads .story:last-child  { padding-right: 0; }
 
-    /* ════════════════════════════════════
-       BOOK DETAIL MODAL
-    ════════════════════════════════════ */
+    /* Agate listing — every title in the section, in fine print */
+    .agate-title {
+      font-family: var(--head); font-weight: 700; text-transform: uppercase; font-style: italic;
+      text-align: center; font-size: 1.05rem; margin-bottom: 8px;
+    }
+    .agate {
+      list-style: none;
+      column-width: 15.5rem;
+      column-gap: 22px;
+      column-rule: 1px solid var(--rule);
+      font-size: .84rem;
+      line-height: 1.3;
+    }
+    .agate li { break-inside: avoid; padding: 2px 0 3px; }
+    .agate li button {
+      all: unset; cursor: pointer; display: block; width: 100%;
+    }
+    .agate li button:hover .t, .agate li button:focus-visible .t { text-decoration: underline; }
+    .agate li button:focus-visible { outline: 1px dotted var(--ink); }
+    .agate .a { font-variant: small-caps; letter-spacing: .02em; }
+    .agate .t { font-style: italic; }
+    .agate li[hidden] { display: none; }
+
+    /* Search mode: show only matching listings */
+    body.searching .banner,
+    body.searching .front > :not(.col-index),
+    body.searching .section-leads,
+    body.searching .section-deck { display: none; }
+    body.searching .front { grid-template-columns: 1fr; }
+    body.searching .col-index { border: none; padding: 0; max-width: 420px; margin: 0 auto; }
+    .paper-section[hidden] { display: none; }
+
+    .status-msg {
+      text-align: center; font-style: italic; padding: 60px 20px; font-size: 1.1rem;
+    }
+    .status-msg.error { color: #8a2a1a; }
+
+    footer {
+      text-align: center; font-family: var(--head); text-transform: uppercase;
+      letter-spacing: .12em; font-size: .7rem; margin-top: 16px; color: var(--ink-soft);
+    }
+    .sync-note { font-family: var(--body); text-transform: none; letter-spacing: 0; font-style: italic; font-size: .82rem; margin-top: 4px; }
+
+    /* ═════════ BOOK MODAL (a clipping) ═════════ */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(60,50,35,.55);
-      z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+      background: rgba(30,25,15,.55);
+      z-index: 1000; align-items: center; justify-content: center; padding: 16px;
     }
     .modal-overlay.active { display: flex; }
-
-    .modal-box {
-      background: linear-gradient(150deg, #faf3e0 0%, #f4e8c0 55%, #ecdaaa 100%);
-      border: 2px solid rgba(120,88,18,.80);
-      border-radius: 4px;
-      max-width: 780px; width: 100%;
+    .clipping {
+      background: var(--paper);
+      max-width: 760px; width: 100%;
       max-height: 90vh; overflow-y: auto;
-      box-shadow:
-        0 30px 90px rgba(80,60,35,.5),
-        inset 0 1px 0 rgba(255,228,120,.14);
+      padding: 22px 24px 24px;
+      border: 1px solid var(--ink);
+      box-shadow: 0 20px 60px rgba(20,15,5,.5);
+      position: relative;
     }
-
-    .modal-head {
-      background: linear-gradient(180deg, #efe9d9 0%, #e6dec9 100%);
-      padding: 16px 24px;
-      border-bottom: 2px solid rgba(130,95,18,.70);
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 1;
-      border-radius: 2px 2px 0 0;
+    .clip-close {
+      position: absolute; top: 8px; right: 10px;
+      background: none; border: 1px solid var(--ink); width: 30px; height: 30px;
+      font-size: 1rem; cursor: pointer; color: var(--ink); font-family: var(--head);
     }
-    .modal-head-label {
-      font-family: 'Cinzel', serif; font-size: 0.62rem;
-      letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-light);
+    .clip-close:hover { background: var(--ink); color: var(--paper); }
+    .clip-grid { display: grid; grid-template-columns: 200px 1fr; gap: 20px; }
+    .clip-grid .photo { margin: 0; max-width: none; }
+    .clip-meta {
+      font-family: var(--head); text-transform: uppercase; font-size: .76rem; letter-spacing: .08em;
+      border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 4px 0; margin: 8px 0 10px;
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
     }
-    .modal-close-btn {
-      background: none;
-      border: 1px solid rgba(130,95,18,.55);
-      color: var(--gold); width: 28px; height: 28px; border-radius: 50%;
-      cursor: pointer; font-size: 0.9rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .18s; flex-shrink: 0;
+    .clipping .story-head { cursor: default; }
+    .clipping .story-head:hover { text-decoration: none; }
+    .clipping .story-body { font-size: 1.02rem; }
+
+    /* ═════════ RESPONSIVE ═════════ */
+    @media (max-width: 1050px) {
+      .front { grid-template-columns: 1fr 1fr; row-gap: 18px; }
+      .col { padding: 0 12px; }
+      .col-index  { order: 3; border-left: none; padding-left: 0; }
+      .col-lead   { order: 1; border-left: none; padding-left: 0; }
+      .col-second { order: 2; }
+      .col-late   { order: 4; }
     }
-    .modal-close-btn:hover { background: var(--gold-dark); color: var(--parchment); }
-
-    .book-modal-body { padding: 28px; display: flex; gap: 28px; }
-
-    .bm-cover { flex-shrink: 0; width: 170px; }
-    .bm-cover img {
-      width: 100%; border-radius: 2px 7px 7px 2px; display: block;
-      box-shadow: -4px 0 12px rgba(0,0,0,.50), 4px 5px 20px rgba(0,0,0,.40);
-    }
-    .bm-cover-ph {
-      width: 100%; aspect-ratio: 2/3;
-      border-radius: 2px 7px 7px 2px;
-      box-shadow: -4px 0 12px rgba(0,0,0,.50), 4px 5px 20px rgba(0,0,0,.40);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 16px 12px; text-align: center;
-    }
-    .bm-details { flex: 1; min-width: 0; color: var(--ink); }
-
-    .bm-title {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(1.05rem, 3vw, 1.5rem); font-weight: 700;
-      color: #180c06; line-height: 1.3; margin-bottom: 4px;
-    }
-    .bm-author {
-      font-family: 'EB Garamond', serif; font-style: italic;
-      font-size: 1.12rem; color: #5a2e0a; margin-bottom: 12px;
-    }
-    .bm-divider { border: none; border-top: 1px solid rgba(120,88,18,.28); margin: 12px 0; }
-    .bm-meta { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
-    .meta-label {
-      display: block; font-family: 'Cinzel', serif; font-size: 0.57rem;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--gold-dark); margin-bottom: 2px;
-    }
-    .meta-val { font-family: 'EB Garamond', serif; font-size: 0.92rem; color: #3a1808; }
-
-    .bm-synopsis-lbl {
-      font-family: 'Cinzel', serif; font-size: 0.60rem;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--gold-dark); margin-bottom: 8px;
-    }
-    .bm-synopsis {
-      font-family: 'EB Garamond', serif;
-      font-size: 1.05rem; line-height: 1.82; color: #1c0e06;
-    }
-    .bm-synopsis.loading { color: #8b6014; font-style: italic; }
-
-    /* Cover placeholder colour grades */
-    .c0 { background: linear-gradient(160deg, #7a1c1c 0%, #481010 60%, #2c0a0a 100%); }
-    .c1 { background: linear-gradient(160deg, #1e4820 0%, #102814 60%, #081a08 100%); }
-    .c2 { background: linear-gradient(160deg, #182850 0%, #0e1c34 60%, #080e1e 100%); }
-    .c3 { background: linear-gradient(160deg, #4a280e 0%, #2c1608 60%, #180c04 100%); }
-
-
-    /* ════════════════════════════════════
-       EMPTY STATE
-    ════════════════════════════════════ */
-    .empty-shelf {
-      text-align: center; padding: 80px 20px;
-      color: rgba(58,50,40,.45);
-    }
-    .empty-shelf-icon { font-size: 3rem; margin-bottom: 16px; }
-    .empty-shelf-text {
-      font-family: 'EB Garamond', serif; font-style: italic; font-size: 1.1rem;
-    }
-
-
-    /* ════════════════════════════════════
-       TOAST
-    ════════════════════════════════════ */
-    .toast {
-      position: fixed; bottom: 28px; right: 28px;
-      background: linear-gradient(135deg, #faf6ea, #f0e9d6);
-      border: 1px solid rgba(130,95,18,.5);
-      color: var(--gold-light);
-      padding: 12px 18px; border-radius: 3px;
-      font-family: 'EB Garamond', serif; font-style: italic; font-size: 0.95rem;
-      box-shadow: 0 8px 28px rgba(100,80,50,.35);
-      transform: translateY(120px); opacity: 0;
-      transition: transform .3s ease, opacity .3s ease;
-      z-index: 9998; max-width: 300px;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-
-
-    /* ════════════════════════════════════
-       LOADING BAR
-    ════════════════════════════════════ */
-    #loading-bar {
-      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999;
-      background: linear-gradient(90deg,
-        var(--wood-darkest) 0%, var(--gold-dark) 25%,
-        var(--gold) 50%, var(--gold-dark) 75%, var(--wood-darkest) 100%);
-      background-size: 200% 100%;
-      animation: bar-anim 1.6s linear infinite;
-    }
-    @keyframes bar-anim {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-
-    /* ════════════════════════════════════
-       SCROLLBAR
-    ════════════════════════════════════ */
-    ::-webkit-scrollbar { width: 7px; }
-    ::-webkit-scrollbar-track { background: var(--wood-dark); }
-    ::-webkit-scrollbar-thumb { background: var(--wood-panel); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
-
-
-    /* ════════════════════════════════════
-       RESPONSIVE
-    ════════════════════════════════════ */
-    @media (max-width: 640px) {
-      .lib-header { padding: 24px 20px 20px; }
-      .shelves-area { padding: 12px 8px 32px; }
-      .bookcase-post { width: 14px; }
-      .bookcase-crown { height: 20px; }
-      .bookcase-plinth { height: 16px; }
-      .shelf-unit { padding-top: 14px; }
-      .book-modal-body { flex-direction: column; }
-      .bm-cover { width: 130px; margin: 0 auto; }
+    @media (max-width: 720px) {
+      body { padding: 0; }
+      .sheet { padding: 14px 16px 26px; box-shadow: none; }
+      .mast-row { grid-template-columns: 1fr; }
+      .ear { display: none; }
+      .dateline { justify-content: center; text-align: center; }
+      .front { grid-template-columns: 1fr; }
+      .col { border-left: none; padding: 14px 0 0; border-top: 1px solid var(--rule); }
+      .col-lead { border-top: none; padding-top: 0; }
+      .photo, .lead .photo { max-width: 200px; }
+      .lead .story-body { column-count: 1; }
+      .section-leads { grid-template-columns: 1fr; }
+      .section-leads .story { border-left: none; padding: 0; }
+      .section-leads .story + .story { border-top: 1px solid var(--rule); padding-top: 12px; margin-top: 12px; }
+      .clip-grid { grid-template-columns: 1fr; }
+      .clip-grid .photo { max-width: 200px; margin: 0 auto; }
     }
   </style>
 </head>
 <body>
+  <div class="sheet">
 
-  <div id="loading-bar" style="display:none"></div>
+    <!-- ═════════ MASTHEAD ═════════ -->
+    <header class="masthead">
+      <div class="mast-row">
+        <div class="ear left">“All the Books<br>That Are Fit to Read”</div>
+        <h1 class="mast-title"><a href="index.html">The Renne Library</a></h1>
+        <div class="ear right"><span class="big">COMPLETE</span>EDITION</div>
+      </div>
+      <p class="motto">&ldquo;The mind once enlightened cannot again become dark.&rdquo; &mdash; Thomas Paine</p>
+      <div class="dateline">
+        <span id="dl-vol">Vol. I &mdash; No. &hellip;</span>
+        <span>Weather&mdash;Fair for Reading.</span>
+        <span id="dl-date"></span>
+        <nav>
+          <a class="active" href="index.html">Front Page</a>
+          <a href="authors.html">Authors</a>
+        </nav>
+        <span>Price Two Cents</span>
+      </div>
+    </header>
 
-  <!-- ════════════ HEADER ════════════ -->
-  <header class="lib-header">
-    <div class="header-top-rule"><span>· · ·</span></div>
-    <h1 class="lib-title">The Renne Library</h1>
-    <div class="ornament-row">
-      <span class="gem">✦ &nbsp; ✦ &nbsp; ✦</span>
-    </div>
-    <p class="lib-subtitle">&ldquo;The mind once enlightened cannot again become dark.&rdquo; &mdash; Thomas Paine</p>
-    <nav class="header-nav">
-      <a class="nav-link active" href="index.html">Collection</a>
-      <a class="nav-link" href="analytics.html">Analytics</a>
-      <a class="nav-link" href="arcade.html">Arcade</a>
-      <a class="nav-link" href="authors.html">Authors</a>
-    </nav>
-    <div class="header-bottom-rules">
-      <div class="rule-heavy"></div>
-      <div class="rule-light"></div>
-    </div>
-  </header>
+    <main id="paper">
+      <div class="status-msg">Setting type&hellip; consulting the catalog.</div>
+    </main>
 
-  <!-- ════════════ CONTROLS ════════════ -->
-  <div class="controls-bar">
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input class="search-input" id="search-input" type="text"
-             placeholder="Search titles or authors…" autocomplete="off">
-    </div>
-    <select class="sort-sel" id="sort-sel">
-      <option value="title">Sort by Title</option>
-      <option value="author">Sort by Author</option>
-    </select>
-    <span class="book-count" id="book-count"></span>
-    <span class="sync-status" id="sync-status"></span>
+    <footer>
+      Printed from the shelves of The Renne Library
+      <div class="sync-note" id="sync-note"></div>
+    </footer>
   </div>
 
-  <!-- ════════════ SHELVES ════════════ -->
-  <main class="shelves-area">
-    <div class="bookcase">
-      <div class="bookcase-crown"></div>
-      <div class="bookcase-body">
-        <div class="bookcase-post post-left"></div>
-        <div class="bookcase-interior" id="shelves-container"></div>
-        <div class="bookcase-post post-right"></div>
-      </div>
-      <div class="bookcase-plinth"></div>
-    </div>
-  </main>
-
-  <!-- ════════════ HOVER POPOUT ════════════ -->
-  <div class="spine-popout" id="spine-popout">
-    <div class="popout-cover-wrap" id="popout-cover-wrap"></div>
-    <p class="popout-title"  id="popout-title"></p>
-    <p class="popout-author" id="popout-author"></p>
-    <p class="popout-hint">Click to read more</p>
-  </div>
-
-  <!-- ════════════ BOOK DETAIL MODAL ════════════ -->
-  <div class="modal-overlay" id="book-modal">
-    <div class="modal-box">
-      <div class="modal-head">
-        <span class="modal-head-label">Volume Details</span>
-        <button class="modal-close-btn" id="modal-close-btn">✕</button>
-      </div>
-      <div class="book-modal-body">
-        <div class="bm-cover" id="bm-cover"></div>
-        <div class="bm-details">
-          <h2 class="bm-title"  id="bm-title"></h2>
-          <p  class="bm-author" id="bm-author"></p>
-          <hr class="bm-divider">
-          <div class="bm-meta" id="bm-meta"></div>
-          <p class="bm-synopsis-lbl">Synopsis</p>
-          <p class="bm-synopsis loading" id="bm-synopsis">Consulting the archives…</p>
+  <!-- ═════════ BOOK CLIPPING MODAL ═════════ -->
+  <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="clip-title">
+    <article class="clipping">
+      <button class="clip-close" id="clip-close" aria-label="Close">✕</button>
+      <div class="clip-grid">
+        <div id="clip-photo"></div>
+        <div>
+          <p class="story-kicker" id="clip-kicker"></p>
+          <h3 class="story-head" id="clip-title"></h3>
+          <div class="clip-meta" id="clip-meta"></div>
+          <p class="story-body pending" id="clip-body"></p>
         </div>
       </div>
-    </div>
+    </article>
   </div>
-
-  <div class="toast" id="toast"></div>
 
   <script>
   (() => {
     'use strict';
 
     // ═════════════════════════════════════════
-    // CONFIGURATION  ← only section you need to edit
+    // CONFIGURATION
+    // The Google Sheet, published as CSV (File → Share → Publish to web → CSV).
+    // Columns used: title, first_name, last_name, genre, ISBN
     // ═════════════════════════════════════════
-    //
-    //  HOW TO CONNECT YOUR GOOGLE SHEET:
-    //  1. Open your sheet in Google Sheets
-    //  2. File → Share → Publish to web
-    //  3. Under "Link", choose the tab with your books
-    //  4. Change the format dropdown from "Web page" to
-    //     "Comma-separated values (.csv)"
-    //  5. Click Publish → copy the URL → paste below
-    //
-    const CONFIG = {
-      sheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_PYVb-qMGrPLPsUz6Phg6tpbIquYMHrY-c4jNWD7BQ0hawPWx8NjwGGv0byFClwlFrDgihLPQzGX/pub?gid=673406086&single=true&output=csv',
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_PYVb-qMGrPLPsUz6Phg6tpbIquYMHrY-c4jNWD7BQ0hawPWx8NjwGGv0byFClwlFrDgihLPQzGX/pub?gid=673406086&single=true&output=csv';
 
-      // Re-check the sheet this often while the page is open.
-      // 300 000 ms = 5 min  |  0 = never re-check automatically
-      refreshMs: 300000,
+    const BOOKS_KEY = 'rl_paper_books_v1';
+    const SYN_KEY   = 'rl_paper_synopses_v1';
+    const UNSORTED  = 'Miscellany';
+
+    // Editorial order of sections; any new genre typed in the sheet is appended alphabetically.
+    const SECTION_ORDER = [
+      'Fiction', 'Fantasy', 'Science Fiction', 'History', 'Biography', 'Politics',
+      'Philosophy', 'Religion', 'Science', 'Technology', 'Nature', 'Education',
+      'Music', 'Humor', 'Reference',
+    ];
+    const HEADLINE_NOUN = {
+      'Fiction': 'Works of Fiction', 'Fantasy': 'Fantasy Volumes', 'Science Fiction': 'Science Fiction Volumes',
+      'History': 'Histories', 'Biography': 'Biographies', 'Politics': 'Political Volumes',
+      'Philosophy': 'Works of Philosophy', 'Religion': 'Volumes on Religion', 'Science': 'Science Volumes',
+      'Technology': 'Technology Volumes', 'Nature': 'Nature Volumes', 'Education': 'Volumes on Education',
+      'Music': 'Music Volumes', 'Humor': 'Volumes of Humor', 'Reference': 'Reference Volumes',
     };
+    const HEADLINE_VERBS = [
+      'Accounted For in Shelf Census', 'Stand Ready on the Shelves', 'Entered Into the Record',
+      'Held in the Stacks', 'Reported on Hand',
+    ];
+
     // ═════════════════════════════════════════
-
-    // ─────────────────────────────────────────
-    // BOOK DATA (from practice.csv)
-    // ─────────────────────────────────────────
-    const ALL_BOOKS = [
-      {title:"Revolutionary Summer",            first_name:"Joseph",    last_name:"Ellis"},
-      {title:"Introducing Relativity",           first_name:"Bruce",     last_name:"Bassett"},
-      {title:"John Adams",                       first_name:"David",     last_name:"McCullough"},
-      {title:"The Unwinding",                    first_name:"George",    last_name:"Packer"},
-      {title:"The Color of Magic",               first_name:"Terry",     last_name:"Pratchett"},
-      {title:"Mark Twain's America",             first_name:"Bernard",   last_name:"DeVoto"},
-      {title:"Pillars of the Republic",          first_name:"Carl",      last_name:"Kaestle"},
-      {title:"Persian Letters",                  first_name:"Montesquieu", last_name:"Montesquieu"},
-      {title:"The Construction of Social Reality", first_name:"John",   last_name:"Searle"},
-      {title:"Vader's Little Princess",          first_name:"Jeffrey",   last_name:"Brown"},
-      {title:"Adventures of Huckleberry Finn",   first_name:"Mark",      last_name:"Twain"},
-      {title:"Red Seas Under Red Skies",         first_name:"Scott",     last_name:"Lynch"},
-      {title:"Taliban",                          first_name:"Ahmed",     last_name:"Rashid"},
-      {title:"Plays",                            first_name:"Anton",     last_name:"Chekhov"},
-      {title:"The Journals of Lewis and Clark",  first_name:"Meriwether",last_name:"Lewis"},
-      {title:"The Treason of Isengard",          first_name:"J.R.R.",    last_name:"Tolkien"},
-      {title:"Understanding Power",              first_name:"Noam",      last_name:"Chomsky"},
-      {title:"The Death and Life of the Great American School System", first_name:"Diane", last_name:"Ravitch"},
-      {title:"The Catcher in the Rye",           first_name:"J.D.",      last_name:"Salinger"},
-      {title:"Jefferson: First Term 1801–1805",  first_name:"Dumas",     last_name:"Malone"},
-      {title:"To Appomattox",                    first_name:"Burke",     last_name:"Davis"},
-      {title:"Our Mutual Friend",                first_name:"Charles",   last_name:"Dickens"},
-      {title:"The Portable Thoreau",             first_name:"Henry",     last_name:"Thoreau"},
-      {title:"Wilderness and the American Mind", first_name:"Roderick",  last_name:"Nash"},
-      {title:"Touching Spirit Bear",             first_name:"Ben",       last_name:"Mikaelsen"},
-      {title:"Rainbows End",                     first_name:"Vernor",    last_name:"Vinge"},
-      {title:"The Jefferson Bible",              first_name:"Thomas",    last_name:"Jefferson"},
-      {title:"Masters of Doom",                  first_name:"David",     last_name:"Kushner"},
-      {title:"Rebel Code",                       first_name:"Glyn",      last_name:"Moody"},
-      {title:"Myst: The Book of Ti'Ana",         first_name:"Rand",      last_name:"Miller"},
-      {title:"Manhunt",                          first_name:"Peter",     last_name:"Bergen"},
-      {title:"LotR: Weapons and Warfare",        first_name:"Chris",     last_name:"Smith"},
-      {title:"LotR: Making of the Trilogy",      first_name:"Brian",     last_name:"Sibley"},
-      {title:"Lincoln's Men",                    first_name:"Daniel",    last_name:"Epstein"},
-      {title:"Resurrecting Empire",              first_name:"Rashid",    last_name:"Khalidi"},
-      {title:"Jefferson and the Ordeal of Liberty", first_name:"Dumas",  last_name:"Malone"},
-      {title:"Two Great Rebel Armies",           first_name:"Richard",   last_name:"McMurry"},
-      {title:"Light-Horse Harry Lee",            first_name:"Charles",   last_name:"Royster"},
-      {title:"Star Wars Origami",                first_name:"Chris",     last_name:"Alexander"},
-      {title:"The Stranger and the Statesman",   first_name:"Nina",      last_name:"Burleigh"},
-      {title:"The Lions of al-Rassan",           first_name:"Guy",       last_name:"Kay"},
-      {title:"A People's History of the World",  first_name:"Chris",     last_name:"Harman"},
-      {title:"The Devil in the White City",      first_name:"Erik",      last_name:"Larson"},
-      {title:"Predator Nation",                  first_name:"Charles",   last_name:"Ferguson"},
-      {title:"Old Man's War",                    first_name:"John",      last_name:"Scalzi"},
-      {title:"In Our Time",                      first_name:"Ernest",    last_name:"Hemingway"},
-      {title:"Catch-22",                         first_name:"Joseph",    last_name:"Heller"},
-      {title:"The Portable Chekhov",             first_name:"Anton",     last_name:"Chekhov"},
-    ];
-
-    // ─────────────────────────────────────────
-    // SPINE APPEARANCE
-    // Aged binding palette — oxblood, bottle green,
-    // Oxford navy, cognac, port, teal, moss, etc.
-    // ─────────────────────────────────────────
-    const SPINE_COLORS = [
-      { bg:'#7c1a1a', text:'#f0d0a8' },  // oxblood
-      { bg:'#1c3e20', text:'#bedfaa' },  // bottle green
-      { bg:'#18285c', text:'#b8ccee' },  // Oxford navy
-      { bg:'#5c3410', text:'#f0d898' },  // cognac
-      { bg:'#3c1060', text:'#d8c0f0' },  // port purple
-      { bg:'#0c3232', text:'#9ed0cc' },  // Bodleian teal
-      { bg:'#484208', text:'#e8e07a' },  // moss olive
-      { bg:'#521a08', text:'#f0c8a8' },  // terracotta
-      { bg:'#183860', text:'#b0d0ee' },  // Prussian blue
-      { bg:'#5a2608', text:'#f0c878' },  // burnt cognac
-      { bg:'#300808', text:'#d8a8a8' },  // deep wine
-      { bg:'#0a2032', text:'#a0c0d8' },  // midnight
-    ];
-
-    const HEIGHTS = [158, 165, 172, 178, 184, 190, 196, 202, 208, 215];
-
-    function spineColor(i)  { return SPINE_COLORS[i % SPINE_COLORS.length]; }
-    function spineHeight(i) { return HEIGHTS[(i * 7 + 3) % HEIGHTS.length]; }
-    function spineWidth(book, i) {
-      const len = book.title.length;
-      const base = len > 28 ? 46 : len > 20 ? 40 : len > 14 ? 34 : len > 9 ? 30 : 26;
-      const jitter = ((i * 5 + 2) % 9) - 4;   // −4 … +4
-      return Math.max(22, base + jitter);
-    }
-
-    // ─────────────────────────────────────────
-    // STATE
-    // ─────────────────────────────────────────
-    const BOOKS_KEY = 'rl_books_v3';  // bumped: books now carry isbn field
-    const META_KEY  = 'rl_meta_v3';  // bumped: prefer ISBN-based covers
-    let books    = [];
-    let bookMeta = {};
-    let filtered = [];
-
+    // HELPERS
+    // ═════════════════════════════════════════
     const esc = s => String(s ?? '')
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const $ = id => document.getElementById(id);
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    const bookKey   = b => `${b.title}||${b.last_name}`.toLowerCase().replace(/\s+/g,'_');
-    const authorStr = b => [b.first_name, b.last_name].filter(Boolean).join(' ');
-    const phClass   = b => ['c0','c1','c2','c3'][b.title.charCodeAt(0) % 4];
-    const sleep     = ms => new Promise(r => setTimeout(r, ms));
+    const authorOf = b => [b.first, b.last].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    const sortKey  = b => `${(b.last || b.first || '').toLowerCase()} ${b.title.toLowerCase()}`;
 
-    // ─────────────────────────────────────────
-    // PERSISTENCE
-    // ─────────────────────────────────────────
-    function persist() {
-      try {
-        localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
-        localStorage.setItem(META_KEY,  JSON.stringify(bookMeta));
-      } catch(_) {}
-    }
-    function hydrate() {
-      try {
-        const b = localStorage.getItem(BOOKS_KEY);
-        const m = localStorage.getItem(META_KEY);
-        if (b) books    = JSON.parse(b);
-        if (m) bookMeta = JSON.parse(m);
-      } catch(_) { books = []; bookMeta = {}; }
-    }
-    function cleanStaleCache() {
-      let dirty = false;
-      Object.keys(bookMeta).forEach(k => {
-        if (!bookMeta[k]?.ok) { delete bookMeta[k]; dirty = true; }
-      });
-      if (dirty) persist();
+    // Shorter title for headlines: drop parentheticals and subtitles
+    function headTitle(t) {
+      let s = t.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s*\[[^\]]*\]\s*/g, ' ');
+      const colon = s.indexOf(':');
+      if (colon > 3) s = s.slice(0, colon);
+      return s.replace(/\s+/g, ' ').trim() || t;
     }
 
-    // ─────────────────────────────────────────
-    // CSV PARSER
-    // ─────────────────────────────────────────
-    function parseCSV(text) {
-      const rows = text.trim().split(/\r?\n/);
-      if (rows.length < 2) return [];
-      const headers = splitLine(rows[0]).map(h =>
-        h.trim().toLowerCase().replace(/^["']|["']$/g, ''));
-      const ti = headers.indexOf('title');
-      const fi = headers.indexOf('first_name');
-      const li = headers.indexOf('last_name');
-      const ii = headers.indexOf('isbn');
-      if (ti < 0) return [];
-      return rows.slice(1).flatMap(row => {
-        const cols  = splitLine(row);
-        const title = (cols[ti] ?? '').replace(/^["']|["']$/g, '').trim();
-        if (!title) return [];
-        // Strip hyphens/spaces from ISBN so it works directly in OL cover URLs
-        const rawIsbn = ii >= 0 ? (cols[ii] ?? '').replace(/^["']|["']$/g, '').trim() : '';
-        return [{
-          title,
-          first_name: fi >= 0 ? (cols[fi] ?? '').replace(/^["']|["']$/g, '').trim() : '',
-          last_name:  li >= 0 ? (cols[li] ?? '').replace(/^["']|["']$/g, '').trim() : '',
-          isbn:       rawIsbn.replace(/[-\s]/g, ''),
-        }];
-      });
+    // Day-stable pseudo-random choice
+    const DAY = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+    function hash(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return h >>> 0;
     }
-    function splitLine(line) {
-      const out = []; let cur = ''; let inQ = false;
-      for (const ch of line) {
-        if (ch === '"') { inQ = !inQ; }
-        else if (ch === ',' && !inQ) { out.push(cur); cur = ''; }
-        else cur += ch;
-      }
-      out.push(cur);
+    function dailyPicks(arr, n, salt) {
+      return arr
+        .map(x => ({ x, k: hash(`${DAY}|${salt}|${x.title}|${x.last}`) }))
+        .sort((a, b) => a.k - b.k)
+        .slice(0, n)
+        .map(o => o.x);
+    }
+
+    function toRoman(n) {
+      const map = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+      let out = '';
+      for (const [v, r] of map) while (n >= v) { out += r; n -= v; }
       return out;
     }
 
-    // ─────────────────────────────────────────
-    // GOOGLE SHEETS LOADER
-    // ─────────────────────────────────────────
-    async function loadFromSheet() {
-      if (!CONFIG.sheetUrl) return null;
+    // ═════════════════════════════════════════
+    // CSV (handles quoted fields containing commas, quotes and line breaks)
+    // ═════════════════════════════════════════
+    function parseCSV(text) {
+      const records = [];
+      let row = [], field = '', inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQ) {
+          if (c === '"') {
+            if (text[i + 1] === '"') { field += '"'; i++; }
+            else inQ = false;
+          } else field += c;
+        } else if (c === '"') inQ = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n' || c === '\r') {
+          if (c === '\r' && text[i + 1] === '\n') i++;
+          row.push(field); records.push(row); row = []; field = '';
+        } else field += c;
+      }
+      if (field || row.length) { row.push(field); records.push(row); }
+      return records;
+    }
 
-      // Try the direct URL first.  If the browser blocks it (CORS / file:// protocol),
-      // fall back to a lightweight CORS proxy so the app works locally and on Netlify.
-      const candidates = [
-        CONFIG.sheetUrl,
-        `https://corsproxy.io/?${encodeURIComponent(CONFIG.sheetUrl)}`,
-      ];
+    function booksFromCSV(text) {
+      const rec = parseCSV(text.replace(/^﻿/, ''));
+      if (rec.length < 2) return [];
+      const h = rec[0].map(x => x.trim().toLowerCase());
+      const col = name => h.indexOf(name);
+      const ti = col('title'), fi = col('first_name'), li = col('last_name'), gi = col('genre'), ii = col('isbn');
+      if (ti < 0) return [];
+      const clean = s => (s ?? '').replace(/\s+/g, ' ').trim();
+      return rec.slice(1).flatMap((r, n) => {
+        const title = clean(r[ti]);
+        if (!title) return [];
+        return [{
+          title,
+          first: fi >= 0 ? clean(r[fi]) : '',
+          last:  li >= 0 ? clean(r[li]) : '',
+          genre: gi >= 0 ? clean(r[gi]) : '',
+          isbn:  ii >= 0 ? clean(r[ii]).replace(/[^0-9Xx]/g, '') : '',
+          row: n,
+        }];
+      });
+    }
 
-      for (const url of candidates) {
+    async function fetchSheet() {
+      const urls = [SHEET_URL, `https://corsproxy.io/?${encodeURIComponent(SHEET_URL)}`];
+      for (const url of urls) {
         try {
-          const r = await fetch(url);
+          const r = await fetch(url, { cache: 'no-store' });
           if (!r.ok) continue;
-          const text   = await r.text();
-          // Guard against Google returning an HTML login/error page
+          const text = await r.text();
           if (text.trimStart().startsWith('<')) continue;
-          const parsed = parseCSV(text);
-          if (parsed.length) return parsed;
-        } catch (_) {
-          // network / CORS block — try next candidate
-        }
+          const books = booksFromCSV(text);
+          if (books.length) return books;
+        } catch (_) { /* try next */ }
       }
-      throw new Error('Sheet unreachable — verify it is published via File → Share → Publish to web, output: CSV');
+      throw new Error('The catalog spreadsheet could not be reached.');
     }
 
-    async function syncSheet() {
-      if (!CONFIG.sheetUrl) { setSyncStatus(''); return; }
-      setSyncStatus('syncing', '↻ Syncing…');
-      let fresh = null;
-      try {
-        fresh = await loadFromSheet();
-      } catch (err) {
-        console.error('[RenneLibrary] Sheet fetch failed:', err);
-        setSyncStatus('error', `⚠ ${err.message}`);
-        return;
-      }
-      if (!fresh) {
-        setSyncStatus('error', '⚠ Sheet returned no data');
-        return;
-      }
-      const sig    = b => `${b.title}||${b.last_name}||${b.isbn ?? ''}`;
-      const oldSig = books.map(sig).sort().join('|');
-      const newSig = fresh.map(sig).sort().join('|');
-      if (oldSig !== newSig) {
-        books = fresh;
-        persist();
-        applyFilters();
-        showToast(`Collection updated — ${fresh.length} volumes loaded from your sheet.`);
-      }
-      localStorage.setItem('rl_synced_at', Date.now());
-      setSyncStatus('ok', syncedLabel());
+    // ═════════════════════════════════════════
+    // OPEN LIBRARY — covers & synopses
+    // ═════════════════════════════════════════
+    const coverUrl = b => b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-M.jpg?default=false` : '';
+
+    let synCache = {};
+    try { synCache = JSON.parse(localStorage.getItem(SYN_KEY) || '{}'); } catch (_) {}
+    function saveSyn() { try { localStorage.setItem(SYN_KEY, JSON.stringify(synCache)); } catch (_) {} }
+
+    function cleanDesc(d) {
+      let s = typeof d === 'string' ? d : (d?.value ?? '');
+      s = s.split(/\n-{3,}|\n\*{3,}|\(\[source\]/)[0];
+      s = s.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\r/g, '').replace(/\n{2,}/g, '\n').trim();
+      return s;
     }
 
-    function syncedLabel() {
-      const ts = parseInt(localStorage.getItem('rl_synced_at') || '0');
-      if (!ts) return '✓ Synced';
-      const mins = Math.round((Date.now() - ts) / 60000);
-      return mins < 1 ? '✓ Synced just now' : `✓ Synced ${mins}m ago`;
+    // simple serial queue so we stay polite to the API
+    let qChain = Promise.resolve();
+    function queued(fn) {
+      const p = qChain.then(fn, fn);
+      qChain = p.then(() => sleep(250), () => sleep(250));
+      return p;
     }
 
-    function setSyncStatus(cls, text = '') {
-      const el = document.getElementById('sync-status');
-      if (!el) return;
-      el.className   = 'sync-status' + (cls ? ' ' + cls : '');
-      el.textContent = text;
-    }
-
-    // ─────────────────────────────────────────
-    // OPEN LIBRARY API
-    // ─────────────────────────────────────────
-    const queue = {
-      jobs: [], busy: false, delay: 300,
-      push(fn) {
-        return new Promise((res, rej) => {
-          this.jobs.push({ fn, res, rej });
-          if (!this.busy) this.drain();
-        });
-      },
-      async drain() {
-        this.busy = true;
-        while (this.jobs.length) {
-          const { fn, res, rej } = this.jobs.shift();
-          try { res(await fn()); } catch(e) { rej(e); }
-          await sleep(this.delay);
-        }
-        this.busy = false;
-      }
-    };
-
-    // Returns the best cover URL without any API call:
-    // ISBN direct URL takes priority (correct edition), then cached, then null.
-    function coverUrl(book) {
-      if (book.isbn) return `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`;
-      return bookMeta[bookKey(book)]?.cover ?? null;
-    }
-
-    // Routes to ISBN or search fetch depending on what the book has.
-    async function fetchMeta(book) {
-      const key = bookKey(book);
-      if (bookMeta[key]?.ok) return bookMeta[key];
-      return book.isbn ? fetchMetaByIsbn(book) : fetchMetaBySearch(book);
-    }
-
-    // ISBN path — fetches the specific edition record from Open Library.
-    async function fetchMetaByIsbn(book) {
-      const key = bookKey(book);
-      return queue.push(async () => {
+    function getSynopsis(b) {
+      if (!b.isbn) return Promise.resolve('');
+      if (b.isbn in synCache) return Promise.resolve(synCache[b.isbn]);
+      return queued(async () => {
+        let text = '';
         try {
-          const r = await fetch(`https://openlibrary.org/isbn/${book.isbn}.json`);
-          if (r.ok) {
-            const ed   = await r.json();
-            const meta = {
-              cover:         `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`,
-              description:   typeof ed.description === 'string'
-                               ? ed.description
-                               : (ed.description?.value ?? null),
-              publishedDate: ed.publish_date
-                               ? (ed.publish_date.match(/\d{4}/)?.[0] ?? null)
-                               : null,
-              pageCount:     ed.number_of_pages ?? null,
-              categories:    ed.subjects?.slice(0, 3) ?? [],
-              olKey:         ed.works?.[0]?.key ?? null,
-              ok:            true,
-            };
-            bookMeta[key] = meta;
-            persist();
-            return meta;
+          const ed = await fetch(`https://openlibrary.org/isbn/${b.isbn}.json`).then(r => r.ok ? r.json() : null);
+          if (ed?.description) text = cleanDesc(ed.description);
+          if (!text && ed?.works?.[0]?.key) {
+            const w = await fetch(`https://openlibrary.org${ed.works[0].key}.json`).then(r => r.ok ? r.json() : null);
+            if (w?.description) text = cleanDesc(w.description);
           }
-        } catch(_) {}
-        // Edition fetch failed — store the ISBN cover at minimum so it still displays.
-        const meta = {
-          cover: `https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`,
-          description: null, publishedDate: null, pageCount: null,
-          categories: [], olKey: null, ok: true,
-        };
-        bookMeta[key] = meta;
-        persist();
-        return meta;
+        } catch (_) { return ''; }   // network trouble: don't cache, try again next visit
+        synCache[b.isbn] = text;
+        saveSyn();
+        return text;
       });
     }
 
-    // Search path — used for books without an ISBN.
-    async function fetchMetaBySearch(book) {
-      const key = bookKey(book);
-      return queue.push(async () => {
-        const t   = encodeURIComponent(book.title);
-        const a   = encodeURIComponent(book.last_name || book.first_name);
-        const url = `https://openlibrary.org/search.json?title=${t}&author=${a}&limit=1`
-                  + `&fields=key,cover_i,first_sentence,subject,first_publish_year,number_of_pages_median`;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          try {
-            const r = await fetch(url);
-            if (r.status === 429) { await sleep(3000 * (attempt + 1)); continue; }
-            if (!r.ok) break;
-            const d   = await r.json();
-            const doc = d.docs?.[0] ?? null;
-            const meta = {
-              cover:         doc?.cover_i
-                               ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
-                               : null,
-              description:   Array.isArray(doc?.first_sentence)
-                               ? doc.first_sentence[0]
-                               : (doc?.first_sentence ?? null),
-              publishedDate: doc?.first_publish_year?.toString() ?? null,
-              pageCount:     doc?.number_of_pages_median ?? null,
-              categories:    doc?.subject?.slice(0, 3) ?? [],
-              olKey:         doc?.key ?? null,
-              ok:            true,
-            };
-            bookMeta[key] = meta;
-            persist();
-            return meta;
-          } catch(_) { break; }
-        }
-        return { cover: null, description: null, ok: false };
+    function noSynopsisText(b) {
+      return `The archives hold no published summary of “${headTitle(b.title)}.” ` +
+             `The volume${authorOf(b) ? `, by ${authorOf(b)},` : ''} is held in the ${b.genre || UNSORTED} section of the collection.`;
+    }
+
+    // ═════════════════════════════════════════
+    // RENDERING
+    // ═════════════════════════════════════════
+    let BOOKS = [];
+    let SECTIONS = [];   // [{ name, letter, id, books }]
+
+    function groupSections(books) {
+      const map = new Map();
+      books.forEach(b => {
+        const g = b.genre || UNSORTED;
+        if (!map.has(g)) map.set(g, []);
+        map.get(g).push(b);
       });
+      const known = SECTION_ORDER.filter(g => map.has(g));
+      const extra = [...map.keys()].filter(g => !SECTION_ORDER.includes(g) && g !== UNSORTED).sort();
+      const names = [...known, ...extra, ...(map.has(UNSORTED) ? [UNSORTED] : [])];
+      return names.map((name, i) => ({
+        name,
+        letter: String.fromCharCode(66 + i),          // A is the front page
+        id: 'sec-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        books: map.get(name).slice().sort((a, b) => sortKey(a).localeCompare(sortKey(b))),
+      }));
     }
 
-    async function fetchOLDescription(olKey) {
-      try {
-        const r = await fetch(`https://openlibrary.org${olKey}.json`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        if (typeof d.description === 'string') return d.description;
-        if (typeof d.description?.value === 'string') return d.description.value;
-      } catch(_) {}
-      return null;
+    function photoHTML(b, caption = true) {
+      const url = coverUrl(b);
+      const idx = BOOKS.indexOf(b);
+      const frame = url
+        ? `<div class="photo-frame" data-open="${idx}"><img src="${url}" alt="Cover of ${esc(b.title)}" loading="lazy" onerror="this.parentNode.classList.add('missing');this.parentNode.innerHTML='<span>No photograph on file</span>'"></div>`
+        : `<div class="photo-frame missing" data-open="${idx}"><span>No photograph on file</span></div>`;
+      return `<figure class="photo">${frame}${caption ? `<figcaption>${esc(headTitle(b.title))}${authorOf(b) ? ` &mdash; ${esc(authorOf(b))}` : ''}</figcaption>` : ''}</figure>`;
     }
 
-    // ─────────────────────────────────────────
-    // SEARCH / SORT
-    // ─────────────────────────────────────────
-    function applyFilters() {
-      const q    = document.getElementById('search-input').value.toLowerCase().trim();
-      const sort = document.getElementById('sort-sel').value;
-
-      filtered = books.filter(b => {
-        if (!q) return true;
-        return `${b.title} ${b.first_name} ${b.last_name}`.toLowerCase().includes(q);
-      });
-      filtered.sort((a, b) => sort === 'author'
-        ? (a.last_name || '').localeCompare(b.last_name || '')
-        : a.title.localeCompare(b.title));
-
-      renderShelves();
+    function storyHTML(b, { kicker, lead = false } = {}) {
+      const idx = BOOKS.indexOf(b);
+      return `
+        <article class="story${lead ? ' lead' : ''}">
+          ${kicker ? `<p class="story-kicker">${esc(kicker)}</p>` : ''}
+          ${lead ? '' : `<h3 class="story-head" data-open="${idx}">${esc(headTitle(b.title))}</h3>`}
+          <p class="story-deck">${authorOf(b) ? `By ${esc(authorOf(b))}` : 'Author Unrecorded'}</p>
+          ${photoHTML(b, false)}
+          <p class="story-body pending" data-syn="${idx}" data-max="${lead ? 1100 : 520}">Awaiting dispatch from the archives&hellip;</p>
+          <button class="read-more" data-open="${idx}">Continued &raquo;</button>
+        </article>`;
     }
 
-    // ─────────────────────────────────────────
-    // SHELF RENDERING
-    // ─────────────────────────────────────────
-    function renderShelves() {
-      const container = document.getElementById('shelves-container');
-      const countEl   = document.getElementById('book-count');
-      container.innerHTML = '';
-
-      if (!filtered.length) {
-        container.innerHTML = `
-          <div class="empty-shelf">
-            <div class="empty-shelf-icon">📚</div>
-            <p class="empty-shelf-text">No volumes found in the collection.</p>
-          </div>`;
-        countEl.textContent = '';
-        return;
-      }
-
-      const containerW = container.clientWidth || window.innerWidth - 56;
-      const rows = splitIntoRows(filtered, containerW);
-
-      rows.forEach(rowBooks => {
-        const unit = document.createElement('div');
-        unit.className = 'shelf-unit';
-
-        const booksRow = document.createElement('div');
-        booksRow.className = 'books-row';
-
-        const totalBaseW = rowBooks.reduce((s, rb) => s + rb.width, 0);
-        const scale = Math.min(1.35, containerW / totalBaseW);
-
-        rowBooks.forEach(({ book, origIdx }) => {
-          booksRow.appendChild(makeSpine(book, origIdx, scale));
+    function fillSynopses(root) {
+      root.querySelectorAll('[data-syn]').forEach(el => {
+        if (el.dataset.loaded) return;
+        el.dataset.loaded = '1';
+        const b = BOOKS[+el.dataset.syn];
+        const max = +el.dataset.max || 600;
+        getSynopsis(b).then(text => {
+          let t = text || noSynopsisText(b);
+          if (t.length > max) t = t.slice(0, max).replace(/\s+\S*$/, '') + '…';
+          el.textContent = t;
+          el.classList.remove('pending');
         });
-
-        const plank = document.createElement('div');
-        plank.className = 'shelf-plank';
-
-        unit.appendChild(booksRow);
-        unit.appendChild(plank);
-        container.appendChild(unit);
       });
-
-      const total = books.length, showing = filtered.length;
-      countEl.textContent = showing === total
-        ? `${total} volumes`
-        : `${showing} of ${total} volumes`;
     }
 
-    function splitIntoRows(books, containerW) {
-      const rows = [];
-      let cur = [], curW = 0;
+    function render() {
+      SECTIONS = groupSections(BOOKS);
+      const total = BOOKS.length;
+      const withIsbn = BOOKS.filter(b => b.isbn);
+      const pool = withIsbn.length ? withIsbn : BOOKS;
 
-      books.forEach((book, i) => {
-        const origIdx = ALL_BOOKS.findIndex(b => b.title === book.title);
-        const w = spineWidth(book, origIdx >= 0 ? origIdx : i);
-        if (curW + w > containerW && cur.length > 0) {
-          rows.push(cur);
-          cur  = [{ book, width: w, origIdx: origIdx >= 0 ? origIdx : i }];
-          curW = w;
-        } else {
-          cur.push({ book, width: w, origIdx: origIdx >= 0 ? origIdx : i });
-          curW += w;
-        }
-      });
-      if (cur.length) rows.push(cur);
-      return rows;
-    }
+      $('dl-vol').innerHTML = `Vol. ${toRoman(SECTIONS.length)} &mdash; No. ${total.toLocaleString()}`;
 
-    // ─────────────────────────────────────────
-    // SPINE ELEMENT
-    // ─────────────────────────────────────────
-    function makeSpine(book, origIdx, scale = 1) {
-      const key   = bookKey(book);
-      const color = spineColor(origIdx);
-      const h     = spineHeight(origIdx);
-      const w     = Math.round(spineWidth(book, origIdx) * scale);
-
-      const spine = document.createElement('div');
-      spine.className    = 'book-spine';
-      spine.dataset.key  = key;
-      spine.style.width  = w + 'px';
-      spine.style.height = h + 'px';
-      spine.style.background = color.bg;
-      spine.style.color  = color.text;
-
-      const label = document.createElement('span');
-      label.className   = 'spine-label';
-      label.textContent = book.title;
-      label.style.maxHeight = (h - 16) + 'px';
-
-      spine.appendChild(label);
-
-      spine.addEventListener('mouseenter', () => showPopout(book, spine));
-      spine.addEventListener('mouseleave', e => {
-        if (!e.relatedTarget || !popoutEl.contains(e.relatedTarget)) hidePopout();
-      });
-      spine.addEventListener('click', () => openBookModal(book));
-
-      return spine;
-    }
-
-    // ─────────────────────────────────────────
-    // FLOATING POPOUT
-    // ─────────────────────────────────────────
-    const popoutEl     = document.getElementById('spine-popout');
-    const popoutCover  = document.getElementById('popout-cover-wrap');
-    const popoutTitle  = document.getElementById('popout-title');
-    const popoutAuthor = document.getElementById('popout-author');
-
-    let popoutHideTimer = null;
-    let popoutBook = null;
-
-    function showPopout(book, spineEl) {
-      clearTimeout(popoutHideTimer);
-      popoutBook = book;
-
-      const key = bookKey(book);
-      const url = coverUrl(book);  // immediate — ISBN URL or cached, no API call
-
-      if (url) {
-        popoutCover.innerHTML = `<img src="${esc(url)}" alt="${esc(book.title)}" loading="lazy">`;
-      } else {
-        popoutCover.innerHTML = `
-          <div class="popout-cover-ph ${phClass(book)}">
-            <div class="ph-ornament">✦</div>
-            <div class="ph-t">${esc(book.title)}</div>
-          </div>`;
+      // Front-page picks: one banner book, two more from other sections
+      const [banner] = dailyPicks(pool, 1, 'banner');
+      const others = dailyPicks(pool.filter(b => (b.genre || UNSORTED) !== (banner.genre || UNSORTED)), 40, 'second');
+      const second = [];
+      for (const b of others) {
+        if (second.length === 2) break;
+        if (!second.some(s => (s.genre || UNSORTED) === (b.genre || UNSORTED))) second.push(b);
       }
+      const late = BOOKS.slice(-8).reverse();
 
-      popoutTitle.textContent  = book.title;
-      popoutAuthor.textContent = authorStr(book);
+      const bannerTitle = headTitle(banner.title);
+      const bannerCls = bannerTitle.length > 42 ? 'xlong' : bannerTitle.length > 24 ? 'long' : '';
+      const secOf = name => SECTIONS.find(s => s.name === name);
 
-      const rect = spineEl.getBoundingClientRect();
-      const pw   = 174;
-      const ph   = 265;
-      let   left = rect.left + rect.width / 2 - pw / 2;
-      let   top  = rect.top  - ph - 10;
+      const indexRows = SECTIONS.map(s => `
+        <li><a href="#${s.id}">
+          <span class="letter">${s.letter}</span><span class="name">${esc(s.name)}</span>
+          <span class="dots"></span><span>${s.books.length}</span>
+        </a></li>`).join('');
 
-      left = Math.max(8, Math.min(window.innerWidth - pw - 8, left));
-      top  = Math.max(8, top);
-
-      popoutEl.style.left = left + 'px';
-      popoutEl.style.top  = top  + 'px';
-      popoutEl.classList.add('visible');
-
-      // Warm the metadata cache (description, year, pages) for when the user clicks.
-      // For no-ISBN books, also update cover once the search result comes back.
-      if (!bookMeta[key]?.ok) {
-        fetchMeta(book).then(m => {
-          if (popoutBook === book && m.cover && !url) {
-            popoutCover.innerHTML = `<img src="${esc(m.cover)}" alt="${esc(book.title)}" loading="lazy">`;
-          }
-        });
-      }
-    }
-
-    function hidePopout() {
-      popoutHideTimer = setTimeout(() => {
-        popoutEl.classList.remove('visible');
-        popoutBook = null;
-      }, 80);
-    }
-
-    popoutEl.addEventListener('mouseenter', () => clearTimeout(popoutHideTimer));
-    popoutEl.addEventListener('mouseleave', hidePopout);
-    popoutEl.addEventListener('click', () => { if (popoutBook) openBookModal(popoutBook); });
-
-    // ─────────────────────────────────────────
-    // BOOK DETAIL MODAL
-    // ─────────────────────────────────────────
-    async function openBookModal(book) {
-      hidePopout();
-      const key = bookKey(book);
-
-      document.getElementById('bm-title').textContent   = book.title;
-      document.getElementById('bm-author').textContent  = `by ${authorStr(book)}`;
-      document.getElementById('bm-synopsis').textContent = 'Consulting the archives…';
-      document.getElementById('bm-synopsis').className   = 'bm-synopsis loading';
-      document.getElementById('bm-meta').innerHTML = '';
-
-      const coverEl  = document.getElementById('bm-cover');
-      const url      = coverUrl(book);  // immediate — ISBN URL or cached
-
-      if (url) {
-        coverEl.innerHTML = `<img src="${esc(url)}" alt="${esc(book.title)}">`;
-      } else {
-        coverEl.innerHTML = `<div class="bm-cover-ph ${phClass(book)}">
-          <div style="font-size:1.5rem;color:var(--gold);opacity:.38;margin-bottom:10px">✦</div>
-          <div style="font-family:'Cinzel',serif;font-size:0.68rem;color:var(--gold-light);text-align:center;padding:0 8px;line-height:1.5">${esc(book.title)}</div>
+      const LATE_PHRASES = [
+        (by, l) => `${by} has been added to the collection and placed in Section ${l}.`,
+        (by, l) => `${by} is among the newest arrivals and now stands in Section ${l}.`,
+        (by, l) => `${by} has taken its place on the shelves of Section ${l}.`,
+        (by, l) => `${by} was received and catalogued; readers will find it in Section ${l}.`,
+      ];
+      const lateRows = late.map((b, i) => {
+        const by = authorOf(b) ? `A volume by ${esc(authorOf(b))}` : 'A new volume';
+        const letter = secOf(b.genre || UNSORTED).letter;
+        return `
+        <div class="late-item">
+          <h5 data-open="${BOOKS.indexOf(b)}">${esc(headTitle(b.title))}.</h5>
+          <p><span class="dl">${esc(b.genre || UNSORTED)}</span>&mdash;${LATE_PHRASES[i % LATE_PHRASES.length](by, letter)}</p>
         </div>`;
-      }
+      }).join('');
 
-      document.getElementById('book-modal').classList.add('active');
-      document.body.style.overflow = 'hidden';
+      const sectionsHTML = SECTIONS.map((s, i) => {
+        const authors = {};
+        s.books.forEach(b => { const a = authorOf(b); if (a) authors[a] = (authors[a] || 0) + 1; });
+        const top = Object.entries(authors).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).filter(([, n]) => n > 1).slice(0, 3);
+        const deck = top.length
+          ? `${top[0][0]} leads the section with ${top[0][1]} titles` +
+            (top.length > 1 ? `; ${top.slice(1).map(([a, n]) => `${a} (${n})`).join(' and ')} follow` : '') + '.'
+          : `${s.books.length} titles from ${Object.keys(authors).length} authors.`;
+        const noun = HEADLINE_NOUN[s.name] || `Volumes of ${s.name}`;
+        const leadPool = s.books.filter(b => b.isbn);
+        const leads = dailyPicks(leadPool.length >= 3 ? leadPool : s.books, 3, s.name);
+        const prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
 
-      const meta = await fetchMeta(book);
+        const agate = s.books.map(b => `
+          <li data-s="${esc((b.title + ' ' + authorOf(b)).toLowerCase())}">
+            <button data-open="${BOOKS.indexOf(b)}"><span class="t">${esc(b.title)}</span>${authorOf(b) ? ` &mdash; <span class="a">${esc(authorOf(b))}</span>` : ''}</button>
+          </li>`).join('');
 
-      // For no-ISBN books: update cover once the search result arrives
-      if (meta.cover && !url) {
-        coverEl.innerHTML = `<img src="${esc(meta.cover)}" alt="${esc(book.title)}">`;
-        coverEl.querySelector('img').addEventListener('error', () => {
-          coverEl.innerHTML = `<div class="bm-cover-ph ${phClass(book)}"></div>`;
+        return `
+          <section class="paper-section" id="${s.id}">
+            <div class="section-flag">
+              <span>Section ${s.letter}</span>
+              <span>${prev ? `<a href="#${prev.id}">&laquo; ${esc(prev.name)}</a> &nbsp;·&nbsp; ` : ''}<a href="#top">Front Page</a>${next ? ` &nbsp;·&nbsp; <a href="#${next.id}">${esc(next.name)} &raquo;</a>` : ''}</span>
+              <span>${s.books.length} Volumes</span>
+            </div>
+            <h2 class="section-name">${esc(s.name)}</h2>
+            <p class="section-head">${s.books.length} ${esc(noun)} ${HEADLINE_VERBS[i % HEADLINE_VERBS.length]}</p>
+            <p class="section-deck">${esc(deck)}</p>
+            <div class="section-leads">${leads.map(b => storyHTML(b)).join('')}</div>
+            <h4 class="agate-title">Complete Listing of the ${esc(s.name)} Section</h4>
+            <ul class="agate">${agate}</ul>
+          </section>`;
+      }).join('');
+
+      $('paper').innerHTML = `
+        <div id="top"></div>
+        <section class="banner">
+          <p class="banner-kicker">Today&rsquo;s Featured Volume &bull; From the ${esc(banner.genre || UNSORTED)} Stacks</p>
+          <h2 class="${bannerCls}" data-open="${BOOKS.indexOf(banner)}">${esc(bannerTitle)}</h2>
+          <p class="banner-deck">${authorOf(banner) ? `By ${esc(authorOf(banner))} &mdash; ` : ''}${total.toLocaleString()} Volumes in ${SECTIONS.length} Sections Report for Duty</p>
+        </section>
+
+        <section class="front">
+          <div class="col col-index">
+            <div class="box">
+              <p class="box-title">Sections in Today&rsquo;s Edition</p>
+              <ul class="index-list">${indexRows}</ul>
+              <div class="index-total"><span>Total Volumes</span><span>${total.toLocaleString()}</span></div>
+            </div>
+            <div class="box search-box">
+              <label for="search">Classified Inquiry</label>
+              <input id="search" type="search" placeholder="Title or author…" autocomplete="off">
+              <p id="search-count"></p>
+            </div>
+          </div>
+
+          <div class="col col-lead">
+            ${storyHTML(banner, { kicker: 'Lead Story', lead: true })}
+          </div>
+
+          <div class="col col-second">
+            ${second.map(b => storyHTML(b, { kicker: `From Section ${secOf(b.genre || UNSORTED).letter} — ${b.genre || UNSORTED}` })).join('')}
+          </div>
+
+          <div class="col col-late">
+            <p class="late-title">Late News</p>
+            <p class="late-sub">Recent Accessions to the Collection</p>
+            ${lateRows}
+          </div>
+        </section>
+
+        ${sectionsHTML}`;
+
+      // synopses: front page now, sections as they scroll into view
+      fillSynopses($('paper').querySelector('.front'));
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { fillSynopses(e.target); io.unobserve(e.target); } });
+      }, { rootMargin: '600px 0px' });
+      document.querySelectorAll('.section-leads').forEach(el => io.observe(el));
+
+      $('search').addEventListener('input', onSearch);
+    }
+
+    // ═════════════════════════════════════════
+    // SEARCH
+    // ═════════════════════════════════════════
+    let searchTimer = null;
+    function onSearch(e) {
+      clearTimeout(searchTimer);
+      const q = e.target.value.trim().toLowerCase();
+      searchTimer = setTimeout(() => {
+        document.body.classList.toggle('searching', !!q);
+        let hits = 0;
+        document.querySelectorAll('.paper-section').forEach(sec => {
+          let n = 0;
+          sec.querySelectorAll('.agate li').forEach(li => {
+            const show = !q || li.dataset.s.includes(q);
+            li.hidden = !show;
+            if (show) n++;
+          });
+          sec.hidden = !!q && n === 0;
+          hits += n;
         });
-      }
+        $('search-count').textContent = q
+          ? (hits ? `${hits} notice${hits === 1 ? '' : 's'} found.` : 'No notices match that inquiry.')
+          : '';
+      }, 120);
+    }
 
-      const synEl = document.getElementById('bm-synopsis');
-      let description = bookMeta[key]?.fullDescription ?? null;
-      if (!description && meta.olKey) {
-        description = await fetchOLDescription(meta.olKey);
-        if (description && bookMeta[key]) {
-          bookMeta[key].fullDescription = description;
-          persist();
+    // ═════════════════════════════════════════
+    // CLIPPING MODAL
+    // ═════════════════════════════════════════
+    function openBook(b) {
+      const sec = SECTIONS.find(s => s.name === (b.genre || UNSORTED));
+      $('clip-photo').innerHTML = photoHTML(b, false);
+      $('clip-kicker').textContent = `Section ${sec?.letter ?? ''} — ${b.genre || UNSORTED}`;
+      $('clip-title').textContent = b.title;
+      $('clip-meta').innerHTML =
+        `<span>${authorOf(b) ? 'By ' + esc(authorOf(b)) : 'Author unrecorded'}</span>` +
+        (b.isbn ? `<span>ISBN ${esc(b.isbn)}</span>` : '');
+      const body = $('clip-body');
+      body.className = 'story-body pending';
+      body.textContent = 'Consulting the archives…';
+      $('modal').classList.add('active');
+      $('clip-close').focus();
+      getSynopsis(b).then(text => {
+        if (!$('modal').classList.contains('active') || $('clip-title').textContent !== b.title) return;
+        body.textContent = text || noSynopsisText(b);
+        body.classList.remove('pending');
+      });
+    }
+    function closeBook() { $('modal').classList.remove('active'); }
+
+    document.addEventListener('click', e => {
+      const t = e.target.closest('[data-open]');
+      if (t && !t.closest('.clipping')) { openBook(BOOKS[+t.dataset.open]); return; }
+      if (e.target === $('modal')) closeBook();
+    });
+    $('clip-close').addEventListener('click', closeBook);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBook(); });
+
+    // ═════════════════════════════════════════
+    // BOOT
+    // ═════════════════════════════════════════
+    $('dl-date').textContent = new Date().toLocaleDateString('en-US',
+      { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+    function sig(list) { return list.map(b => `${b.title}|${b.last}|${b.genre}|${b.isbn}`).join('\n'); }
+
+    async function boot() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(BOOKS_KEY) || 'null');
+        if (Array.isArray(cached) && cached.length) { BOOKS = cached; render(); }
+      } catch (_) {}
+
+      try {
+        const fresh = await fetchSheet();
+        if (sig(fresh) !== sig(BOOKS)) {
+          const scrollY = window.scrollY;
+          BOOKS = fresh;
+          try { localStorage.setItem(BOOKS_KEY, JSON.stringify(fresh)); } catch (_) {}
+          render();
+          window.scrollTo(0, scrollY);
+        }
+        $('sync-note').textContent = `Catalog current as of ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}.`;
+      } catch (err) {
+        console.error('[RenneLibrary]', err);
+        if (!BOOKS.length) {
+          $('paper').innerHTML = `<div class="status-msg error">The presses have stopped: ${esc(err.message)} Check that the Google Sheet is still published to the web as CSV.</div>`;
+        } else {
+          $('sync-note').textContent = 'Showing the last printed edition; the catalog could not be reached just now.';
         }
       }
-      if (!description) description = meta.description;
-      synEl.textContent = description ?? 'No synopsis is available for this volume.';
-      synEl.className   = 'bm-synopsis';
-
-      const metaEl = document.getElementById('bm-meta');
-      const items  = [];
-      if (meta.publishedDate)   items.push(metaItem('Published', meta.publishedDate.slice(0,4)));
-      if (meta.pageCount)       items.push(metaItem('Pages',     meta.pageCount));
-      if (meta.categories?.[0]) items.push(metaItem('Genre',     meta.categories[0]));
-      metaEl.innerHTML = items.join('');
     }
-
-    function metaItem(label, val) {
-      return `<div class="meta-item"><span class="meta-label">${label}</span><span class="meta-val">${esc(val)}</span></div>`;
-    }
-
-    function closeModal() {
-      document.getElementById('book-modal').classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    // ─────────────────────────────────────────
-    // TOAST
-    // ─────────────────────────────────────────
-    let toastTimer;
-    function showToast(msg) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
-    }
-
-    // ─────────────────────────────────────────
-    // EVENT WIRING
-    // ─────────────────────────────────────────
-    document.getElementById('search-input').addEventListener('input', applyFilters);
-    document.getElementById('sort-sel').addEventListener('change', applyFilters);
-    document.getElementById('modal-close-btn').addEventListener('click', closeModal);
-    document.getElementById('book-modal').addEventListener('click', e => {
-      if (e.target === e.currentTarget) closeModal();
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(applyFilters, 160);
-    });
-
-    // ─────────────────────────────────────────
-    // INIT
-    // ─────────────────────────────────────────
-    async function init() {
-      hydrate();
-      cleanStaleCache();
-      if (!books.length) books = ALL_BOOKS;
-      applyFilters();
-      await syncSheet();
-      if (CONFIG.sheetUrl && CONFIG.refreshMs > 0) {
-        setInterval(syncSheet, CONFIG.refreshMs);
-      }
-    }
-
-    init();
+    boot();
   })();
   </script>
 </body>
