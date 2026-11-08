@@ -131,12 +131,27 @@
       margin-top: 6px;
     }
 
+    /* ═════════ PAGE LAYOUT: section index on the left, one page on the right ═════════ */
+    .layout {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      padding-top: 14px;
+    }
+    .col-index {
+      padding-right: 14px;
+      border-right: 1px solid var(--rule);
+    }
+    .col-index-inner { position: sticky; top: 12px; }
+    .view { padding-left: 16px; min-width: 0; }
+    .pane[hidden] { display: none; }
+    .index-list a.active { font-weight: 700; }
+    .index-list a.active .name { text-decoration: underline; }
+
     /* ═════════ FRONT PAGE GRID ═════════ */
     .front {
       display: grid;
-      grid-template-columns: 1fr 2.1fr 1.15fr 1.35fr;
-      border-bottom: 3px double var(--rule);
-      padding: 14px 0 18px;
+      grid-template-columns: 2.1fr 1.15fr 1.35fr;
+      padding: 14px 0 6px;
     }
     .col { padding: 0 14px; border-left: 1px solid var(--rule); min-width: 0; }
     .col:first-child { border-left: none; padding-left: 0; }
@@ -302,7 +317,7 @@
     .late-item .dl { font-family: var(--head); font-weight: 600; text-transform: uppercase; font-size: .8rem; letter-spacing: .04em; }
 
     /* ═════════ SECTIONS ═════════ */
-    .paper-section { padding-top: 22px; border-bottom: 3px double var(--rule); padding-bottom: 20px; }
+    .paper-section { padding-bottom: 6px; }
     .section-flag {
       display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
       font-family: var(--head); text-transform: uppercase; letter-spacing: .1em; font-size: .78rem;
@@ -359,12 +374,9 @@
     .agate li[hidden] { display: none; }
 
     /* Search mode: show only matching listings */
-    body.searching .banner,
-    body.searching .front > :not(.col-index),
     body.searching .section-leads,
     body.searching .section-deck { display: none; }
-    body.searching .front { grid-template-columns: 1fr; }
-    body.searching .col-index { border: none; padding: 0; max-width: 420px; margin: 0 auto; }
+    body.searching .paper-section { padding-top: 0; margin-bottom: 18px; }
     .paper-section[hidden] { display: none; }
 
     .status-msg {
@@ -413,12 +425,13 @@
 
     /* ═════════ RESPONSIVE ═════════ */
     @media (max-width: 1050px) {
+      .layout { grid-template-columns: 200px 1fr; }
       .front { grid-template-columns: 1fr 1fr; row-gap: 18px; }
       .col { padding: 0 12px; }
-      .col-index  { order: 3; border-left: none; padding-left: 0; }
-      .col-lead   { order: 1; border-left: none; padding-left: 0; }
-      .col-second { order: 2; }
-      .col-late   { order: 4; }
+      .col-lead { grid-column: 1 / -1; border-left: none; padding: 0 0 14px; border-bottom: 1px solid var(--rule); }
+      .col-second { border-left: none; padding-left: 0; }
+      .section-leads { grid-template-columns: 1fr 1fr; }
+      .section-leads .story:nth-child(3) { display: none; }
     }
     @media (max-width: 720px) {
       body { padding: 0; }
@@ -426,12 +439,19 @@
       .mast-row { grid-template-columns: 1fr; }
       .ear { display: none; }
       .dateline { justify-content: center; text-align: center; }
+      .layout { grid-template-columns: 1fr; }
+      .col-index { border-right: none; padding-right: 0; }
+      .col-index-inner { position: static; }
+      .index-list { column-count: 2; column-gap: 14px; }
+      .index-list li { break-inside: avoid; }
+      .view { padding-left: 0; border-top: 3px double var(--rule); }
       .front { grid-template-columns: 1fr; }
       .col { border-left: none; padding: 14px 0 0; border-top: 1px solid var(--rule); }
-      .col-lead { border-top: none; padding-top: 0; }
+      .col-lead { border-top: none; padding-top: 0; border-bottom: none; }
       .photo, .lead .photo { max-width: 200px; }
       .lead .story-body { column-count: 1; }
       .section-leads { grid-template-columns: 1fr; }
+      .section-leads .story:nth-child(3) { display: block; }
       .section-leads .story { border-left: none; padding: 0; }
       .section-leads .story + .story { border-top: 1px solid var(--rule); padding-top: 12px; margin-top: 12px; }
       .clip-grid { grid-template-columns: 1fr; }
@@ -705,7 +725,7 @@
       return `<figure class="photo">${frame}${caption ? `<figcaption>${esc(headTitle(b.title))}${authorOf(b) ? ` &mdash; ${esc(authorOf(b))}` : ''}</figcaption>` : ''}</figure>`;
     }
 
-    function storyHTML(b, { kicker, lead = false } = {}) {
+    function storyHTML(b, { kicker, lead = false, max } = {}) {
       const idx = BOOKS.indexOf(b);
       return `
         <article class="story${lead ? ' lead' : ''}">
@@ -713,7 +733,7 @@
           ${lead ? '' : `<h3 class="story-head" data-open="${idx}">${esc(headTitle(b.title))}</h3>`}
           <p class="story-deck">${authorOf(b) ? `By ${esc(authorOf(b))}` : 'Author Unrecorded'}</p>
           ${photoHTML(b, false)}
-          <p class="story-body pending" data-syn="${idx}" data-max="${lead ? 1100 : 520}">Awaiting dispatch from the archives&hellip;</p>
+          <p class="story-body pending" data-syn="${idx}" data-max="${max ?? (lead ? 900 : 520)}">Awaiting dispatch from the archives&hellip;</p>
           <button class="read-more" data-open="${idx}">Continued &raquo;</button>
         </article>`;
     }
@@ -749,14 +769,18 @@
         if (second.length === 2) break;
         if (!second.some(s => (s.genre || UNSORTED) === (b.genre || UNSORTED))) second.push(b);
       }
-      const late = BOOKS.slice(-8).reverse();
+      const late = BOOKS.slice(-6).reverse();
 
       const bannerTitle = headTitle(banner.title);
       const bannerCls = bannerTitle.length > 42 ? 'xlong' : bannerTitle.length > 24 ? 'long' : '';
       const secOf = name => SECTIONS.find(s => s.name === name);
 
-      const indexRows = SECTIONS.map(s => `
-        <li><a href="#${s.id}">
+      const indexRows = `
+        <li><a href="#front" data-route="front">
+          <span class="letter">A</span><span class="name">Front Page</span>
+          <span class="dots"></span><span></span>
+        </a></li>` + SECTIONS.map(s => `
+        <li><a href="#${s.id}" data-route="${s.id}">
           <span class="letter">${s.letter}</span><span class="name">${esc(s.name)}</span>
           <span class="dots"></span><span>${s.books.length}</span>
         </a></li>`).join('');
@@ -796,10 +820,10 @@
           </li>`).join('');
 
         return `
-          <section class="paper-section" id="${s.id}">
+          <section class="paper-section pane" id="${s.id}" hidden>
             <div class="section-flag">
               <span>Section ${s.letter}</span>
-              <span>${prev ? `<a href="#${prev.id}">&laquo; ${esc(prev.name)}</a> &nbsp;·&nbsp; ` : ''}<a href="#top">Front Page</a>${next ? ` &nbsp;·&nbsp; <a href="#${next.id}">${esc(next.name)} &raquo;</a>` : ''}</span>
+              <span>${prev ? `<a href="#${prev.id}">&laquo; ${esc(prev.name)}</a> &nbsp;·&nbsp; ` : ''}<a href="#front">Front Page</a>${next ? ` &nbsp;·&nbsp; <a href="#${next.id}">${esc(next.name)} &raquo;</a>` : ''}</span>
               <span>${s.books.length} Volumes</span>
             </div>
             <h2 class="section-name">${esc(s.name)}</h2>
@@ -812,15 +836,9 @@
       }).join('');
 
       $('paper').innerHTML = `
-        <div id="top"></div>
-        <section class="banner">
-          <p class="banner-kicker">Today&rsquo;s Featured Volume &bull; From the ${esc(banner.genre || UNSORTED)} Stacks</p>
-          <h2 class="${bannerCls}" data-open="${BOOKS.indexOf(banner)}">${esc(bannerTitle)}</h2>
-          <p class="banner-deck">${authorOf(banner) ? `By ${esc(authorOf(banner))} &mdash; ` : ''}${total.toLocaleString()} Volumes in ${SECTIONS.length} Sections Report for Duty</p>
-        </section>
-
-        <section class="front">
-          <div class="col col-index">
+       <div class="layout">
+        <aside class="col-index">
+          <div class="col-index-inner">
             <div class="box">
               <p class="box-title">Sections in Today&rsquo;s Edition</p>
               <ul class="index-list">${indexRows}</ul>
@@ -832,13 +850,23 @@
               <p id="search-count"></p>
             </div>
           </div>
+        </aside>
 
+        <div class="view" id="view">
+        <div class="pane" id="front">
+        <section class="banner">
+          <p class="banner-kicker">Today&rsquo;s Featured Volume &bull; From the ${esc(banner.genre || UNSORTED)} Stacks</p>
+          <h2 class="${bannerCls}" data-open="${BOOKS.indexOf(banner)}">${esc(bannerTitle)}</h2>
+          <p class="banner-deck">${authorOf(banner) ? `By ${esc(authorOf(banner))} &mdash; ` : ''}${total.toLocaleString()} Volumes in ${SECTIONS.length} Sections Report for Duty</p>
+        </section>
+
+        <section class="front">
           <div class="col col-lead">
             ${storyHTML(banner, { kicker: 'Lead Story', lead: true })}
           </div>
 
           <div class="col col-second">
-            ${second.map(b => storyHTML(b, { kicker: `From Section ${secOf(b.genre || UNSORTED).letter} — ${b.genre || UNSORTED}` })).join('')}
+            ${second.map(b => storyHTML(b, { kicker: `From Section ${secOf(b.genre || UNSORTED).letter} — ${b.genre || UNSORTED}`, max: 260 })).join('')}
           </div>
 
           <div class="col col-late">
@@ -847,18 +875,56 @@
             ${lateRows}
           </div>
         </section>
+        </div>
 
-        ${sectionsHTML}`;
-
-      // synopses: front page now, sections as they scroll into view
-      fillSynopses($('paper').querySelector('.front'));
-      const io = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) { fillSynopses(e.target); io.unobserve(e.target); } });
-      }, { rootMargin: '600px 0px' });
-      document.querySelectorAll('.section-leads').forEach(el => io.observe(el));
+        ${sectionsHTML}
+        </div>
+       </div>`;
 
       $('search').addEventListener('input', onSearch);
+      applyView(false);
     }
+
+    // ═════════════════════════════════════════
+    // ONE PAGE AT A TIME — the hash picks the front page or a section
+    // ═════════════════════════════════════════
+    let searchQuery = '';
+    const currentRoute = () => {
+      const h = decodeURIComponent(location.hash.slice(1));
+      return h && $(h)?.classList.contains('pane') ? h : 'front';
+    };
+
+    function applyView(scroll) {
+      const route = currentRoute();
+      const panes = document.querySelectorAll('#view > .pane');
+      if (searchQuery) {
+        panes.forEach(p => { p.hidden = p.id === 'front' || +p.dataset.hits === 0; });
+      } else {
+        panes.forEach(p => { p.hidden = p.id !== route; });
+        const pane = $(route);
+        if (pane) fillSynopses(pane);
+      }
+      document.querySelectorAll('.index-list a').forEach(a => {
+        a.classList.toggle('active', !searchQuery && a.dataset.route === route);
+      });
+      if (scroll) {
+        const top = $('view').getBoundingClientRect().top + window.scrollY - 8;
+        if (window.scrollY > top || window.matchMedia('(max-width: 720px)').matches) {
+          window.scrollTo({ top, behavior: 'instant' });
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', () => {
+      if (searchQuery) {
+        searchQuery = '';
+        $('search').value = '';
+        $('search-count').textContent = '';
+        document.body.classList.remove('searching');
+        document.querySelectorAll('.agate li').forEach(li => { li.hidden = false; });
+      }
+      applyView(true);
+    });
 
     // ═════════════════════════════════════════
     // SEARCH
@@ -868,6 +934,7 @@
       clearTimeout(searchTimer);
       const q = e.target.value.trim().toLowerCase();
       searchTimer = setTimeout(() => {
+        searchQuery = q;
         document.body.classList.toggle('searching', !!q);
         let hits = 0;
         document.querySelectorAll('.paper-section').forEach(sec => {
@@ -877,9 +944,10 @@
             li.hidden = !show;
             if (show) n++;
           });
-          sec.hidden = !!q && n === 0;
+          sec.dataset.hits = n;
           hits += n;
         });
+        applyView(false);
         $('search-count').textContent = q
           ? (hits ? `${hits} notice${hits === 1 ? '' : 's'} found.` : 'No notices match that inquiry.')
           : '';
