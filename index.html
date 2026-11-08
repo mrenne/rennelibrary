@@ -525,16 +525,26 @@
 
     // Editorial order of sections; any new genre typed in the sheet is appended alphabetically.
     const SECTION_ORDER = [
-      'Fiction', 'Fantasy', 'Science Fiction', 'History', 'Biography', 'Politics',
-      'Philosophy', 'Religion', 'Science', 'Technology', 'Nature', 'Education',
+      'Fiction', 'Fantasy', 'Science Fiction', 'History', 'Biography', 'Politics', 'Economics',
+      'Philosophy', 'Religion', 'Science', 'Technology', 'Nature', 'Travel', 'Education',
       'Music', 'Humor', 'Reference',
     ];
+    // Genre names are matched without regard to capitalization or extra spaces,
+    // so "HIstory" or "science  fiction" land in the right section.
+    function canonicalGenre(raw) {
+      const g = (raw ?? '').replace(/\s+/g, ' ').trim();
+      if (!g) return '';
+      const known = SECTION_ORDER.find(k => k.toLowerCase() === g.toLowerCase());
+      if (known) return known;
+      return g.toLowerCase().replace(/(^|[\s\-\/&])([a-z])/g, (m, p, c) => p + c.toUpperCase());
+    }
     const HEADLINE_NOUN = {
       'Fiction': 'Works of Fiction', 'Fantasy': 'Fantasy Volumes', 'Science Fiction': 'Science Fiction Volumes',
       'History': 'Histories', 'Biography': 'Biographies', 'Politics': 'Political Volumes',
       'Philosophy': 'Works of Philosophy', 'Religion': 'Volumes on Religion', 'Science': 'Science Volumes',
       'Technology': 'Technology Volumes', 'Nature': 'Nature Volumes', 'Education': 'Volumes on Education',
       'Music': 'Music Volumes', 'Humor': 'Volumes of Humor', 'Reference': 'Reference Volumes',
+      'Economics': 'Volumes on Economics', 'Travel': 'Travel Volumes',
     };
     const HEADLINE_VERBS = [
       'Accounted For in Shelf Census', 'Stand Ready on the Shelves', 'Entered Into the Record',
@@ -622,7 +632,7 @@
           title,
           first: fi >= 0 ? clean(r[fi]) : '',
           last:  li >= 0 ? clean(r[li]) : '',
-          genre: gi >= 0 ? clean(r[gi]) : '',
+          genre: gi >= 0 ? canonicalGenre(r[gi]) : '',
           isbn:  ii >= 0 ? clean(r[ii]).replace(/[^0-9Xx]/g, '') : '',
           row: n,
         }];
